@@ -64,19 +64,28 @@ builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("SmtpS
 
 var app = builder.Build();
 
-// Apenas executar migrações e seeders em desenvolvimento
-// Em produção, as migrações devem ser aplicadas manualmente durante o deploy
+// Executar migrações apenas uma vez
+// Criar apenas o usuário admin padrão
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    try
+    {
+        // Aplicar migrações (idempotente - só aplica as não executadas)
+        db.Database.Migrate();
+
+        // Criar apenas o usuário admin (verifica se já existe antes de criar)
+        SeedAdminAndOwner.CreateAdminAndOwnerUsers(db);
+    }
+    catch (Exception ex)
+    {
+        // Log de erro se houver problema nas migrações
+        Console.WriteLine($"Erro ao aplicar migrações: {ex.Message}");
+    }
+}
+
 if (app.Environment.IsDevelopment())
 {
-    using (var scope = app.Services.CreateScope())
-    {
-        var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-        db.Database.Migrate();
-        SeedAdminAndOwner.CreateAdminAndOwnerUsers(db);
-        SeedGestorUser.CreateGestorUser(db);
-        SeedTestData.CreateTestData(db);
-    }
-
     app.MapOpenApi();
 }
 
