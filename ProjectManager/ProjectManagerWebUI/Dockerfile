@@ -14,8 +14,8 @@ FROM nginx:alpine
 # Copy nginx configuration
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Copy built app from build stage
-COPY --from=build /app/dist/ProjectManagerWebUI /usr/share/nginx/html
+# Copy built app from build stage (Angular outputs to browser directory)
+COPY --from=build /app/dist/ProjectManagerWebUI/browser /usr/share/nginx/html
 
 EXPOSE 4200
 
