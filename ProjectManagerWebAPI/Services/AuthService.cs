@@ -99,7 +99,8 @@ public class AuthService : IAuthService
 
     public RegisterResponse Register(RegisterRequest request)
     {
-        if (_context.Users.Any(u => u.Email == request.Email))
+        // Usar FirstOrDefault ao invés de Any para evitar CASE WHEN com TRUE/FALSE no Oracle
+        if (_context.Users.FirstOrDefault(u => u.Email == request.Email) != null)
         {
             return new RegisterResponse
             {
