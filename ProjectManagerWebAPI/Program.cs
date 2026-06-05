@@ -61,6 +61,10 @@ builder.Services.AddScoped<ICommentService, CommentService>();
 builder.Services.AddScoped<ISetorService, SetorService>();
 builder.Services.AddScoped<IUserPermissionService, UserPermissionService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
+
+// Configurar SmtpSettings
+builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("SmtpSettings"));
 
 var app = builder.Build();
 

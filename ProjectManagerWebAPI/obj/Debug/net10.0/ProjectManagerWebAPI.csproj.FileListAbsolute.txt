@@ -154,3 +154,4 @@
 /Users/samirmedeiros/Documents/GitHub/ProjectManager/ProjectManagerWebAPI/obj/Debug/net10.0/ProjectManagerWebAPI.pdb
 /Users/samirmedeiros/Documents/GitHub/ProjectManager/ProjectManagerWebAPI/obj/Debug/net10.0/ProjectManagerWebAPI.genruntimeconfig.cache
 /Users/samirmedeiros/Documents/GitHub/ProjectManager/ProjectManagerWebAPI/obj/Debug/net10.0/ref/ProjectManagerWebAPI.dll
+/Users/samirmedeiros/Documents/GitHub/ProjectManager/ProjectManagerWebAPI/obj/Debug/net10.0/ProjectManagerWebAPI.sourcelink.json
