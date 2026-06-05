@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: project-manager-frontend
+  labels:
+    app: project-manager-frontend
+    component: ui
+spec:
+  type: LoadBalancer
+  selector:
+    app: project-manager-frontend
+  ports:
+  - name: http
+    port: 80
+    targetPort: http
+    protocol: TCP
+  sessionAffinity: None

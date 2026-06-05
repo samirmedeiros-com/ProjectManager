@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: project-manager-frontend
+  labels:
+    app: project-manager-frontend
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  tls:
+  - hosts:
+    - projectmanager.example.com
+    secretName: project-manager-tls
+  rules:
+  - host: projectmanager.example.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: project-manager-frontend
+            port:
+              number: 80

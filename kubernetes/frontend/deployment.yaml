@@ -1,0 +1,104 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: project-manager-frontend
+  labels:
+    app: project-manager-frontend
+    component: ui
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: project-manager-frontend
+  template:
+    metadata:
+      labels:
+        app: project-manager-frontend
+        component: ui
+      annotations:
+        prometheus.io/scrape: "false"
+    spec:
+      serviceAccountName: project-manager
+      containers:
+      - name: frontend
+        image: ${IMAGE_URL}:${IMAGE_TAG}
+        imagePullPolicy: Always
+        ports:
+        - name: http
+          containerPort: 4200
+          protocol: TCP
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: API_URL
+          value: ${BACKEND_URL}
+
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 4200
+            scheme: HTTP
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 4200
+            scheme: HTTP
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          runAsNonRoot: false
+          capabilities:
+            drop:
+              - ALL
+
+        volumeMounts:
+        - name: cache
+          mountPath: /app/.cache
+        - name: tmp
+          mountPath: /tmp
+
+      volumes:
+      - name: cache
+        emptyDir: {}
+      - name: tmp
+        emptyDir: {}
+
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - project-manager-frontend
+              topologyKey: kubernetes.io/hostname
+
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30

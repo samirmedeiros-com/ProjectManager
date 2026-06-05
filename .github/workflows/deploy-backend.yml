@@ -1,0 +1,149 @@
+name: Deploy Backend - ProjectManager
+
+env:
+  OCI_CLI_AUTH_TOKEN: ${{ secrets.OCI_CLI_AUTH_TOKEN }}
+  OCI_CLI_FINGERPRINT: ${{ secrets.OCI_CLI_FINGERPRINT }}
+  OCI_CLI_REGION: ${{ secrets.OCI_CLI_REGION }}
+  OCI_CLI_TENANCY_OCID: ${{ secrets.OCI_CLI_TENANCY_OCID }}
+  OCI_CLI_USER_OCID: ${{ secrets.OCI_CLI_USER_OCID }}
+  OCI_TENANCY_NAMESPACE: ${{ secrets.OCI_TENANCY_NAMESPACE }}
+  OCI_USERNAME: ${{ secrets.OCI_USERNAME }}
+  OKE_CLUSTER_OCID: ${{ secrets.OKE_CLUSTER_OCID }}
+  OCI_TENANCY: ${{ secrets.OCI_TENANCY }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      ambiente:
+        description: 'Ambiente de deploy'
+        required: true
+        type: choice
+        default: 'staging'
+        options:
+          - staging
+          - production
+      image_tag:
+        description: 'Tag da imagem (ex: latest, v1.0.0)'
+        required: false
+        default: 'latest'
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-deploy-backend:
+    runs-on: ubuntu-latest
+    environment: Production
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Setup Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
+    - name: Log in to OCIR
+      uses: docker/login-action@v2
+      with:
+        registry: ${{ env.OCI_CLI_REGION }}.ocir.io
+        username: ${{ env.OCI_TENANCY_NAMESPACE }}/${{ env.OCI_USERNAME }}
+        password: ${{ env.OCI_CLI_AUTH_TOKEN }}
+
+    - name: Generate Image Tag
+      id: image_tag
+      run: |
+        if [ "${{ github.event.inputs.image_tag }}" != "latest" ]; then
+          IMAGE_TAG="${{ github.event.inputs.image_tag }}"
+        else
+          IMAGE_TAG=$(date +'%Y%m%d-%H%M%S')
+        fi
+        echo "tag=$IMAGE_TAG" >> $GITHUB_OUTPUT
+        echo "Image tag: $IMAGE_TAG"
+
+    - name: Build and Push Backend Image
+      uses: docker/build-push-action@v4
+      with:
+        context: ./ProjectManagerWebAPI
+        push: true
+        tags: |
+          ${{ env.OCI_CLI_REGION }}.ocir.io/${{ env.OCI_TENANCY }}/project-manager-backend:${{ steps.image_tag.outputs.tag }}
+          ${{ env.OCI_CLI_REGION }}.ocir.io/${{ env.OCI_TENANCY }}/project-manager-backend:latest
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+    - name: Install OCI CLI
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y python3-pip
+        pip install oci-cli
+        echo "/home/runner/.local/bin" >> $GITHUB_PATH
+
+    - name: Configure OCI CLI
+      run: |
+        mkdir -p ~/.oci
+        echo "[DEFAULT]" > ~/.oci/config
+        echo "user=${{ env.OCI_CLI_USER_OCID }}" >> ~/.oci/config
+        echo "fingerprint=${{ env.OCI_CLI_FINGERPRINT }}" >> ~/.oci/config
+        echo "tenancy=${{ env.OCI_CLI_TENANCY_OCID }}" >> ~/.oci/config
+        echo "region=${{ env.OCI_CLI_REGION }}" >> ~/.oci/config
+        echo "key_file=~/.oci/oci_api_key.pem" >> ~/.oci/config
+
+        echo "${{ secrets.OCI_CLI_KEY_CONTENT }}" > ~/.oci/oci_api_key.pem
+        sed -i 's/\\n/\n/g' ~/.oci/oci_api_key.pem
+
+        chmod 600 ~/.oci/config
+        chmod 600 ~/.oci/oci_api_key.pem
+
+    - name: Setup Kubeconfig
+      run: |
+        mkdir -p ~/.kube
+        oci ce cluster create-kubeconfig \
+          --cluster-id ${{ env.OKE_CLUSTER_OCID }} \
+          --file ~/.kube/config \
+          --region ${{ env.OCI_CLI_REGION }} \
+          --token-version 2.0.0
+
+    - name: Create Namespace if not exists
+      run: |
+        export KUBECONFIG=~/.kube/config
+        kubectl create namespace ${{ github.event.inputs.ambiente }} --dry-run=client -o yaml | kubectl apply -f -
+
+    - name: Deploy Backend to Kubernetes
+      run: |
+        export KUBECONFIG=~/.kube/config
+        export IMAGE_TAG=${{ steps.image_tag.outputs.tag }}
+        export NAMESPACE=${{ github.event.inputs.ambiente }}
+        export IMAGE_URL="${{ env.OCI_CLI_REGION }}.ocir.io/${{ env.OCI_TENANCY }}/project-manager-backend"
+
+        # Apply backend manifest
+        envsubst < kubernetes/backend/deployment.yaml | kubectl apply -f - -n $NAMESPACE
+        envsubst < kubernetes/backend/service.yaml | kubectl apply -f - -n $NAMESPACE
+
+        echo "Aguardando Pods do backend..."
+        sleep 15
+
+        echo "Status dos Pods:"
+        kubectl get pods -n $NAMESPACE -l app=project-manager-backend
+
+        echo "Status do Service:"
+        kubectl get svc -n $NAMESPACE -l app=project-manager-backend
+
+    - name: Rollout Status
+      run: |
+        export KUBECONFIG=~/.kube/config
+        kubectl rollout status deployment/project-manager-backend \
+          -n ${{ github.event.inputs.ambiente }} \
+          --timeout=5m
+
+    - name: Log Deployment Info
+      if: always()
+      run: |
+        export KUBECONFIG=~/.kube/config
+        echo "=== Deployment Status ==="
+        kubectl describe deployment project-manager-backend -n ${{ github.event.inputs.ambiente }}
+        echo ""
+        echo "=== Recent Events ==="
+        kubectl get events -n ${{ github.event.inputs.ambiente }} --sort-by='.lastTimestamp' | tail -10
