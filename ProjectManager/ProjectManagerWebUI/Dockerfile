@@ -8,16 +8,19 @@ RUN npm ci
 COPY . .
 RUN npm run build -- --configuration production
 
-# Runtime stage
-FROM node:20-alpine
-WORKDIR /app
+# Runtime stage - use nginx for SPA
+FROM nginx:alpine
 
-RUN npm install -g serve
+# Copy nginx configuration
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-COPY --from=build /app/dist/ProjectManagerWebUI ./dist/ProjectManagerWebUI
+# Copy built app from build stage
+COPY --from=build /app/dist/ProjectManagerWebUI /usr/share/nginx/html
 
 EXPOSE 4200
 
-ENV NODE_ENV=production
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://localhost:4200/ || exit 1
 
-CMD ["serve", "-s", "dist/ProjectManagerWebUI", "-l", "4200"]
+CMD ["nginx", "-g", "daemon off;"]
