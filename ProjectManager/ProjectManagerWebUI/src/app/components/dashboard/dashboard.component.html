@@ -1,0 +1,470 @@
+<div class="dashboard">
+  <header class="navbar">
+    <div class="navbar-brand">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="79.5 293.5 448.931 206" class="dpd-logo">
+        <g>
+          <path fill="#414042" d="M372.345,441.876c-8.398,2.223-19.338,3.323-28.849,3.323c-24.413,0-40.579-12.992-40.579-36.771 c0-22.505,15.057-37.083,37.094-37.083c4.912,0,10.14,0.625,13.313,2.216v-32.668h19.021V441.876z M353.324,390.36 c-3.013-1.426-6.974-2.219-11.737-2.219c-11.563,0-19.333,7.136-19.333,19.656c0,13.476,8.399,21.087,21.874,21.087 c2.379,0,6.023-0.163,9.196-0.793V390.36z M528.431,441.876c-8.406,2.223-19.343,3.323-28.854,3.323 c-24.409,0-40.584-12.992-40.584-36.771c0-22.505,15.064-37.083,37.101-37.083c4.913,0,10.144,0.625,13.315,2.216v-32.668h19.021 V441.876z M509.409,390.36c-3.016-1.426-6.979-2.219-11.733-2.219c-11.57,0-19.336,7.136-19.336,19.656 c0,13.476,8.399,21.087,21.874,21.087c2.375,0,6.023-0.163,9.195-0.793V390.36z M402.258,390.204 c3.168-1.271,7.6-1.742,11.404-1.742c11.733,0,19.818,6.814,19.818,19.015c0,14.393-8.955,20.902-20.929,21.07v16.642 c0.314,0,0.634,0.011,0.957,0.011c24.565,0,39.312-13.785,39.312-38.354c0-22.35-15.691-35.501-38.836-35.501 c-11.727,0-23.304,2.695-30.91,5.862v94.953h19.184V390.204z"/>
+          <linearGradient id="SVGID_1_" gradientUnits="userSpaceOnUse" x1="366.751" y1="-291.9131" x2="736.271" y2="18.1508" gradientTransform="matrix(0.229 0 0 -0.229 0.3856 397.0497)">
+            <stop offset="0" style="stop-color:#A90034"/>
+            <stop offset="0.2717" style="stop-color:#BB0033"/>
+            <stop offset="0.7226" style="stop-color:#D30032"/>
+            <stop offset="1" style="stop-color:#DC0032"/>
+          </linearGradient>
+          <path fill="url(#SVGID_1_)" d="M199.681,385.541c-0.787,0.459-2.021,0.423-2.789-0.052l-4.522-2.688 c-0.368-0.228-0.706-0.593-0.961-1.032c-0.015-0.025-0.03-0.051-0.045-0.077c-0.289-0.471-0.453-0.968-0.47-1.424l-0.115-5.272 c-0.034-0.888,0.552-1.971,1.342-2.432l54.362-31.67l-76.285-41.577c-0.84-0.466-1.948-0.691-3.057-0.693 c-1.11-0.002-2.22,0.229-3.061,0.693l-76.286,41.578l85.46,49.75c0.792,0.433,1.394,1.461,1.394,2.389v72.576 c0,0.911-0.652,1.958-1.45,2.384l-4.599,2.554c-0.382,0.203-0.868,0.312-1.376,0.312c-0.029,0-0.059,0-0.088,0 c-0.552,0.013-1.065-0.096-1.467-0.312l-4.614-2.555c-0.784-0.417-1.425-1.469-1.425-2.383l0.001-64.698 c-0.041-0.474-0.388-1.052-0.768-1.27l-75.292-43.829v85.848c-0.001,1.921,1.354,4.291,3.014,5.262l77.543,45.732 c0.829,0.486,1.921,0.728,3.012,0.724c1.092-0.003,2.184-0.231,3.011-0.723l77.555-45.733c1.654-0.981,3.005-3.338,3.003-5.262 v-85.847L199.681,385.541z"/>
+        </g>
+      </svg>
+      <h1>Gestor de Projetos</h1>
+    </div>
+    <div class="navbar-content">
+      <div class="user-menu">
+        <button class="user-btn" (click)="toggleUserMenu()">
+          👤 {{ currentUser?.fullName }}
+        </button>
+        <div *ngIf="showUserMenu" class="dropdown-menu">
+          <button class="dropdown-item" (click)="openChangePassword()">
+            🔐 Alterar Password
+          </button>
+          <button class="dropdown-item" (click)="logout()">
+            🚪 Sair
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="dashboard-content">
+    <div class="dashboard-header">
+      <h2>Projetos</h2>
+      <div class="filters-section">
+        <div class="filter-group" *ngIf="isGestor()">
+          <label>Filtrar por Responsável:</label>
+          <select [(ngModel)]="filterByResponsavel" name="filterResponsavel" [disabled]="!isGestor()" (change)="onFilterChange()">
+            <option value="">Todos</option>
+            <option *ngFor="let user of users" [value]="user.email">
+              {{ user.fullName }}
+            </option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Filtrar por Status:</label>
+          <select [(ngModel)]="filterByStatus" name="filterStatus" (change)="onFilterChange()">
+            <option value="">Todos</option>
+            <option *ngFor="let status of statusOptions" [value]="status.value">
+              {{ status.label }}
+            </option>
+          </select>
+        </div>
+        <div class="filter-group" *ngIf="isGestor()">
+          <label>Filtrar por Setor:</label>
+          <select [(ngModel)]="filterBySetor" name="filterSetor" (change)="onFilterChange()">
+            <option value="">Todos</option>
+            <option *ngFor="let setor of gestorSetores" [value]="setor.id">
+              {{ setor.name }}
+            </option>
+          </select>
+        </div>
+      </div>
+      <div class="header-buttons">
+        <button class="btn btn-secondary" (click)="generateProjectsPDF()">📄 Gerar PDF</button>
+        <button *ngIf="currentUser?.role === 'Admin' || currentUser?.role === 'Gestor'" class="btn btn-secondary" (click)="goToUsers()">👥 Gerir Utilizadores</button>
+        <button *ngIf="currentUser?.role === 'Admin'" class="btn btn-secondary" (click)="goToSetores()">🏢 Gerir Setores</button>
+        <button *ngIf="isGestor()" class="btn btn-primary" (click)="newProject()">Novo Projeto</button>
+      </div>
+    </div>
+
+    <!-- Formulário de Novo Projeto -->
+    <div *ngIf="showNewProjectForm" class="modal-overlay" (click)="showNewProjectForm = false">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <h2>Criar Novo Projeto</h2>
+        <form (ngSubmit)="createProject()">
+          <div class="form-group">
+            <label>Nome do Projeto *</label>
+            <input
+              type="text"
+              [(ngModel)]="newProjectForm.name"
+              name="name"
+              placeholder="Introduza o nome do projeto"
+              required>
+          </div>
+
+          <div class="form-group">
+            <label>Descrição</label>
+            <textarea
+              [(ngModel)]="newProjectForm.description"
+              name="description"
+              placeholder="Introduza a descrição do projeto"
+              rows="3"></textarea>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Data de Início *</label>
+              <input
+                type="date"
+                [(ngModel)]="newProjectForm.startDate"
+                name="startDate"
+                required>
+            </div>
+
+            <div class="form-group">
+              <label>Data de Término</label>
+              <input
+                type="date"
+                [(ngModel)]="newProjectForm.endDate"
+                name="endDate">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Prioridade (1-5)</label>
+            <input
+              type="number"
+              [(ngModel)]="newProjectForm.priority"
+              name="priority"
+              min="1"
+              max="5"
+              value="1">
+          </div>
+
+          <div class="form-group">
+            <label>Owner (Proprietário)</label>
+            <select [(ngModel)]="newProjectForm.ownerId" name="ownerId">
+              <option [value]="null">Sem atribuição</option>
+              <option *ngFor="let user of allUsers" [value]="user.id">
+                {{ user.fullName }}
+              </option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Setor</label>
+            <select [(ngModel)]="newProjectForm.setorId" name="setorId">
+              <option [value]="null">Sem atribuição</option>
+              <option *ngFor="let setor of gestorSetores" [value]="setor.id">
+                {{ setor.name }}
+              </option>
+            </select>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="btn btn-secondary" (click)="showNewProjectForm = false">Cancelar</button>
+            <button type="submit" class="btn btn-primary">Criar Projeto</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div *ngIf="loading" class="loading">
+      Carregando projetos...
+    </div>
+
+    <div *ngIf="!loading && projects.length === 0" class="no-projects">
+      <p>Nenhum projeto ainda. Crie o seu primeiro projeto!</p>
+    </div>
+
+    <div *ngIf="!loading && projects.length > 0" class="projects-list">
+      <div class="list-header">
+        <div class="col-name">Projeto</div>
+        <div class="col-manager">Responsável</div>
+        <div class="col-status">Status</div>
+        <div class="col-priority">Prioridade</div>
+        <div class="col-comments">💬</div>
+        <div class="col-dates">Datas</div>
+        <div class="col-freshdesk">FreshDesk</div>
+        <div class="col-completion">Conclusão</div>
+        <div class="col-deadline">Prazo</div>
+        <div class="col-action">Ação</div>
+      </div>
+
+      <div class="list-items">
+        <div *ngFor="let project of getFilteredProjects(); trackBy: trackByProjectId"
+             class="project-row">
+
+          <div class="col-name">
+            <div class="project-name">{{ project.name }}</div>
+            <div class="project-description">{{ project.description || '-' }}</div>
+            <div class="project-owner" *ngIf="project.ownerName"><strong>Owner:</strong> {{ project.ownerName }}</div>
+            <div class="project-setor" *ngIf="project.setorName"><strong>Setor:</strong> {{ project.setorName }}</div>
+          </div>
+
+          <div class="col-manager">
+            <div *ngIf="editingManagerId !== project.id" class="manager-display" (click)="isGestor() && editManager(project.id, project.manager || '')">
+              <div class="manager-name">{{ project.managerName || 'Desconhecido' }}</div>
+              <div *ngIf="isGestor()" class="edit-hint">✏️</div>
+            </div>
+            <div *ngIf="editingManagerId === project.id" class="manager-edit">
+              <select
+                [(ngModel)]="editingManagerValue"
+                name="managerEdit"
+                (change)="saveManager(project.id)"
+                [disabled]="savingManagerId === project.id || loadingUsers"
+                autofocus>
+                <option value="">{{ loadingUsers ? 'Carregando...' : 'Selecione um responsável' }}</option>
+                <option *ngFor="let user of users" [value]="user.email">
+                  {{ user.fullName }} ({{ user.email }})
+                </option>
+              </select>
+              <button class="btn-cancel" (click)="cancelEditManager()" [disabled]="savingManagerId === project.id">✕</button>
+            </div>
+          </div>
+
+          <div class="col-status">
+            <div *ngIf="editingStatusId !== project.id" class="status-display" (click)="canChangeStatus(project.status, project) && editStatus(project.id, project.status || '')">
+              <span class="status"
+                    [class.status-planning]="project.status === 'Planning'"
+                    [class.status-development]="project.status === 'Development'"
+                    [class.status-completed]="project.status === 'Completed'">
+                {{ getStatusLabel(project.status) }}
+              </span>
+              <div *ngIf="canChangeStatus(project.status, project)" class="edit-hint">✏️</div>
+            </div>
+            <div *ngIf="editingStatusId === project.id" class="status-edit">
+              <select
+                [(ngModel)]="editingStatusValue"
+                name="statusEdit"
+                (change)="saveStatus(project.id)"
+                [disabled]="savingStatusId === project.id"
+                autofocus>
+                <option value="">Selecione um status</option>
+                <option *ngFor="let status of getAllowedStatusOptions(project.status)" [value]="status.value">
+                  {{ status.label }}
+                </option>
+              </select>
+              <button class="btn-cancel" (click)="cancelEditStatus()" [disabled]="savingStatusId === project.id">✕</button>
+            </div>
+          </div>
+
+          <div class="col-priority">
+            <span class="priority-badge" [ngClass]="'priority-' + project.priority">
+              ★ {{ project.priority }}
+            </span>
+          </div>
+
+          <div class="col-comments">
+            <div class="comments-badge" *ngIf="project.commentCount && project.commentCount > 0">
+              💬 {{ project.commentCount }}
+            </div>
+            <div class="comments-badge comments-empty" *ngIf="!project.commentCount || project.commentCount === 0">
+              -
+            </div>
+          </div>
+
+          <div class="col-dates">
+            <div class="date-range">
+              <div class="date-line">{{ project.startDate | date:'dd/MM/yyyy' }}</div>
+              <div class="date-line" *ngIf="project.endDate">{{ project.endDate | date:'dd/MM/yyyy' }}</div>
+            </div>
+          </div>
+
+          <div class="col-freshdesk">
+            <div *ngIf="project.freshDeskId" class="freshdesk-link" (click)="openFreshDeskTicket(project.freshDeskId)">
+              🎫 {{ project.freshDeskId }}
+            </div>
+            <div *ngIf="!project.freshDeskId" class="freshdesk-empty">
+              -
+            </div>
+          </div>
+
+          <div class="col-completion">
+            <div *ngIf="project.status === 'Completed' && project.completedAt" class="completion-date">
+              ✓ {{ project.completedAt | date:'dd/MM/yyyy' }}
+            </div>
+            <div *ngIf="!project.completedAt" class="completion-empty">
+              -
+            </div>
+          </div>
+
+          <div class="col-deadline">
+            <div class="deadline-status" [ngClass]="getDeadlineStatus(project).class">
+              {{ getDeadlineStatus(project).text }}
+            </div>
+          </div>
+
+          <div class="col-action">
+            <button *ngIf="!isOnlyOwner(project)" class="btn-view" (click)="viewProject(project.id)">
+              Ver →
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card de Análises para Gestores -->
+    <div *ngIf="isGestor() && !loading && projects.length > 0" class="analytics-card">
+      <h3>📊 Análise de Projetos por Setor</h3>
+      <div class="charts-grid">
+        <!-- Status Chart by Setor -->
+        <div class="chart-container">
+          <h4>Status</h4>
+          <div *ngFor="let setorData of getStatusSummary()" class="setor-chart">
+            <h5>{{ setorData.setorName }}</h5>
+            <div class="simple-chart">
+              <div *ngFor="let item of setorData.items" class="chart-bar-item">
+                <div class="bar-label">{{ item.label }}</div>
+                <div class="bar-container">
+                  <div class="bar" [style.width.%]="item.percentage" [style.backgroundColor]="item.color">
+                    <span class="bar-value">{{ item.count }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Prioridade Chart by Setor -->
+        <div class="chart-container">
+          <h4>Prioridade</h4>
+          <div *ngFor="let setorData of getPrioritySummary()" class="setor-chart">
+            <h5>{{ setorData.setorName }}</h5>
+            <div class="simple-chart">
+              <div *ngFor="let item of setorData.items" class="chart-bar-item">
+                <div class="bar-label">{{ item.label }}</div>
+                <div class="bar-container">
+                  <div class="bar" [style.width.%]="item.percentage" [style.backgroundColor]="item.color">
+                    <span class="bar-value">{{ item.count }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Deadline Chart by Setor -->
+        <div class="chart-container">
+          <h4>Status de Prazo</h4>
+          <div *ngFor="let setorData of getDeadlineSummary()" class="setor-chart">
+            <h5>{{ setorData.setorName }}</h5>
+            <div class="simple-chart">
+              <div *ngFor="let item of setorData.items" class="chart-bar-item">
+                <div class="bar-label">{{ item.label }}</div>
+                <div class="bar-container">
+                  <div class="bar" [style.width.%]="item.percentage" [style.backgroundColor]="item.color">
+                    <span class="bar-value">{{ item.count }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Responsáveis Chart -->
+        <div class="chart-container">
+          <h4>Projetos por Responsável</h4>
+          <div *ngFor="let managerData of getManagerSummary()" class="manager-chart-item">
+            <div class="bar-label">{{ managerData.name }}</div>
+            <div class="stacked-bar-container">
+              <div class="stacked-bar">
+                <div *ngFor="let item of managerData.items"
+                     class="bar-segment"
+                     [style.width.%]="item.percentage"
+                     [style.backgroundColor]="item.color"
+                     [title]="item.label + ': ' + item.count">
+                  <span *ngIf="item.percentage > 8" class="segment-label">{{ item.count }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div *ngIf="getManagerSummary().length === 0" class="no-data">
+            Sem dados disponíveis
+          </div>
+          <div class="chart-legend">
+            <span *ngFor="let status of statusOptions" class="legend-item">
+              <span class="legend-color" [style.backgroundColor]="getStatusColor(status.value)"></span>
+              <span class="legend-label">{{ status.label }}</span>
+            </span>
+          </div>
+        </div>
+
+        <!-- Proprietários Chart -->
+        <div class="chart-container">
+          <h4>Projetos por Proprietário</h4>
+          <div *ngFor="let ownerData of getOwnerSummary()" class="manager-chart-item">
+            <div class="bar-label">{{ ownerData.name }}</div>
+            <div class="stacked-bar-container">
+              <div class="stacked-bar">
+                <div *ngFor="let item of ownerData.items"
+                     class="bar-segment"
+                     [style.width.%]="item.percentage"
+                     [style.backgroundColor]="item.color"
+                     [title]="item.label + ': ' + item.count">
+                  <span *ngIf="item.percentage > 8" class="segment-label">{{ item.count }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div *ngIf="getOwnerSummary().length === 0" class="no-data">
+            Sem dados disponíveis
+          </div>
+          <div class="chart-legend">
+            <span *ngFor="let status of statusOptions" class="legend-item">
+              <span class="legend-color" [style.backgroundColor]="getStatusColor(status.value)"></span>
+              <span class="legend-label">{{ status.label }}</span>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Modal de Alterar Password -->
+  <div *ngIf="showChangePasswordModal" class="modal-overlay" (click)="closeChangePasswordModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Alterar Password</h2>
+        <button class="btn-close" (click)="closeChangePasswordModal()">✕</button>
+      </div>
+
+      <form (ngSubmit)="submitChangePassword()" class="modal-body">
+        <div *ngIf="changePasswordError" class="alert alert-error">
+          {{ changePasswordError }}
+        </div>
+
+        <div *ngIf="changePasswordSuccess" class="alert alert-success">
+          {{ changePasswordSuccess }}
+        </div>
+
+        <div class="form-group">
+          <label>Password Atual *</label>
+          <input
+            type="password"
+            [(ngModel)]="changePasswordForm.currentPassword"
+            name="currentPassword"
+            placeholder="Introduza a sua password atual"
+            [disabled]="changePasswordLoading"
+            required>
+        </div>
+
+        <div class="form-group">
+          <label>Nova Password *</label>
+          <input
+            type="password"
+            [(ngModel)]="changePasswordForm.newPassword"
+            name="newPassword"
+            placeholder="Introduza a nova password (mínimo 6 caracteres)"
+            [disabled]="changePasswordLoading"
+            required>
+        </div>
+
+        <div class="form-group">
+          <label>Confirmar Nova Password *</label>
+          <input
+            type="password"
+            [(ngModel)]="changePasswordForm.confirmPassword"
+            name="confirmPassword"
+            placeholder="Confirme a nova password"
+            [disabled]="changePasswordLoading"
+            required>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeChangePasswordModal()" [disabled]="changePasswordLoading">
+            Cancelar
+          </button>
+          <button type="submit" class="btn btn-primary" [disabled]="changePasswordLoading">
+            {{ changePasswordLoading ? 'Alterando...' : '✓ Alterar Password' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

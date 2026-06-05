@@ -1,0 +1,102 @@
+<div class="register-container">
+  <div class="register-box">
+    <div class="register-header">
+      <h1>Gestor de Projetos</h1>
+      <p>Criar Novo Utilizador</p>
+    </div>
+
+    <form (ngSubmit)="register()" class="register-form">
+      <!-- Mensagens de Erro -->
+      <div *ngIf="errorMessage" class="alert alert-error">
+        {{ errorMessage }}
+      </div>
+
+      <!-- Mensagem de Sucesso -->
+      <div *ngIf="successMessage" class="alert alert-success">
+        {{ successMessage }}
+      </div>
+
+      <!-- Nome Completo -->
+      <div class="form-group">
+        <label for="fullName">Nome Completo *</label>
+        <input
+          id="fullName"
+          type="text"
+          [(ngModel)]="form.fullName"
+          name="fullName"
+          placeholder="Introduza o seu nome completo"
+          class="form-input"
+          [disabled]="loading">
+      </div>
+
+      <!-- Email -->
+      <div class="form-group">
+        <label for="email">Email *</label>
+        <input
+          id="email"
+          type="email"
+          [(ngModel)]="form.email"
+          name="email"
+          placeholder="Introduza o seu email"
+          class="form-input"
+          [disabled]="loading">
+      </div>
+
+      <!-- Password -->
+      <div class="form-group">
+        <label for="password">Password *</label>
+        <input
+          id="password"
+          type="password"
+          [(ngModel)]="form.password"
+          name="password"
+          placeholder="Introduza a sua password (mínimo 6 caracteres)"
+          class="form-input"
+          [disabled]="loading">
+      </div>
+
+      <!-- Confirmar Password -->
+      <div class="form-group">
+        <label for="passwordConfirm">Confirmar Password *</label>
+        <input
+          id="passwordConfirm"
+          type="password"
+          [(ngModel)]="form.passwordConfirm"
+          name="passwordConfirm"
+          placeholder="Confirme a sua password"
+          class="form-input"
+          [disabled]="loading">
+      </div>
+
+      <!-- Role -->
+      <div class="form-group">
+        <label for="role">Tipo de Utilizador *</label>
+        <select
+          id="role"
+          [(ngModel)]="form.role"
+          name="role"
+          class="form-input"
+          [disabled]="loading">
+          <option *ngFor="let role of roles" [value]="role.value">
+            {{ role.label }}
+          </option>
+        </select>
+      </div>
+
+      <!-- Botões -->
+      <div class="form-actions">
+        <button
+          type="submit"
+          class="btn btn-primary"
+          [disabled]="loading">
+          {{ loading ? 'Registando...' : 'Registar' }}
+        </button>
+      </div>
+
+      <!-- Link para Login -->
+      <div class="form-footer">
+        <p>Já tem conta? <a href="javascript:void(0)" (click)="goToLogin()">Faça login aqui</a></p>
+      </div>
+    </form>
+  </div>
+</div>

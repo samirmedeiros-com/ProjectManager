@@ -1,0 +1,189 @@
+<div class="user-container">
+  <header class="navbar">
+    <div class="navbar-brand">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="79.5 293.5 448.931 206" class="dpd-logo">
+        <g>
+          <path fill="#414042" d="M372.345,441.876c-8.398,2.223-19.338,3.323-28.849,3.323c-24.413,0-40.579-12.992-40.579-36.771 c0-22.505,15.057-37.083,37.094-37.083c4.912,0,10.14,0.625,13.313,2.216v-32.668h19.021V441.876z M353.324,390.36 c-3.013-1.426-6.974-2.219-11.737-2.219c-11.563,0-19.333,7.136-19.333,19.656c0,13.476,8.399,21.087,21.874,21.087 c2.379,0,6.023-0.163,9.196-0.793V390.36z M528.431,441.876c-8.406,2.223-19.343,3.323-28.854,3.323 c-24.409,0-40.584-12.992-40.584-36.771c0-22.505,15.064-37.083,37.101-37.083c4.913,0,10.144,0.625,13.315,2.216v-32.668h19.021 V441.876z M509.409,390.36c-3.016-1.426-6.979-2.219-11.733-2.219c-11.57,0-19.336,7.136-19.336,19.656 c0,13.476,8.399,21.087,21.874,21.087 c2.375,0,6.023-0.163,9.195-0.793V390.36z M402.258,390.204 c3.168-1.271,7.6-1.742,11.404-1.742c11.733,0,19.818,6.814,19.818,19.015c0,14.393-8.955,20.902-20.929,21.07v16.642 c0.314,0,0.634,0.011,0.957,0.011c24.565,0,39.312-13.785,39.312-38.354c0-22.35-15.691-35.501-38.836-35.501 c-11.727,0-23.304,2.695-30.91,5.862v94.953h19.184V390.204z"/>
+          <linearGradient id="SVGID_1_" gradientUnits="userSpaceOnUse" x1="366.751" y1="-291.9131" x2="736.271" y2="18.1508" gradientTransform="matrix(0.229 0 0 -0.229 0.3856 397.0497)">
+            <stop offset="0" style="stop-color:#A90034"/>
+            <stop offset="0.2717" style="stop-color:#BB0033"/>
+            <stop offset="0.7226" style="stop-color:#D30032"/>
+            <stop offset="1" style="stop-color:#DC0032"/>
+          </linearGradient>
+          <path fill="url(#SVGID_1_)" d="M199.681,385.541c-0.787,0.459-2.021,0.423-2.789-0.052l-4.522-2.688 c-0.368-0.228-0.706-0.593-0.961-1.032c-0.015-0.025-0.03-0.051-0.045-0.077c-0.289-0.471-0.453-0.968-0.47-1.424l-0.115-5.272 c-0.034-0.888,0.552-1.971,1.342-2.432l54.362-31.67l-76.285-41.577c-0.84-0.466-1.948-0.691-3.057-0.693 c-1.11-0.002-2.22,0.229-3.061,0.693l-76.286,41.578l85.46,49.75c0.792,0.433,1.394,1.461,1.394,2.389v72.576 c0,0.911-0.652,1.958-1.45,2.384l-4.599,2.554c-0.382,0.203-0.868,0.312-1.376,0.312c-0.029,0-0.059,0-0.088,0 c-0.552,0.013-1.065-0.096-1.467-0.312l-4.614-2.555c-0.784-0.417-1.425-1.469-1.425-2.383l0.001-64.698 c-0.041-0.474-0.388-1.052-0.768-1.27l-75.292-43.829v85.848c-0.001,1.921,1.354,4.291,3.014,5.262l77.543,45.732 c0.829,0.486,1.921,0.728,3.012,0.724c1.092-0.003,2.184-0.231,3.011-0.723l77.555-45.733c1.654-0.981,3.005-3.338,3.003-5.262 v-85.847L199.681,385.541z"/>
+        </g>
+      </svg>
+      <h1>Gestor de Projetos</h1>
+    </div>
+    <div class="navbar-content">
+      <div class="user-menu">
+        <button class="user-btn" (click)="toggleUserMenu()">
+          👤 {{ currentUser?.fullName }}
+        </button>
+        <div *ngIf="showUserMenu" class="dropdown-menu">
+          <button class="dropdown-item" (click)="openChangePassword()">
+            🔐 Alterar Password
+          </button>
+          <button class="dropdown-item" (click)="logout()">
+            🚪 Sair
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="user-header">
+    <h2>Gestão de Utilizadores</h2>
+    <div style="display: flex; gap: 10px;">
+      <button class="btn btn-secondary" (click)="goToDashboard()">← Voltar</button>
+      <button class="btn btn-primary" (click)="openForm()">+ Registar Utilizador</button>
+    </div>
+  </div>
+
+  <div class="user-content">
+    <div *ngIf="error" class="alert alert-error">
+      {{ error }}
+    </div>
+
+    <div *ngIf="success" class="alert alert-success">
+      {{ success }}
+    </div>
+
+    <!-- Formulário -->
+    <div *ngIf="showForm" class="modal-overlay" (click)="closeForm()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <h3>{{ editingUserId ? 'Editar Utilizador' : 'Registar Novo Utilizador' }}</h3>
+
+        <div class="form-group">
+          <label>Nome Completo *</label>
+          <input
+            type="text"
+            [(ngModel)]="formData.fullName"
+            placeholder="Introduza o nome completo"
+            class="form-input">
+        </div>
+
+        <div class="form-group">
+          <label>Email *</label>
+          <input
+            type="email"
+            [(ngModel)]="formData.email"
+            placeholder="Introduza o email"
+            class="form-input">
+        </div>
+
+        <div *ngIf="!editingUserId" class="form-group">
+          <label>Password *</label>
+          <input
+            type="password"
+            [(ngModel)]="formData.password"
+            placeholder="Introduza a password (mínimo 6 caracteres)"
+            class="form-input">
+        </div>
+
+        <div class="form-group">
+          <label>Tipo de Utilizador *</label>
+          <select [(ngModel)]="formData.role" class="form-input">
+            <option *ngFor="let role of getAvailableRoles()" [value]="role.value">
+              {{ role.label }}
+            </option>
+          </select>
+          <small *ngIf="currentUser?.role === 'Gestor'" class="text-muted">
+            Gestores podem criar: Gestor e Utilizador
+          </small>
+        </div>
+
+        <div class="form-group">
+          <label>Setores</label>
+          <div *ngIf="setoresLoading" class="loading-small">Carregando setores...</div>
+          <div *ngIf="!setoresLoading" class="setores-checkboxes">
+            <div *ngFor="let setor of getAvailableSetores()" class="checkbox-item">
+              <input
+                type="checkbox"
+                [id]="'setor-' + setor.id"
+                [checked]="formData.setorIds.includes(setor.id)"
+                (change)="$event.target.checked ? formData.setorIds.push(setor.id) : formData.setorIds.splice(formData.setorIds.indexOf(setor.id), 1)">
+              <label [for]="'setor-' + setor.id">{{ setor.name }}</label>
+            </div>
+            <div *ngIf="getAvailableSetores().length === 0" class="text-muted">
+              {{ currentUser?.role === 'Gestor' ? 'Apenas setores onde tem acesso' : 'Nenhum setor disponível' }}
+            </div>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button class="btn btn-secondary" (click)="closeForm()">Cancelar</button>
+          <button class="btn btn-primary" (click)="saveUser()">
+            {{ editingUserId ? '✓ Atualizar' : '✓ Registar' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lista de Utilizadores -->
+    <div *ngIf="loading" class="loading">Carregando utilizadores...</div>
+
+    <div *ngIf="!loading && users.length > 0" class="users-list">
+      <table>
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Email</th>
+            <th>Tipo</th>
+            <th>Setores</th>
+            <th>Status</th>
+            <th>Data de Criação</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let user of users" [class.inactive]="!user.isActive">
+            <td class="name">{{ user.fullName }}</td>
+            <td class="email">{{ user.email }}</td>
+            <td class="type">{{ getRoleLabel(user.role || 'Utilizador') }}</td>
+            <td class="setores">
+              <span *ngIf="!user.setores || user.setores.length === 0" class="text-muted">-</span>
+              <span *ngIf="user.setores && user.setores.length > 0" class="setor-badges">
+                <span *ngFor="let setor of user.setores" class="badge badge-setor">{{ setor.name }}</span>
+              </span>
+            </td>
+            <td class="status">
+              <span *ngIf="user.isActive" class="badge badge-active">Ativo</span>
+              <span *ngIf="!user.isActive" class="badge badge-inactive">Inativo</span>
+            </td>
+            <td class="date">{{ user.createdAt | date:'dd/MM/yyyy' }}</td>
+            <td class="actions">
+              <button
+                class="btn btn-sm btn-edit"
+                (click)="editUser(user)"
+                [disabled]="!canEditUser(user)"
+                [title]="canEditUser(user) ? 'Editar' : 'Sem permissão neste setor'">
+                ✏️
+              </button>
+              <button
+                class="btn btn-sm"
+                [ngClass]="user.isActive ? 'btn-disable' : 'btn-enable'"
+                (click)="toggleUserActive(user)"
+                [disabled]="!canEditUser(user)"
+                [title]="user.isActive ? 'Inativar' : 'Ativar'">
+                {{ user.isActive ? '🔒' : '🔓' }}
+              </button>
+              <button
+                class="btn btn-sm btn-delete"
+                (click)="deleteUser(user.id)"
+                [disabled]="currentUser?.role !== 'Admin'"
+                [title]="currentUser?.role === 'Admin' ? 'Deletar' : 'Apenas admins podem deletar'">
+                🗑️
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div *ngIf="!loading && users.length === 0" class="empty-state">
+      <p>Nenhum utilizador cadastrado</p>
+      <button class="btn btn-primary" (click)="openForm()">Registar Primeiro Utilizador</button>
+    </div>
+  </div>
+</div>
