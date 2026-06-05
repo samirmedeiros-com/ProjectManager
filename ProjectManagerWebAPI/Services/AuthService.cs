@@ -18,17 +18,29 @@ public interface IAuthService
     Task<List<UserDto>> GetAllUsers();
     string GenerateToken(User user);
     RegisterResponse ChangePassword(string email, string currentPassword, string newPassword);
+    Task<ForgotPasswordResponse> ForgotPasswordAsync(string email);
 }
 
 public class AuthService : IAuthService
 {
     private readonly ApplicationDbContext _context;
     private readonly IConfiguration _configuration;
+    private readonly IPasswordService _passwordService;
+    private readonly IEmailService _emailService;
+    private readonly ILogger<AuthService> _logger;
 
-    public AuthService(ApplicationDbContext context, IConfiguration configuration)
+    public AuthService(
+        ApplicationDbContext context,
+        IConfiguration configuration,
+        IPasswordService passwordService,
+        IEmailService emailService,
+        ILogger<AuthService> logger)
     {
         _context = context;
         _configuration = configuration;
+        _passwordService = passwordService;
+        _emailService = emailService;
+        _logger = logger;
     }
 
     public LoginResponse Login(LoginRequest request)
@@ -96,11 +108,14 @@ public class AuthService : IAuthService
             };
         }
 
+        // Gerar password aleatória
+        var generatedPassword = _passwordService.GenerateRandomPassword(12);
+
         var user = new User
         {
             Email = request.Email,
             FullName = request.FullName,
-            PasswordHash = HashPassword(request.Password),
+            PasswordHash = HashPassword(generatedPassword),
             Department = request.Department,
             Role = request.Role,
             IsActive = true,
@@ -110,10 +125,60 @@ public class AuthService : IAuthService
         _context.Users.Add(user);
         _context.SaveChanges();
 
+        // Atribuir setores se fornecidos
+        if (request.SetorIds?.Any() == true)
+        {
+            foreach (var setorId in request.SetorIds)
+            {
+                var userSetor = new UserSetor
+                {
+                    UserId = user.Id,
+                    SetorId = setorId,
+                    AssignedAt = DateTime.UtcNow
+                };
+                _context.UserSetores.Add(userSetor);
+            }
+            _context.SaveChanges();
+        }
+
+        // Enviar email com a password gerada
+        var emailRequest = new Models.EmailRequest
+        {
+            To = request.Email,
+            Subject = "Bem-vindo ao Project Manager - Credenciais de Acesso",
+            HtmlBody = $@"
+                <h2>Bem-vindo ao Project Manager!</h2>
+                <p>Olá <strong>{request.FullName}</strong>,</p>
+                <p>Sua conta foi criada com sucesso. Use as credenciais abaixo para fazer login:</p>
+
+                <div style='background-color: #f5f5f5; padding: 20px; border-radius: 5px; margin: 20px 0;'>
+                    <p><strong>Email:</strong> {request.Email}</p>
+                    <p><strong>Password Temporária:</strong> <code style='background-color: #e0e0e0; padding: 5px 10px; border-radius: 3px;'>{generatedPassword}</code></p>
+                </div>
+
+                <p><strong>Importante:</strong> Por sua segurança, recomendamos que altere esta password no seu primeiro acesso.</p>
+
+                <p>Para fazer login, visite: <a href='http://localhost:4200/login'>Project Manager</a></p>
+
+                <hr style='border: none; border-top: 1px solid #ccc; margin: 20px 0;'>
+                <p style='color: #666; font-size: 12px;'>
+                    Este é um email automático. Por favor, não responda directamente. <br>
+                    Se tiver dúvidas, contacte o administrador do sistema.
+                </p>
+            "
+        };
+
+        var emailResponse = _emailService.SendEmailAsync(emailRequest).GetAwaiter().GetResult();
+
+        if (!emailResponse.Success)
+        {
+            _logger.LogWarning($"Falha ao enviar email de boas-vindas para {request.Email}: {emailResponse.Message}");
+        }
+
         return new RegisterResponse
         {
             Success = true,
-            Message = "Usuário registrado com sucesso",
+            Message = "Utilizador registrado com sucesso. Um email com as credenciais foi enviado.",
             User = new UserDto
             {
                 Id = user.Id,
@@ -214,6 +279,65 @@ public class AuthService : IAuthService
         {
             Success = true,
             Message = "Password alterada com sucesso"
+        };
+    }
+
+    public async Task<ForgotPasswordResponse> ForgotPasswordAsync(string email)
+    {
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+
+        if (user == null)
+        {
+            return new ForgotPasswordResponse
+            {
+                Success = false,
+                Message = "Email não encontrado"
+            };
+        }
+
+        // Gerar nova password
+        var newPassword = _passwordService.GenerateRandomPassword(12);
+        user.PasswordHash = HashPassword(newPassword);
+        _context.SaveChanges();
+
+        // Enviar email com a nova password
+        var emailRequest = new Models.EmailRequest
+        {
+            To = email,
+            Subject = "Recuperação de Password - Project Manager",
+            HtmlBody = $@"
+                <h2>Recuperação de Password</h2>
+                <p>Olá <strong>{user.FullName}</strong>,</p>
+                <p>Recebemos um pedido para recuperar a sua password. Aqui está a sua nova password temporária:</p>
+
+                <div style='background-color: #f5f5f5; padding: 20px; border-radius: 5px; margin: 20px 0;'>
+                    <p><strong>Email:</strong> {email}</p>
+                    <p><strong>Password Temporária:</strong> <code style='background-color: #e0e0e0; padding: 5px 10px; border-radius: 3px;'>{newPassword}</code></p>
+                </div>
+
+                <p><strong>Importante:</strong> Por sua segurança, recomendamos que altere esta password no seu primeiro acesso.</p>
+
+                <p>Se você não solicitou esta recuperação, ignore este email.</p>
+
+                <hr style='border: none; border-top: 1px solid #ccc; margin: 20px 0;'>
+                <p style='color: #666; font-size: 12px;'>
+                    Este é um email automático. Por favor, não responda directamente. <br>
+                    Se tiver dúvidas, contacte o administrador do sistema.
+                </p>
+            "
+        };
+
+        var emailResponse = await _emailService.SendEmailAsync(emailRequest);
+
+        if (!emailResponse.Success)
+        {
+            _logger.LogWarning($"Falha ao enviar email de recuperação para {email}: {emailResponse.Message}");
+        }
+
+        return new ForgotPasswordResponse
+        {
+            Success = true,
+            Message = "Uma nova password foi enviada para o seu email"
         };
     }
 }

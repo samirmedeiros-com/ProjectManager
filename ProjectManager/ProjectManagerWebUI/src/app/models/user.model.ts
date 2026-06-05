@@ -27,7 +27,6 @@ export interface LoginResponse {
 export interface RegisterRequest {
   fullName: string;
   email: string;
-  password: string;
   role: string;
   department?: string;
   setorIds?: number[];

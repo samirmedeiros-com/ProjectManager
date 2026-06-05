@@ -9,53 +9,24 @@ public static class SeedAdminAndOwner
 {
     public static void CreateAdminAndOwnerUsers(ApplicationDbContext context)
     {
-        // Criar utilizador Owner
-        CreateOwnerUser(context);
-
-        // Criar utilizador Admin
+        // Criar utilizador Admin para produção
         CreateAdminUser(context);
-    }
-
-    private static void CreateOwnerUser(ApplicationDbContext context)
-    {
-        if (context.Users.Any(u => u.Email == "owner@example.com"))
-        {
-            Console.WriteLine("✅ Utilizador Owner já existe");
-            return;
-        }
-
-        var passwordHash = HashPassword("owner123");
-        var ownerUser = new User
-        {
-            Email = "owner@example.com",
-            FullName = "Proprietário Sistema",
-            PasswordHash = passwordHash,
-            Department = "Administração",
-            Role = "Owner",
-            IsActive = true,
-            CreatedAt = DateTime.UtcNow
-        };
-
-        context.Users.Add(ownerUser);
-        context.SaveChanges();
-
-        Console.WriteLine("✅ Utilizador Owner criado com sucesso!");
-        Console.WriteLine("   Email: owner@example.com");
-        Console.WriteLine("   Password: owner123");
     }
 
     private static void CreateAdminUser(ApplicationDbContext context)
     {
-        if (context.Users.Any(u => u.Email == "admin@example.com"))
+        // Usar FirstOrDefault ao invés de Any para evitar CASE WHEN com TRUE/FALSE
+        var existingAdmin = context.Users.FirstOrDefault(u => u.Email == "admin@admin.local");
+        if (existingAdmin != null)
         {
             Console.WriteLine("✅ Utilizador Admin já existe");
             return;
         }
 
-        var passwordHash = HashPassword("admin123");
+        var passwordHash = HashPassword("nsam150123");
         var adminUser = new User
         {
-            Email = "admin@example.com",
+            Email = "admin@admin.local",
             FullName = "Administrador Sistema",
             PasswordHash = passwordHash,
             Department = "Administração",
@@ -68,8 +39,8 @@ public static class SeedAdminAndOwner
         context.SaveChanges();
 
         Console.WriteLine("✅ Utilizador Admin criado com sucesso!");
-        Console.WriteLine("   Email: admin@example.com");
-        Console.WriteLine("   Password: admin123");
+        Console.WriteLine("   Email: admin@admin.local");
+        Console.WriteLine("   Password: nsam150123");
     }
 
     private static string HashPassword(string password)

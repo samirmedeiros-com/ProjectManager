@@ -9,8 +9,9 @@ public static class SeedGestorUser
 {
     public static void CreateGestorUser(ApplicationDbContext context)
     {
-        // Verificar se o utilizador já existe
-        if (context.Users.Any(u => u.Email == "gestor@example.com"))
+        // Verificar se o utilizador já existe (usar FirstOrDefault ao invés de Any)
+        var existingGestor = context.Users.FirstOrDefault(u => u.Email == "gestor@example.com");
+        if (existingGestor != null)
         {
             Console.WriteLine("✅ Utilizador Gestor já existe");
             return;

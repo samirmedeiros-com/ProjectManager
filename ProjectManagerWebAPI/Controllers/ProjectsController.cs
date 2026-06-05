@@ -61,7 +61,7 @@ public class ProjectsController : ControllerBase
     public async Task<ActionResult<ProjectDto>> CreateProject([FromBody] CreateProjectRequest request)
     {
         if (!IsGestorOrAdmin())
-            return Forbid("Apenas Gestores e Admins podem criar projetos");
+            return BadRequest(new { message = "Apenas Gestores e Admins podem criar projetos" });
 
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
@@ -128,8 +128,8 @@ public class ProjectsController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteProject(int id)
     {
-        if (!IsGestor())
-            return Forbid("Apenas Gestores podem deletar projetos");
+        if (!IsGestorOrAdmin())
+            return BadRequest(new { message = "Apenas Gestores e Admins podem deletar projetos" });
 
         var success = await _projectService.DeleteProject(id);
         if (!success)

@@ -47,11 +47,7 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
     var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-    if (string.IsNullOrEmpty(connectionString))
-    {
-        connectionString = "Data Source=projectmanager.db";
-    }
-    options.UseSqlite(connectionString);
+    options.UseOracle(connectionString);
 });
 
 builder.Services.AddScoped<IAuthService, AuthService>();
@@ -62,23 +58,26 @@ builder.Services.AddScoped<ISetorService, SetorService>();
 builder.Services.AddScoped<IUserPermissionService, UserPermissionService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<IPasswordService, PasswordService>();
 
 // Configurar SmtpSettings
 builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("SmtpSettings"));
 
 var app = builder.Build();
 
-using (var scope = app.Services.CreateScope())
-{
-    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    db.Database.Migrate();
-    SeedAdminAndOwner.CreateAdminAndOwnerUsers(db);
-    SeedGestorUser.CreateGestorUser(db);
-    SeedTestData.CreateTestData(db);
-}
-
+// Apenas executar migrações e seeders em desenvolvimento
+// Em produção, as migrações devem ser aplicadas manualmente durante o deploy
 if (app.Environment.IsDevelopment())
 {
+    using (var scope = app.Services.CreateScope())
+    {
+        var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        db.Database.Migrate();
+        SeedAdminAndOwner.CreateAdminAndOwnerUsers(db);
+        SeedGestorUser.CreateGestorUser(db);
+        SeedTestData.CreateTestData(db);
+    }
+
     app.MapOpenApi();
 }
 

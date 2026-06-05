@@ -11,7 +11,6 @@ import { AuthService } from '../../services/auth.service';
 interface CreateUserForm {
   fullName: string;
   email: string;
-  password: string;
   role: string;
   setorIds: number[];
 }
@@ -26,12 +25,21 @@ interface CreateUserForm {
 })
 export class UserListComponent implements OnInit {
   users: User[] = [];
+  allUsers: User[] = [];
   loading = false;
   error = '';
   success = '';
 
   showForm = false;
   editingUserId: number | null = null;
+
+  // Filtros
+  statusFilter: 'all' | 'active' | 'inactive' = 'all';
+
+  // Modal de erro/alerta
+  showErrorModal = false;
+  errorModalMessage = '';
+  errorModalTitle = 'Erro';
 
   setores: Setor[] = [];
   setoresLoading = false;
@@ -47,7 +55,6 @@ export class UserListComponent implements OnInit {
   formData: CreateUserForm = {
     fullName: '',
     email: '',
-    password: '',
     role: 'Utilizador',
     setorIds: []
   };
@@ -144,9 +151,17 @@ export class UserListComponent implements OnInit {
   loadUsers() {
     this.loading = true;
     this.error = '';
-    this.userService.getAllUsers().subscribe({
+
+    // Admin vê todos, Gestor vê apenas seus setores
+    const isAdmin = this.currentUser?.role === 'Admin';
+    const usersRequest = isAdmin
+      ? this.userService.getAllUsersUnfiltered()
+      : this.userService.getAllUsers();
+
+    usersRequest.subscribe({
       next: (data) => {
-        this.users = data;
+        this.allUsers = data;
+        this.applyStatusFilter();
         this.loading = false;
         this.cdr.markForCheck();
       },
@@ -159,9 +174,24 @@ export class UserListComponent implements OnInit {
     });
   }
 
+  applyStatusFilter() {
+    if (this.statusFilter === 'active') {
+      this.users = this.allUsers.filter(u => u.isActive);
+    } else if (this.statusFilter === 'inactive') {
+      this.users = this.allUsers.filter(u => !u.isActive);
+    } else {
+      this.users = [...this.allUsers];
+    }
+    this.cdr.markForCheck();
+  }
+
+  onStatusFilterChange() {
+    this.applyStatusFilter();
+  }
+
   openForm() {
     this.editingUserId = null;
-    this.formData = { fullName: '', email: '', password: '', role: 'Utilizador', setorIds: [] };
+    this.formData = { fullName: '', email: '', role: 'Utilizador', setorIds: [] };
     this.showForm = true;
     this.error = '';
     this.success = '';
@@ -172,7 +202,6 @@ export class UserListComponent implements OnInit {
     this.formData = {
       fullName: user.fullName,
       email: user.email,
-      password: '',
       role: user.role || 'Utilizador',
       setorIds: user.setores?.map(s => s.id) || []
     };
@@ -190,12 +219,6 @@ export class UserListComponent implements OnInit {
 
     if (!this.formData.email.trim()) {
       this.error = 'O email é obrigatório';
-      this.cdr.markForCheck();
-      return;
-    }
-
-    if (!this.editingUserId && !this.formData.password) {
-      this.error = 'A password é obrigatória para novos utilizadores';
       this.cdr.markForCheck();
       return;
     }
@@ -229,21 +252,27 @@ export class UserListComponent implements OnInit {
     this.userService.registerUser({
       fullName: this.formData.fullName.trim(),
       email: this.formData.email.trim(),
-      password: this.formData.password,
-      role: this.formData.role
+      role: this.formData.role,
+      setorIds: this.formData.setorIds && this.formData.setorIds.length > 0 ? this.formData.setorIds : undefined
     }).subscribe({
       next: (response) => {
+        if (!response.success) {
+          this.showErrorPopup('Erro ao Criar Utilizador', response.message || 'Erro desconhecido');
+          return;
+        }
         if (response.user) {
-          this.users.push(response.user);
+          this.allUsers.push(response.user);
+          this.applyStatusFilter();
         }
         this.success = 'Utilizador criado com sucesso!';
         this.closeForm();
+        setTimeout(() => this.success = '', 3000);
         this.cdr.markForCheck();
       },
       error: (err) => {
-        this.error = err.error?.message || 'Erro ao criar utilizador';
+        const errorMessage = err.error?.message || 'Erro ao criar utilizador';
+        this.showErrorPopup('Erro ao Criar Utilizador', errorMessage);
         console.error(err);
-        this.cdr.markForCheck();
       }
     });
   }
@@ -251,7 +280,8 @@ export class UserListComponent implements OnInit {
   updateUser() {
     if (!this.editingUserId) return;
 
-    const user = this.users.find(u => u.id === this.editingUserId);
+    // Procurar o utilizador em allUsers para garantir que acha mesmo que esteja inativo
+    const user = this.allUsers.find(u => u.id === this.editingUserId);
     if (!user) return;
 
     const updateRequest: UpdateUserRequest = {
@@ -264,18 +294,22 @@ export class UserListComponent implements OnInit {
 
     this.userService.updateUser(this.editingUserId, updateRequest).subscribe({
       next: (updatedUser) => {
-        const index = this.users.findIndex(u => u.id === this.editingUserId);
-        if (index !== -1) {
-          this.users[index] = updatedUser;
+        // Atualizar em allUsers
+        const allIndex = this.allUsers.findIndex(u => u.id === this.editingUserId);
+        if (allIndex !== -1) {
+          this.allUsers[allIndex] = updatedUser;
         }
+        // Aplicar filtro novamente
+        this.applyStatusFilter();
         this.success = 'Utilizador atualizado com sucesso!';
         this.closeForm();
+        setTimeout(() => this.success = '', 3000);
         this.cdr.markForCheck();
       },
       error: (err) => {
-        this.error = 'Erro ao atualizar utilizador';
+        const errorMessage = err.error?.message || 'Erro ao atualizar utilizador';
+        this.showErrorPopup('Erro ao Atualizar', errorMessage);
         console.error(err);
-        this.cdr.markForCheck();
       }
     });
   }
@@ -344,7 +378,20 @@ export class UserListComponent implements OnInit {
   closeForm() {
     this.showForm = false;
     this.editingUserId = null;
-    this.formData = { fullName: '', email: '', password: '', role: 'Utilizador', setorIds: [] };
+    this.formData = { fullName: '', email: '', role: 'Utilizador', setorIds: [] };
+  }
+
+  showErrorPopup(title: string, message: string) {
+    this.errorModalTitle = title;
+    this.errorModalMessage = message;
+    this.showErrorModal = true;
+    this.cdr.markForCheck();
+  }
+
+  closeErrorModal() {
+    this.showErrorModal = false;
+    this.errorModalMessage = '';
+    this.cdr.markForCheck();
   }
 
   goToDashboard() {

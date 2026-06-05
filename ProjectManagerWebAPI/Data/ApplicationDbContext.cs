@@ -22,6 +22,27 @@ public class ApplicationDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
+        // Configurar campos booleanos para Oracle (converter bool para NUMBER(1) com valores 0/1)
+        modelBuilder.Entity<User>()
+            .Property(u => u.IsActive)
+            .HasColumnType("NUMBER(1)")
+            .HasConversion<int>();
+
+        modelBuilder.Entity<ProjectMember>()
+            .Property(pm => pm.IsActive)
+            .HasColumnType("NUMBER(1)")
+            .HasConversion<int>();
+
+        modelBuilder.Entity<Setor>()
+            .Property(s => s.IsActive)
+            .HasColumnType("NUMBER(1)")
+            .HasConversion<int>();
+
+        modelBuilder.Entity<ProjectTask>()
+            .Property(pt => pt.Progress)
+            .HasPrecision(5, 2);
+
+        // Índice único para Email
         modelBuilder.Entity<User>()
             .HasIndex(u => u.Email)
             .IsUnique();

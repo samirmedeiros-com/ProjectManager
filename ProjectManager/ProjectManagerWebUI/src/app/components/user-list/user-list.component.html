@@ -72,13 +72,9 @@
             class="form-input">
         </div>
 
-        <div *ngIf="!editingUserId" class="form-group">
-          <label>Password *</label>
-          <input
-            type="password"
-            [(ngModel)]="formData.password"
-            placeholder="Introduza a password (mínimo 6 caracteres)"
-            class="form-input">
+        <div *ngIf="!editingUserId" class="info-message">
+          <strong>ℹ️ Password Gerada Automaticamente</strong><br>
+          <small>Uma password segura será gerada e enviada por email ao novo utilizador.</small>
         </div>
 
         <div class="form-group">
@@ -118,6 +114,16 @@
           </button>
         </div>
       </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="filters-section">
+      <label for="statusFilter">Filtrar por Status:</label>
+      <select id="statusFilter" [(ngModel)]="statusFilter" (change)="onStatusFilterChange()" class="filter-select">
+        <option value="all">Todos</option>
+        <option value="active">Ativos</option>
+        <option value="inactive">Inativos</option>
+      </select>
     </div>
 
     <!-- Lista de Utilizadores -->
@@ -184,6 +190,22 @@
     <div *ngIf="!loading && users.length === 0" class="empty-state">
       <p>Nenhum utilizador cadastrado</p>
       <button class="btn btn-primary" (click)="openForm()">Registar Primeiro Utilizador</button>
+    </div>
+  </div>
+
+  <!-- Modal de Erro/Alerta -->
+  <div *ngIf="showErrorModal" class="modal-overlay" (click)="closeErrorModal()">
+    <div class="error-modal" (click)="$event.stopPropagation()">
+      <div class="error-modal-header">
+        <h3>⚠️ {{ errorModalTitle }}</h3>
+        <button class="close-btn" (click)="closeErrorModal()">✕</button>
+      </div>
+      <div class="error-modal-body">
+        <p>{{ errorModalMessage }}</p>
+      </div>
+      <div class="error-modal-footer">
+        <button class="btn btn-primary" (click)="closeErrorModal()">OK</button>
+      </div>
     </div>
   </div>
 </div>

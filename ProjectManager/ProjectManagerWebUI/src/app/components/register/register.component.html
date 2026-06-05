@@ -16,6 +16,11 @@
         {{ successMessage }}
       </div>
 
+      <!-- Informação sobre Password Gerada -->
+      <div class="info-box">
+        <p>✓ Uma password segura será gerada automaticamente e enviada por email ao novo utilizador.</p>
+      </div>
+
       <!-- Nome Completo -->
       <div class="form-group">
         <label for="fullName">Nome Completo *</label>
@@ -38,32 +43,6 @@
           [(ngModel)]="form.email"
           name="email"
           placeholder="Introduza o seu email"
-          class="form-input"
-          [disabled]="loading">
-      </div>
-
-      <!-- Password -->
-      <div class="form-group">
-        <label for="password">Password *</label>
-        <input
-          id="password"
-          type="password"
-          [(ngModel)]="form.password"
-          name="password"
-          placeholder="Introduza a sua password (mínimo 6 caracteres)"
-          class="form-input"
-          [disabled]="loading">
-      </div>
-
-      <!-- Confirmar Password -->
-      <div class="form-group">
-        <label for="passwordConfirm">Confirmar Password *</label>
-        <input
-          id="passwordConfirm"
-          type="password"
-          [(ngModel)]="form.passwordConfirm"
-          name="passwordConfirm"
-          placeholder="Confirme a sua password"
           class="form-input"
           [disabled]="loading">
       </div>

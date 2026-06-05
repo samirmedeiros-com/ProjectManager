@@ -28,7 +28,8 @@ public static class SeedTestData
 
         foreach (var (email, name, password, role) in users)
         {
-            if (!context.Users.Any(u => u.Email == email))
+            // Usar FirstOrDefault ao invés de Any para evitar CASE WHEN com TRUE/FALSE
+            if (context.Users.FirstOrDefault(u => u.Email == email) == null)
             {
                 var passwordHash = HashPassword(password);
                 var user = new User
@@ -63,7 +64,8 @@ public static class SeedTestData
 
         foreach (var (name, description, manager, startDate, endDate, priority) in projects)
         {
-            if (!context.Projects.Any(p => p.Name == name))
+            // Usar FirstOrDefault ao invés de Any para evitar CASE WHEN com TRUE/FALSE
+            if (context.Projects.FirstOrDefault(p => p.Name == name) == null)
             {
                 var project = new Project
                 {
@@ -124,7 +126,8 @@ public static class SeedTestData
 
     private static void AssociateUserToProject(ApplicationDbContext context, int projectId, int userId, string role)
     {
-        if (!context.ProjectMembers.Any(pm => pm.ProjectId == projectId && pm.UserId == userId))
+        // Usar FirstOrDefault ao invés de Any para evitar CASE WHEN com TRUE/FALSE
+        if (context.ProjectMembers.FirstOrDefault(pm => pm.ProjectId == projectId && pm.UserId == userId) == null)
         {
             var member = new ProjectMember
             {

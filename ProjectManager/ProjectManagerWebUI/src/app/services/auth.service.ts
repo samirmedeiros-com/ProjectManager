@@ -44,6 +44,12 @@ export class AuthService {
     );
   }
 
+  forgotPassword(email: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/forgot-password`,
+      { email }
+    );
+  }
+
   private getHeaders(): any {
     const token = this.getToken();
     if (token) {

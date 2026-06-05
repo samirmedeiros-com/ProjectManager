@@ -40,6 +40,7 @@
           class="form-control"
           [(ngModel)]="form.password"
           [class.is-invalid]="submitted && !form.password"
+          (keyup.enter)="onSubmit()"
         />
         <div *ngIf="submitted && !form.password" class="invalid-feedback">
           Password é obrigatória
@@ -54,6 +55,63 @@
         <span *ngIf="loading" class="spinner-border spinner-border-sm mr-2"></span>
         Entrar
       </button>
+
+      <div class="forgot-password-link">
+        <a href="javascript:void(0)" (click)="openForgotPasswordModal()">Esqueci a Password</a>
+      </div>
     </form>
+  </div>
+</div>
+
+<!-- Modal 1: Esqueci a Password - Input de Email -->
+<div *ngIf="showForgotPasswordModal" class="modal-overlay" (click)="closeForgotPasswordModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Recuperar Password</h2>
+      <button type="button" class="close-btn" (click)="closeForgotPasswordModal()">✕</button>
+    </div>
+
+    <div class="modal-body">
+      <p class="info-text">Introduza o seu email e enviaremos uma nova password para a sua caixa de correio.</p>
+
+      <div class="form-group">
+        <label for="recoveryEmail">Email *</label>
+        <input
+          id="recoveryEmail"
+          type="email"
+          name="recoveryEmail"
+          [(ngModel)]="forgotPasswordEmail"
+          placeholder="Introduza o seu email"
+          class="form-control"
+          [disabled]="forgotPasswordLoading"
+        />
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" (click)="closeForgotPasswordModal()" [disabled]="forgotPasswordLoading">
+        Cancelar
+      </button>
+      <button type="button" class="btn btn-primary" (click)="submitForgotPassword()" [disabled]="forgotPasswordLoading">
+        {{ forgotPasswordLoading ? 'A enviar...' : 'Solicitar' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal 2: Mensagem de Sucesso ou Erro -->
+<div *ngIf="showForgotPasswordMessageModal" class="modal-overlay" (click)="closeForgotPasswordMessageModal()">
+  <div class="modal-content modal-message" (click)="$event.stopPropagation()">
+    <div class="modal-body message-body">
+      <div [ngClass]="forgotPasswordMessageType === 'success' ? 'alert alert-success' : 'alert alert-error'">
+        {{ forgotPasswordMessage }}
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button type="button" class="btn btn-primary" (click)="closeForgotPasswordMessageModal()">
+        OK
+      </button>
+    </div>
   </div>
 </div>

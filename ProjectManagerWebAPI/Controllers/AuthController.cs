@@ -69,4 +69,17 @@ public class AuthController : ControllerBase
 
         return Ok(response);
     }
+
+    [HttpPost("forgot-password")]
+    public async Task<ActionResult<ForgotPasswordResponse>> ForgotPassword([FromBody] ForgotPasswordRequest request)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        var response = await _authService.ForgotPasswordAsync(request.Email);
+        if (!response.Success)
+            return BadRequest(response);
+
+        return Ok(response);
+    }
 }

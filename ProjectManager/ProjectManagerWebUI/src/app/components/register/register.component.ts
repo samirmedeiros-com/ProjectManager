@@ -16,8 +16,6 @@ export class RegisterComponent {
   form = {
     fullName: '',
     email: '',
-    password: '',
-    passwordConfirm: '',
     role: 'Utilizador'
   };
 
@@ -54,27 +52,11 @@ export class RegisterComponent {
       return;
     }
 
-    if (!this.form.password) {
-      this.errorMessage = 'Password é obrigatória';
-      return;
-    }
-
-    if (this.form.password.length < 6) {
-      this.errorMessage = 'Password deve ter no mínimo 6 caracteres';
-      return;
-    }
-
-    if (this.form.password !== this.form.passwordConfirm) {
-      this.errorMessage = 'As passwords não coincidem';
-      return;
-    }
-
     this.loading = true;
 
     this.authService.register({
       fullName: this.form.fullName.trim(),
       email: this.form.email.trim(),
-      password: this.form.password,
       role: this.form.role
     }).subscribe({
       next: (response) => {
