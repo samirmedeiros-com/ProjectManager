@@ -148,7 +148,7 @@ public class AuthService : IAuthService
             To = request.Email,
             Subject = "Bem-vindo ao Project Manager - Credenciais de Acesso",
             HtmlBody = $@"
-                <h2>Bem-vindo ao Project Manager!</h2>
+                <h2>Bem-vindo ao DPD - Project Manager!</h2>
                 <p>Olá <strong>{request.FullName}</strong>,</p>
                 <p>Sua conta foi criada com sucesso. Use as credenciais abaixo para fazer login:</p>
 
@@ -159,7 +159,7 @@ public class AuthService : IAuthService
 
                 <p><strong>Importante:</strong> Por sua segurança, recomendamos que altere esta password no seu primeiro acesso.</p>
 
-                <p>Para fazer login, visite: <a href='http://localhost:4200/login'>Project Manager</a></p>
+                <p>Para fazer login, visite: <a href='http://10.2.6.81/login'>DPD Project Manager</a></p>
 
                 <hr style='border: none; border-top: 1px solid #ccc; margin: 20px 0;'>
                 <p style='color: #666; font-size: 12px;'>
