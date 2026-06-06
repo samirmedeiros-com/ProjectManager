@@ -194,6 +194,14 @@ export class DashboardComponent implements OnInit {
     this.router.navigate(['/users']);
   }
 
+  goToTimesheet() {
+    this.router.navigate(['/timesheet']);
+  }
+
+  goToTimesheetApproval() {
+    this.router.navigate(['/timesheet/approval']);
+  }
+
   openFreshDeskTicket(freshDeskId: string | undefined) {
     if (freshDeskId) {
       const url = `https://suporte.dpd.pt/a/tickets/${freshDeskId}`;

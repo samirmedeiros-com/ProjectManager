@@ -66,6 +66,8 @@
       </div>
       <div class="header-buttons">
         <button class="btn btn-secondary" (click)="generateProjectsPDF()">📄 Gerar PDF</button>
+        <button class="btn btn-secondary" (click)="goToTimesheet()">⏱️ Minhas Timesheets</button>
+        <button *ngIf="currentUser?.role === 'Admin' || currentUser?.role === 'Gestor'" class="btn btn-secondary" (click)="goToTimesheetApproval()">✓ Aprovar Timesheets</button>
         <button *ngIf="currentUser?.role === 'Admin' || currentUser?.role === 'Gestor'" class="btn btn-secondary" (click)="goToUsers()">👥 Gerir Utilizadores</button>
         <button *ngIf="currentUser?.role === 'Admin'" class="btn btn-secondary" (click)="goToSetores()">🏢 Gerir Setores</button>
         <button *ngIf="isGestor()" class="btn btn-primary" (click)="newProject()">Novo Projeto</button>
