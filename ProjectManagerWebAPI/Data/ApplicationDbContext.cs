@@ -17,6 +17,8 @@ public class ApplicationDbContext : DbContext
     public DbSet<Comment> Comments { get; set; }
     public DbSet<Setor> Setores { get; set; }
     public DbSet<UserSetor> UserSetores { get; set; }
+    public DbSet<Timesheet> Timesheets { get; set; }
+    public DbSet<TimesheetEntry> TimesheetEntries { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -40,6 +42,10 @@ public class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<ProjectTask>()
             .Property(pt => pt.Progress)
+            .HasPrecision(5, 2);
+
+        modelBuilder.Entity<TimesheetEntry>()
+            .Property(te => te.WorkHours)
             .HasPrecision(5, 2);
 
         // Índice único para Email
@@ -103,6 +109,40 @@ public class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<UserSetor>()
             .HasIndex(us => new { us.UserId, us.SetorId })
+            .IsUnique();
+
+        modelBuilder.Entity<Timesheet>()
+            .HasOne(t => t.Project)
+            .WithMany()
+            .HasForeignKey(t => t.ProjectId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Timesheet>()
+            .HasOne(t => t.User)
+            .WithMany()
+            .HasForeignKey(t => t.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Timesheet>()
+            .HasOne(t => t.CreatedBy)
+            .WithMany()
+            .HasForeignKey(t => t.CreatedById)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        modelBuilder.Entity<Timesheet>()
+            .HasOne(t => t.ApprovedBy)
+            .WithMany()
+            .HasForeignKey(t => t.ApprovedById)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        modelBuilder.Entity<TimesheetEntry>()
+            .HasOne(te => te.Timesheet)
+            .WithMany(t => t.Entries)
+            .HasForeignKey(te => te.TimesheetId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<TimesheetEntry>()
+            .HasIndex(te => new { te.TimesheetId, te.DayOfWeek })
             .IsUnique();
     }
 }

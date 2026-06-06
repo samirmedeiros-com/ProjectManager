@@ -58,6 +58,7 @@ builder.Services.AddScoped<IUserPermissionService, UserPermissionService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IPasswordService, PasswordService>();
+builder.Services.AddScoped<TimesheetService>();
 
 // Configurar SmtpSettings
 builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("SmtpSettings"));

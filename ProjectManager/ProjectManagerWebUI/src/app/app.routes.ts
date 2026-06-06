@@ -5,6 +5,8 @@ import { ProjectDetailComponent } from './components/project-detail/project-deta
 import { SetorListComponent } from './components/setor-list/setor-list.component';
 import { UserListComponent } from './components/user-list/user-list.component';
 import { DebugComponent } from './components/debug/debug.component';
+import { TimesheetComponent } from './components/timesheet/timesheet.component';
+import { TimesheetApprovalComponent } from './components/timesheet-approval/timesheet-approval.component';
 import { AuthGuard } from './guards/auth.guard';
 import { GestorGuard } from './guards/gestor.guard';
 
@@ -16,5 +18,7 @@ export const routes: Routes = [
   { path: 'projects/:id', component: ProjectDetailComponent, canActivate: [AuthGuard] },
   { path: 'setores', component: SetorListComponent, canActivate: [AuthGuard] },
   { path: 'users', component: UserListComponent, canActivate: [AuthGuard, GestorGuard] },
+  { path: 'timesheet', component: TimesheetComponent, canActivate: [AuthGuard] },
+  { path: 'timesheet/approval', component: TimesheetApprovalComponent, canActivate: [AuthGuard, GestorGuard] },
   { path: '**', redirectTo: '/dashboard' }
 ];

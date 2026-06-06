@@ -1,0 +1,131 @@
+<div class="approval-container">
+  <h1>Aprovar Timesheets</h1>
+
+  <!-- Mensagens -->
+  <div *ngIf="message" class="alert" [ngClass]="{
+    'alert-success': messageType === 'success',
+    'alert-error': messageType === 'error',
+    'alert-info': messageType === 'info'
+  }">
+    {{ message }}
+    <button class="close-btn" (click)="message = ''">×</button>
+  </div>
+
+  <div class="content">
+    <!-- Sidebar com Pendentes -->
+    <div class="sidebar">
+      <h3>Pendentes de Aprovação</h3>
+      <div *ngIf="pendingTimesheets.length === 0" class="empty-state">
+        Nenhuma timesheet pendente
+      </div>
+      <div class="list">
+        <div *ngFor="let ts of pendingTimesheets"
+             class="list-item"
+             [class.active]="currentTimesheet?.id === ts.id"
+             (click)="selectTimesheet(ts.id)">
+          <div class="item-header">
+            <strong>{{ ts.userName }}</strong>
+            <span class="badge">{{ ts.status }}</span>
+          </div>
+          <small>{{ ts.projectName }}</small>
+          <small class="date">{{ ts.weekStartDate | date:'dd/MM/yyyy' }}</small>
+          <small class="hours">{{ ts.totalHours | number:'1.2-2' }}h</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Detalhes -->
+    <div class="main-content">
+      <div *ngIf="!currentTimesheet" class="empty-state">
+        <p>Selecione uma timesheet para revisar e aprovar</p>
+      </div>
+
+      <div *ngIf="currentTimesheet" class="timesheet-detail">
+        <div class="header">
+          <div>
+            <h2>{{ currentTimesheet.userName }}</h2>
+            <p class="project">Projeto: {{ currentTimesheet.projectName }}</p>
+            <p class="period">
+              {{ currentTimesheet.weekStartDate | date:'dd MMMM yyyy' }} -
+              {{ currentTimesheet.weekEndDate | date:'dd MMMM yyyy' }}
+            </p>
+          </div>
+        </div>
+
+        <!-- Tabela de Horas -->
+        <div class="hours-table">
+          <div class="table-header">
+            <div class="col-day">Dia</div>
+            <div class="col-hours">Horas</div>
+            <div class="col-notes">Observações</div>
+          </div>
+
+          <div *ngFor="let entry of currentTimesheet.entries" class="table-row">
+            <div class="col-day">{{ getDayLabel(entry.dayOfWeek) }}</div>
+            <div class="col-hours">{{ entry.workHours | number:'1.2-2' }}</div>
+            <div class="col-notes">{{ entry.notes || '-' }}</div>
+          </div>
+        </div>
+
+        <!-- Resumo -->
+        <div class="summary">
+          <div class="total-row">
+            <span>Total de Horas:</span>
+            <strong>{{ getTotalHours() | number:'1.2-2' }}</strong>
+          </div>
+          <small *ngIf="getTotalHours() > 50" class="warning">
+            ⚠️ Total superior a 50 horas
+          </small>
+        </div>
+
+        <!-- Ações -->
+        <div class="actions">
+          <button (click)="approveTimesheet()" class="btn btn-success" [disabled]="isLoading">
+            <span *ngIf="isLoading">Aprovando...</span>
+            <span *ngIf="!isLoading">✓ Aprovar</span>
+          </button>
+          <button (click)="openRejectModal()" class="btn btn-danger" [disabled]="isLoading">
+            ✗ Rejeitar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Rejeição -->
+  <div *ngIf="showRejectModal" class="modal-overlay" (click)="closeRejectModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Rejeitar Timesheet</h3>
+        <button class="close-btn" (click)="closeRejectModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="rejectForm">
+          <div class="form-group">
+            <label>Motivo da Rejeição</label>
+            <textarea formControlName="reason"
+                      class="form-control"
+                      rows="4"
+                      placeholder="Explique por que está rejeitando esta timesheet..."
+                      [disabled]="isLoading"></textarea>
+            <small *ngIf="rejectForm.get('reason')?.hasError('required')" class="error">
+              Campo obrigatório
+            </small>
+            <small *ngIf="rejectForm.get('reason')?.hasError('minlength')" class="error">
+              Mínimo 10 caracteres
+            </small>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button (click)="closeRejectModal()" class="btn btn-secondary" [disabled]="isLoading">
+          Cancelar
+        </button>
+        <button (click)="rejectTimesheet()" class="btn btn-danger" [disabled]="isLoading || rejectForm.invalid">
+          <span *ngIf="isLoading">Rejeitando...</span>
+          <span *ngIf="!isLoading">Rejeitar</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
