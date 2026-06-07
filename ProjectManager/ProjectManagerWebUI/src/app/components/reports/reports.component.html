@@ -78,12 +78,17 @@
             <div class="card-value">{{ summary.totalTimesheets }}</div>
           </div>
           <div class="summary-card">
-            <div class="card-label">Utilizadores</div>
-            <div class="card-value">{{ summary.uniqueUsers }}</div>
-          </div>
-          <div class="summary-card">
-            <div class="card-label">Projetos</div>
-            <div class="card-value">{{ summary.uniqueProjects }}</div>
+            <div class="card-label">Utilizadores / Projetos</div>
+            <div class="card-sub-values">
+              <div class="sub-value">
+                <span class="sub-label">Utilizadores:</span>
+                <span class="sub-value-text">{{ summary.uniqueUsers }}</span>
+              </div>
+              <div class="sub-value">
+                <span class="sub-label">Projetos:</span>
+                <span class="sub-value-text">{{ summary.uniqueProjects }}</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
