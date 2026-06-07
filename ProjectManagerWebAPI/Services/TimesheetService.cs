@@ -169,6 +169,19 @@ public class TimesheetService
         return timesheet;
     }
 
+    public async Task DeleteTimesheetAsync(int id)
+    {
+        var timesheet = await GetTimesheetByIdAsync(id);
+        if (timesheet == null)
+            throw new KeyNotFoundException("Timesheet não encontrado");
+
+        if (timesheet.Status != "Draft" && timesheet.Status != "Rejected")
+            throw new InvalidOperationException("Apenas timesheets em Draft ou Rejeitadas podem ser deletadas");
+
+        _context.Timesheets.Remove(timesheet);
+        await _context.SaveChangesAsync();
+    }
+
     public async Task<List<Timesheet>> GetPendingApprovalsAsync(int setorId)
     {
         var query = _context.Timesheets

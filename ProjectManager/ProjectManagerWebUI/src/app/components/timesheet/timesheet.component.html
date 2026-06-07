@@ -161,6 +161,10 @@
               <span *ngIf="isLoading">Enviando...</span>
               <span *ngIf="!isLoading">Enviar para Aprovação</span>
             </button>
+            <button (click)="deleteTimesheet()" class="btn btn-danger" [disabled]="isLoading">
+              <span *ngIf="isLoading">Apagando...</span>
+              <span *ngIf="!isLoading">🗑️ Apagar Timesheet</span>
+            </button>
           </div>
 
           <div class="actions" *ngIf="currentTimesheet.status !== 'Draft'">

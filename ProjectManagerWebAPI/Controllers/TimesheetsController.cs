@@ -186,6 +186,24 @@ public class TimesheetsController : ControllerBase
         }
     }
 
+    [HttpDelete("{id}")]
+    public async Task<ActionResult> DeleteTimesheet(int id)
+    {
+        try
+        {
+            await _timesheetService.DeleteTimesheetAsync(id);
+            return NoContent();
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { message = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
     [HttpGet("pendentes-aprovacao/{setorId}")]
     public async Task<ActionResult<List<TimesheetListResponse>>> GetPendingApprovals(int setorId)
     {

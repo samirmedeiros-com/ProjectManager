@@ -214,6 +214,32 @@ export class TimesheetComponent implements OnInit {
     );
   }
 
+  deleteTimesheet(): void {
+    if (!this.currentTimesheet) return;
+
+    if (!confirm('Tem a certeza que deseja apagar esta timesheet? Esta ação não pode ser desfeita.')) {
+      return;
+    }
+
+    this.isLoading = true;
+    this.timesheetService.deleteTimesheet(this.currentTimesheet.id).subscribe(
+      () => {
+        this.message = 'Timesheet apagada com sucesso';
+        this.messageType = 'success';
+        this.isLoading = false;
+        this.currentTimesheet = null;
+        this.loadMyTimesheets();
+        this.cdr.markForCheck();
+      },
+      (error: any) => {
+        this.message = error.error?.message || 'Erro ao apagar timesheet';
+        this.messageType = 'error';
+        this.isLoading = false;
+        this.cdr.markForCheck();
+      }
+    );
+  }
+
   getStatusColor(status: string): string {
     switch (status) {
       case 'Draft': return '#ffc107';

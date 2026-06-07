@@ -66,6 +66,10 @@ export class TimesheetService {
     return this.http.put<Timesheet>(`${this.apiUrl}/${id}/rejeitar`, request, { headers: this.getHeaders() });
   }
 
+  deleteTimesheet(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`, { headers: this.getHeaders() });
+  }
+
   getPendingApprovals(setorId: number): Observable<TimesheetListItem[]> {
     return this.http.get<TimesheetListItem[]>(`${this.apiUrl}/pendentes-aprovacao/${setorId}`, { headers: this.getHeaders() });
   }
