@@ -21,6 +21,7 @@ export class ReportsComponent implements OnInit {
   hoursByUser: HoursByUser[] = [];
   hoursByMonth: HoursByMonth[] = [];
 
+  selectedDate: string = '';
   selectedMonthOffset: number = 0;
   isLoading = false;
   message = '';
@@ -33,7 +34,9 @@ export class ReportsComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.loadSummary();
+    const today = new Date();
+    this.selectedDate = today.toISOString().slice(0, 7);
+    this.updateMonthOffset();
   }
 
   loadSummary(): void {
@@ -57,6 +60,26 @@ export class ReportsComponent implements OnInit {
   }
 
   onMonthOffsetChange(): void {
+    this.updateMonthOffset();
+  }
+
+  updateMonthOffset(): void {
+    if (!this.selectedDate) {
+      this.selectedMonthOffset = 0;
+      this.loadSummary();
+      return;
+    }
+
+    const today = new Date();
+    const currentYear = today.getFullYear();
+    const currentMonth = today.getMonth();
+
+    const [selectedYear, selectedMonth] = this.selectedDate.split('-').map(Number);
+
+    // Calcular o monthOffset
+    let monthDiff = (currentYear - selectedYear) * 12 + (currentMonth - (selectedMonth - 1));
+    this.selectedMonthOffset = monthDiff > 0 ? monthDiff : 0;
+
     this.loadSummary();
   }
 

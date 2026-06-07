@@ -8,17 +8,14 @@
       <button class="btn-back" (click)="goBack()">← Voltar</button>
     </div>
 
-    <!-- Filtro de Mês -->
+    <!-- Filtro de Mês e Ano -->
     <div class="filter-section">
       <label>Período:</label>
-      <select [(ngModel)]="selectedMonthOffset" (change)="onMonthOffsetChange()" class="form-control">
-        <option [value]="0">Mês Atual</option>
-        <option [value]="1">Último Mês</option>
-        <option [value]="2">Há 2 Meses</option>
-        <option [value]="3">Há 3 Meses</option>
-        <option [value]="6">Últimos 6 Meses</option>
-        <option [value]="12">Último Ano</option>
-      </select>
+      <input
+        type="month"
+        [(ngModel)]="selectedDate"
+        (change)="onMonthOffsetChange()"
+        class="form-control">
       <span class="period-label">{{ getMonthLabel() }}</span>
     </div>
 
