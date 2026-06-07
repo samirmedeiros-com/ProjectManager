@@ -14,14 +14,14 @@ public class ReportService
 
     public async Task<List<HoursByMonthDto>> GetHoursByMonthAsync(int? userId = null)
     {
-        var query = _context.Timesheets
+        var timesheets = await _context.Timesheets
             .Where(t => t.Status == "Approved")
-            .Include(t => t.Entries);
+            .Include(t => t.Entries)
+            .AsNoTracking()
+            .ToListAsync();
 
         if (userId.HasValue)
-            query = query.Where(t => t.UserId == userId.Value);
-
-        var timesheets = await query.ToListAsync();
+            timesheets = timesheets.Where(t => t.UserId == userId.Value).ToList();
 
         var result = timesheets
             .GroupBy(t => new { t.Date.Year, t.Date.Month })
@@ -40,13 +40,15 @@ public class ReportService
 
     public async Task<List<HoursByProjectDto>> GetHoursByProjectAsync(int? userId = null, int? monthOffset = null)
     {
-        var query = _context.Timesheets
+        var timesheets = await _context.Timesheets
             .Where(t => t.Status == "Approved")
             .Include(t => t.Entries)
-            .ThenInclude(e => e.Project);
+            .ThenInclude(e => e.Project)
+            .AsNoTracking()
+            .ToListAsync();
 
         if (userId.HasValue)
-            query = query.Where(t => t.UserId == userId.Value);
+            timesheets = timesheets.Where(t => t.UserId == userId.Value).ToList();
 
         if (monthOffset.HasValue && monthOffset.Value > 0)
         {
@@ -54,10 +56,8 @@ public class ReportService
             var startOfMonth = new DateTime(targetDate.Year, targetDate.Month, 1);
             var endOfMonth = startOfMonth.AddMonths(1).AddDays(-1);
 
-            query = query.Where(t => t.Date >= startOfMonth && t.Date <= endOfMonth);
+            timesheets = timesheets.Where(t => t.Date >= startOfMonth && t.Date <= endOfMonth).ToList();
         }
-
-        var timesheets = await query.ToListAsync();
 
         var result = timesheets
             .SelectMany(t => t.Entries)
@@ -76,10 +76,12 @@ public class ReportService
 
     public async Task<List<HoursByUserDto>> GetHoursByUserAsync(int? monthOffset = null)
     {
-        var query = _context.Timesheets
+        var timesheets = await _context.Timesheets
             .Where(t => t.Status == "Approved")
             .Include(t => t.User)
-            .Include(t => t.Entries);
+            .Include(t => t.Entries)
+            .AsNoTracking()
+            .ToListAsync();
 
         if (monthOffset.HasValue && monthOffset.Value > 0)
         {
@@ -87,10 +89,8 @@ public class ReportService
             var startOfMonth = new DateTime(targetDate.Year, targetDate.Month, 1);
             var endOfMonth = startOfMonth.AddMonths(1).AddDays(-1);
 
-            query = query.Where(t => t.Date >= startOfMonth && t.Date <= endOfMonth);
+            timesheets = timesheets.Where(t => t.Date >= startOfMonth && t.Date <= endOfMonth).ToList();
         }
-
-        var timesheets = await query.ToListAsync();
 
         var result = timesheets
             .GroupBy(t => new { t.UserId, t.User!.FullName })
@@ -108,12 +108,13 @@ public class ReportService
 
     public async Task<ReportSummaryDto> GetReportSummaryAsync(int? monthOffset = null)
     {
-        var query = _context.Timesheets
+        var timesheets = await _context.Timesheets
             .Where(t => t.Status == "Approved")
             .Include(t => t.Entries)
+            .ThenInclude(e => e.Project)
             .Include(t => t.User)
-            .Include(t => t.Entries)
-            .ThenInclude(e => e.Project);
+            .AsNoTracking()
+            .ToListAsync();
 
         if (monthOffset.HasValue && monthOffset.Value > 0)
         {
@@ -121,10 +122,9 @@ public class ReportService
             var startOfMonth = new DateTime(targetDate.Year, targetDate.Month, 1);
             var endOfMonth = startOfMonth.AddMonths(1).AddDays(-1);
 
-            query = query.Where(t => t.Date >= startOfMonth && t.Date <= endOfMonth);
+            timesheets = timesheets.Where(t => t.Date >= startOfMonth && t.Date <= endOfMonth).ToList();
         }
 
-        var timesheets = await query.ToListAsync();
         var entries = timesheets.SelectMany(t => t.Entries).ToList();
 
         return new ReportSummaryDto
