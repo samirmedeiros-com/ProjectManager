@@ -23,6 +23,13 @@ public class SetorController : ControllerBase
         return User.FindFirst("role")?.Value ?? User.FindFirst("http://schemas.microsoft.com/ws/2008/06/identity/claims/role")?.Value;
     }
 
+    [AllowAnonymous]
+    [HttpOptions("{*path}")]
+    public IActionResult PreflightHandler()
+    {
+        return Ok();
+    }
+
     [HttpGet("user-available")]
     public async Task<ActionResult<List<SetorDto>>> GetUserAvailableSectors()
     {

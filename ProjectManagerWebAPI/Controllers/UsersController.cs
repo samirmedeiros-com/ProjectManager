@@ -48,6 +48,13 @@ public class UsersController : ControllerBase
         return "Utilizador";
     }
 
+    [AllowAnonymous]
+    [HttpOptions("{*path}")]
+    public IActionResult PreflightHandler()
+    {
+        return Ok();
+    }
+
     [HttpGet("all")]
     public async Task<ActionResult<List<UserDto>>> GetAllUsers()
     {
