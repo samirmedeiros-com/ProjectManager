@@ -535,6 +535,27 @@
   transform: translateY(-1px);
 }
 
+.btn-costs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #17a2b8;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.btn-costs:hover {
+  background: #138496;
+  transform: translateY(-1px);
+}
+
 @media (max-width: 768px) {
   .approval-content {
     padding: 20px;

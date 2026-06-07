@@ -5,6 +5,7 @@
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; gap: 10px;">
       <h1>Aprovar Timesheets</h1>
       <div style="display: flex; gap: 10px;">
+        <button class="btn-costs" (click)="openCostsModal()" title="Configurar custos/hora por utilizador e projeto">💰 Custos</button>
         <button class="btn-reports" (click)="goToReports()">📊 Relatório</button>
         <button class="btn-back" (click)="goBack()">← Voltar</button>
       </div>
@@ -115,6 +116,60 @@
             ✗ Rejeitar
           </button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Configuração de Custos -->
+  <div *ngIf="showCostsModal" class="modal-overlay" (click)="closeCostsModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Configurar Custo por Hora</h3>
+        <button class="close-btn" (click)="closeCostsModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="costsForm">
+          <div class="form-group">
+            <label>Projeto</label>
+            <select [(ngModel)]="selectedProjectId" [ngModelOptions]="{standalone: true}" class="form-control">
+              <option [value]="null">-- Selecione --</option>
+              <option *ngFor="let proj of projects" [value]="proj.id">{{ proj.name }}</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Utilizador</label>
+            <select [(ngModel)]="selectedUserId" [ngModelOptions]="{standalone: true}" class="form-control">
+              <option [value]="null">-- Selecione --</option>
+              <option *ngFor="let user of users" [value]="user.id">{{ user.fullName }}</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Custo por Hora (€)</label>
+            <input type="number" formControlName="costPerHour"
+                   class="form-control"
+                   placeholder="0.00"
+                   step="0.01"
+                   min="0"
+                   [disabled]="isLoading">
+            <small *ngIf="costsForm.get('costPerHour')?.hasError('required')" class="error">
+              Campo obrigatório
+            </small>
+            <small *ngIf="costsForm.get('costPerHour')?.hasError('min')" class="error">
+              Deve ser maior ou igual a 0
+            </small>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button (click)="closeCostsModal()" class="btn btn-secondary" [disabled]="isLoading">
+          Cancelar
+        </button>
+        <button (click)="saveCost()" class="btn btn-success" [disabled]="isLoading || costsForm.invalid || !selectedProjectId || !selectedUserId">
+          <span *ngIf="isLoading">Guardando...</span>
+          <span *ngIf="!isLoading">Guardar Custo</span>
+        </button>
       </div>
     </div>
   </div>

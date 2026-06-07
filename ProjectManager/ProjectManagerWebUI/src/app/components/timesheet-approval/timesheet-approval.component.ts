@@ -6,8 +6,11 @@ import { NavbarComponent } from '../navbar/navbar.component';
 import { TimesheetService } from '../../services/timesheet.service';
 import { ProjectService } from '../../services/project.service';
 import { AuthService } from '../../services/auth.service';
+import { ProjectUserCostService } from '../../services/project-user-cost.service';
+import { UserService } from '../../services/user.service';
 import { Timesheet, TimesheetListItem } from '../../models/timesheet.model';
 import { Project } from '../../models/project.model';
+import { User } from '../../models/user.model';
 
 @Component({
   selector: 'app-timesheet-approval',
@@ -29,16 +32,27 @@ export class TimesheetApprovalComponent implements OnInit {
   userSetorId: number = 0;
   selectedMonth: string = new Date().toISOString().split('T')[0].slice(0, 7);
 
+  showCostsModal = false;
+  costsForm!: FormGroup;
+  users: User[] = [];
+  selectedProjectId: number | null = null;
+  selectedUserId: number | null = null;
+
   constructor(
     private timesheetService: TimesheetService,
     private projectService: ProjectService,
     private authService: AuthService,
+    private costService: ProjectUserCostService,
+    private userService: UserService,
     private fb: FormBuilder,
     private cdr: ChangeDetectorRef,
     private router: Router
   ) {
     this.rejectForm = this.fb.group({
       reason: ['', [Validators.required, Validators.minLength(10)]]
+    });
+    this.costsForm = this.fb.group({
+      costPerHour: ['', [Validators.required, Validators.min(0)]]
     });
   }
 
@@ -236,5 +250,60 @@ export class TimesheetApprovalComponent implements OnInit {
   onMonthChange(): void {
     this.currentTimesheet = null;
     this.cdr.markForCheck();
+  }
+
+  openCostsModal(): void {
+    this.showCostsModal = true;
+    this.loadUsers();
+    this.costsForm.reset();
+    this.selectedProjectId = null;
+    this.selectedUserId = null;
+    this.cdr.markForCheck();
+  }
+
+  closeCostsModal(): void {
+    this.showCostsModal = false;
+    this.costsForm.reset();
+    this.cdr.markForCheck();
+  }
+
+  loadUsers(): void {
+    this.userService.getAll().subscribe(
+      (data: User[]) => {
+        this.users = data;
+        this.cdr.markForCheck();
+      },
+      (error: any) => {
+        console.error('Erro ao carregar utilizadores:', error);
+      }
+    );
+  }
+
+  saveCost(): void {
+    if (!this.selectedProjectId || !this.selectedUserId || this.costsForm.invalid) {
+      this.message = 'Selecione um projeto, utilizador e defina um custo';
+      this.messageType = 'error';
+      this.cdr.markForCheck();
+      return;
+    }
+
+    const costPerHour = this.costsForm.get('costPerHour')?.value;
+    this.isLoading = true;
+
+    this.costService.createOrUpdateCost(this.selectedProjectId, this.selectedUserId, costPerHour).subscribe(
+      () => {
+        this.message = 'Custo configurado com sucesso';
+        this.messageType = 'success';
+        this.closeCostsModal();
+        this.isLoading = false;
+        this.cdr.markForCheck();
+      },
+      (error: any) => {
+        this.message = 'Erro ao configurar custo';
+        this.messageType = 'error';
+        this.isLoading = false;
+        this.cdr.markForCheck();
+      }
+    );
   }
 }
