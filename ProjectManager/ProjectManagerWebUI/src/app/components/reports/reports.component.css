@@ -78,6 +78,24 @@
   box-shadow: 0 0 0 3px rgba(220, 0, 50, 0.1);
 }
 
+.btn-filter {
+  background: #DC0032;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 13px;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.btn-filter:hover {
+  background: #b8002a;
+  transform: translateY(-1px);
+}
+
 .period-label {
   font-weight: 600;
   color: #DC0032;

@@ -14,8 +14,8 @@
       <input
         type="month"
         [(ngModel)]="selectedDate"
-        (change)="onMonthOffsetChange()"
         class="form-control">
+      <button class="btn-filter" (click)="onMonthOffsetChange()">🔍 Filtrar</button>
       <span class="period-label">{{ getMonthLabel() }}</span>
     </div>
 
