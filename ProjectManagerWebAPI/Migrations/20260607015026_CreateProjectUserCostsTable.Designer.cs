@@ -12,8 +12,8 @@ using ProjectManagerWebAPI.Data;
 namespace ProjectManagerWebAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260607014622_AddProjectUserCosts")]
-    partial class AddProjectUserCosts
+    [Migration("20260607015026_CreateProjectUserCostsTable")]
+    partial class CreateProjectUserCostsTable
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
