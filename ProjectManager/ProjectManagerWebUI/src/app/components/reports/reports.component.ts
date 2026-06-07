@@ -82,4 +82,10 @@ export class ReportsComponent implements OnInit {
   goBack(): void {
     this.router.navigate(['/dashboard']);
   }
+
+  decimalToTimeFormat(decimalHours: number): string {
+    const hours = Math.floor(decimalHours);
+    const minutes = Math.round((decimalHours - hours) * 60);
+    return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+  }
 }

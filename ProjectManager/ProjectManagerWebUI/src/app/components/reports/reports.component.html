@@ -57,7 +57,7 @@
         <div class="summary-cards">
           <div class="summary-card">
             <div class="card-label">Total de Horas</div>
-            <div class="card-value">{{ summary.totalHours | number:'1.2-2' }}h</div>
+            <div class="card-value">{{ decimalToTimeFormat(summary.totalHours) }}</div>
           </div>
           <div class="summary-card">
             <div class="card-label">Timesheets Aprovadas</div>
@@ -87,7 +87,7 @@
             <tbody>
               <tr *ngFor="let item of hoursByProject">
                 <td>{{ item.projectName }}</td>
-                <td class="hours">{{ item.totalHours | number:'1.2-2' }}h</td>
+                <td class="hours">{{ decimalToTimeFormat(item.totalHours) }}</td>
               </tr>
             </tbody>
           </table>
@@ -110,7 +110,7 @@
             <tbody>
               <tr *ngFor="let item of hoursByUser">
                 <td>{{ item.userName }}</td>
-                <td class="hours">{{ item.totalHours | number:'1.2-2' }}h</td>
+                <td class="hours">{{ decimalToTimeFormat(item.totalHours) }}</td>
               </tr>
             </tbody>
           </table>
@@ -133,7 +133,7 @@
             <tbody>
               <tr *ngFor="let item of hoursByMonth">
                 <td>{{ getMonthName(item.month) }} {{ item.year }}</td>
-                <td class="hours">{{ item.totalHours | number:'1.2-2' }}h</td>
+                <td class="hours">{{ decimalToTimeFormat(item.totalHours) }}</td>
               </tr>
             </tbody>
           </table>

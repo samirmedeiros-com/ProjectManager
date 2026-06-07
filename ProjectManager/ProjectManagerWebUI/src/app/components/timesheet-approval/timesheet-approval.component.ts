@@ -219,6 +219,10 @@ export class TimesheetApprovalComponent implements OnInit {
     this.router.navigate(['/dashboard']);
   }
 
+  goToReports(): void {
+    this.router.navigate(['/reports']);
+  }
+
   getFilteredTimesheets(): TimesheetListItem[] {
     if (!this.selectedMonth) {
       return this.pendingTimesheets;
