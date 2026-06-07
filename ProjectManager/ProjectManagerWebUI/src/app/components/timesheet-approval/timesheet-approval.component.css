@@ -465,19 +465,24 @@
 }
 
 .btn-back {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   background: #424143;
   color: white;
   border: none;
   padding: 10px 20px;
-  border-radius: 4px;
+  border-radius: 6px;
   cursor: pointer;
   font-weight: 600;
-  font-size: 13px;
-  transition: all 0.3s;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  white-space: nowrap;
 }
 
 .btn-back:hover {
-  background: #DC0032;
+  background: #2a2a2c;
+  transform: translateY(-1px);
 }
 
 @media (max-width: 768px) {
