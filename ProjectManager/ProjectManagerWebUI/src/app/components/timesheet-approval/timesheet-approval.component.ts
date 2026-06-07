@@ -268,7 +268,7 @@ export class TimesheetApprovalComponent implements OnInit {
   }
 
   loadUsers(): void {
-    this.userService.getAll().subscribe(
+    this.userService.getAllUsers().subscribe(
       (data: User[]) => {
         this.users = data;
         this.cdr.markForCheck();
