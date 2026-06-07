@@ -72,7 +72,7 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
     var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-    options.UseSqlite(connectionString);
+    options.UseOracle(connectionString);
 });
 
 builder.Services.AddScoped<IAuthService, AuthService>();
