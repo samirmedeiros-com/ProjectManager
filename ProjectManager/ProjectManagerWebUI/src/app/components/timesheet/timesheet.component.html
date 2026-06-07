@@ -182,3 +182,29 @@
     </div>
   </div>
 </div>
+
+<!-- Modal de Confirmação - Apagar Timesheet -->
+<div *ngIf="showDeleteModal" class="modal-overlay" (click)="closeDeleteModal()">
+  <div class="modal-content modal-confirm" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Apagar Timesheet</h2>
+      <button type="button" class="close-btn" (click)="closeDeleteModal()">✕</button>
+    </div>
+
+    <div class="modal-body">
+      <div class="alert alert-warning">
+        <p><strong>⚠️ Tem a certeza que deseja apagar esta timesheet?</strong></p>
+        <p>Esta ação não pode ser desfeita.</p>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" (click)="closeDeleteModal()" [disabled]="isLoading">
+        Cancelar
+      </button>
+      <button type="button" class="btn btn-danger" (click)="confirmDelete()" [disabled]="isLoading">
+        {{ isLoading ? 'A apagar...' : '🗑️ Apagar' }}
+      </button>
+    </div>
+  </div>
+</div>

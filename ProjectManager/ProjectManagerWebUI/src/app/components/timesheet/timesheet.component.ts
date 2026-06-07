@@ -29,6 +29,8 @@ export class TimesheetComponent implements OnInit {
   message = '';
   messageType: 'success' | 'error' | 'info' = 'info';
 
+  showDeleteModal = false;
+
   entryForm: FormGroup;
 
   constructor(
@@ -216,10 +218,17 @@ export class TimesheetComponent implements OnInit {
 
   deleteTimesheet(): void {
     if (!this.currentTimesheet) return;
+    this.showDeleteModal = true;
+    this.cdr.markForCheck();
+  }
 
-    if (!confirm('Tem a certeza que deseja apagar esta timesheet? Esta ação não pode ser desfeita.')) {
-      return;
-    }
+  closeDeleteModal(): void {
+    this.showDeleteModal = false;
+    this.cdr.markForCheck();
+  }
+
+  confirmDelete(): void {
+    if (!this.currentTimesheet) return;
 
     this.isLoading = true;
     this.timesheetService.deleteTimesheet(this.currentTimesheet.id).subscribe(
@@ -228,6 +237,7 @@ export class TimesheetComponent implements OnInit {
         this.messageType = 'success';
         this.isLoading = false;
         this.currentTimesheet = null;
+        this.showDeleteModal = false;
         this.loadMyTimesheets();
         this.cdr.markForCheck();
       },
@@ -235,6 +245,7 @@ export class TimesheetComponent implements OnInit {
         this.message = error.error?.message || 'Erro ao apagar timesheet';
         this.messageType = 'error';
         this.isLoading = false;
+        this.showDeleteModal = false;
         this.cdr.markForCheck();
       }
     );
