@@ -82,4 +82,11 @@ public class AuthController : ControllerBase
 
         return Ok(response);
     }
+
+    [AllowAnonymous]
+    [HttpOptions("{*path}")]
+    public IActionResult PreflightHandler()
+    {
+        return Ok();
+    }
 }
