@@ -37,6 +37,7 @@ export class TimesheetApprovalComponent implements OnInit {
   users: User[] = [];
   selectedProjectId: number | null = null;
   selectedUserId: number | null = null;
+  registeredCosts: any[] = [];
 
   constructor(
     private timesheetService: TimesheetService,
@@ -255,6 +256,7 @@ export class TimesheetApprovalComponent implements OnInit {
   openCostsModal(): void {
     this.showCostsModal = true;
     this.loadUsers();
+    this.loadRegisteredCosts();
     this.costsForm.reset();
     this.selectedProjectId = null;
     this.selectedUserId = null;
@@ -279,6 +281,33 @@ export class TimesheetApprovalComponent implements OnInit {
     );
   }
 
+  loadRegisteredCosts(): void {
+    if (!this.selectedProjectId && this.projects.length === 0) {
+      this.registeredCosts = [];
+      return;
+    }
+
+    // Carregar custos de todos os projetos se nenhum está selecionado
+    if (!this.selectedProjectId && this.projects.length > 0) {
+      // Carrega custos do primeiro projeto
+      const projectId = this.projects[0].id;
+      this.costService.getCostsByProject(projectId).subscribe(
+        (data) => {
+          this.registeredCosts = data;
+          this.cdr.markForCheck();
+        },
+        (error: any) => {
+          console.error('Erro ao carregar custos:', error);
+          this.registeredCosts = [];
+        }
+      );
+    }
+  }
+
+  onProjectChange(): void {
+    this.loadRegisteredCosts();
+  }
+
   saveCost(): void {
     if (!this.selectedProjectId || !this.selectedUserId || this.costsForm.invalid) {
       this.message = 'Selecione um projeto, utilizador e defina um custo';
@@ -294,7 +323,9 @@ export class TimesheetApprovalComponent implements OnInit {
       () => {
         this.message = 'Custo configurado com sucesso';
         this.messageType = 'success';
-        this.closeCostsModal();
+        this.loadRegisteredCosts();
+        this.costsForm.reset();
+        this.selectedUserId = null;
         this.isLoading = false;
         this.cdr.markForCheck();
       },
@@ -302,6 +333,26 @@ export class TimesheetApprovalComponent implements OnInit {
         this.message = 'Erro ao configurar custo';
         this.messageType = 'error';
         this.isLoading = false;
+        this.cdr.markForCheck();
+      }
+    );
+  }
+
+  deleteCost(projectId: number, userId: number): void {
+    if (!confirm('Tem a certeza que quer remover este custo?')) {
+      return;
+    }
+
+    this.costService.deleteCost(projectId, userId).subscribe(
+      () => {
+        this.message = 'Custo removido com sucesso';
+        this.messageType = 'success';
+        this.loadRegisteredCosts();
+        this.cdr.markForCheck();
+      },
+      (error: any) => {
+        this.message = 'Erro ao remover custo';
+        this.messageType = 'error';
         this.cdr.markForCheck();
       }
     );

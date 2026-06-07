@@ -131,7 +131,7 @@
         <form [formGroup]="costsForm">
           <div class="form-group">
             <label>Projeto</label>
-            <select [(ngModel)]="selectedProjectId" [ngModelOptions]="{standalone: true}" class="form-control">
+            <select [(ngModel)]="selectedProjectId" (change)="onProjectChange()" [ngModelOptions]="{standalone: true}" class="form-control">
               <option [value]="null">-- Selecione --</option>
               <option *ngFor="let proj of projects" [value]="proj.id">{{ proj.name }}</option>
             </select>
@@ -161,6 +161,35 @@
             </small>
           </div>
         </form>
+
+        <!-- Listagem de Custos Cadastrados -->
+        <div *ngIf="selectedProjectId && registeredCosts.length > 0" class="costs-list">
+          <h4>Custos Cadastrados</h4>
+          <table class="costs-table">
+            <thead>
+              <tr>
+                <th>Utilizador</th>
+                <th>Custo/Hora (€)</th>
+                <th>Ação</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let cost of registeredCosts">
+                <td>{{ cost.userName }}</td>
+                <td>{{ cost.costPerHour | number:'1.2-2' }}</td>
+                <td>
+                  <button class="btn-delete" (click)="deleteCost(cost.projectId, cost.userId)" [disabled]="isLoading">
+                    ✕ Remover
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div *ngIf="selectedProjectId && registeredCosts.length === 0" class="empty-state">
+          Nenhum custo cadastrado para este projeto
+        </div>
       </div>
       <div class="modal-footer">
         <button (click)="closeCostsModal()" class="btn btn-secondary" [disabled]="isLoading">
