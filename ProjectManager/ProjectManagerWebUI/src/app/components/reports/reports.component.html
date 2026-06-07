@@ -64,6 +64,14 @@
             <div class="card-value">{{ summary.totalCost | currency:'EUR':'symbol':'1.2-2' }}</div>
           </div>
           <div class="summary-card">
+            <div class="card-label">IVA 23%</div>
+            <div class="card-value">{{ summary.iva | currency:'EUR':'symbol':'1.2-2' }}</div>
+          </div>
+          <div class="summary-card">
+            <div class="card-label">Valor Total</div>
+            <div class="card-value">{{ summary.totalWithIVA | currency:'EUR':'symbol':'1.2-2' }}</div>
+          </div>
+          <div class="summary-card">
             <div class="card-label">Timesheets Aprovadas</div>
             <div class="card-value">{{ summary.totalTimesheets }}</div>
           </div>
@@ -87,6 +95,8 @@
                 <th>Projeto</th>
                 <th>Horas</th>
                 <th>Custo (€)</th>
+                <th>IVA 23% (€)</th>
+                <th>Valor Total (€)</th>
               </tr>
             </thead>
             <tbody>
@@ -94,6 +104,8 @@
                 <td>{{ item.projectName }}</td>
                 <td class="hours">{{ decimalToTimeFormat(item.totalHours) }}</td>
                 <td class="cost">{{ item.totalCost | currency:'EUR':'symbol':'1.2-2' }}</td>
+                <td class="cost">{{ item.iva | currency:'EUR':'symbol':'1.2-2' }}</td>
+                <td class="cost cost-total">{{ item.totalWithIVA | currency:'EUR':'symbol':'1.2-2' }}</td>
               </tr>
             </tbody>
           </table>
@@ -112,6 +124,8 @@
                 <th>Utilizador</th>
                 <th>Horas</th>
                 <th>Custo (€)</th>
+                <th>IVA 23% (€)</th>
+                <th>Valor Total (€)</th>
               </tr>
             </thead>
             <tbody>
@@ -119,6 +133,8 @@
                 <td>{{ item.userName }}</td>
                 <td class="hours">{{ decimalToTimeFormat(item.totalHours) }}</td>
                 <td class="cost">{{ item.totalCost | currency:'EUR':'symbol':'1.2-2' }}</td>
+                <td class="cost">{{ item.iva | currency:'EUR':'symbol':'1.2-2' }}</td>
+                <td class="cost cost-total">{{ item.totalWithIVA | currency:'EUR':'symbol':'1.2-2' }}</td>
               </tr>
             </tbody>
           </table>

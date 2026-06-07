@@ -66,17 +66,24 @@ public class ReportService
         var result = timesheets
             .SelectMany(t => t.Entries.Select(e => new { Timesheet = t, Entry = e }))
             .GroupBy(x => new { x.Entry.ProjectId, x.Entry.Project!.Name })
-            .Select(g => new HoursByProjectWithCostDto
+            .Select(g =>
             {
-                ProjectId = g.Key.ProjectId,
-                ProjectName = g.Key.Name,
-                TotalHours = g.Sum(x => x.Entry.WorkHours),
-                TotalCost = g.Sum(x =>
+                var totalCost = g.Sum(x =>
                 {
                     var cost = allCosts.FirstOrDefault(c =>
                         c.ProjectId == x.Entry.ProjectId && c.UserId == x.Timesheet.UserId);
                     return cost != null ? x.Entry.WorkHours * cost.CostPerHour : 0;
-                })
+                });
+                var iva = totalCost * 0.23m;
+                return new HoursByProjectWithCostDto
+                {
+                    ProjectId = g.Key.ProjectId,
+                    ProjectName = g.Key.Name,
+                    TotalHours = g.Sum(x => x.Entry.WorkHours),
+                    TotalCost = totalCost,
+                    IVA = iva,
+                    TotalWithIVA = totalCost + iva
+                };
             })
             .OrderByDescending(x => x.TotalHours)
             .ToList();
@@ -108,17 +115,24 @@ public class ReportService
 
         var result = timesheets
             .GroupBy(t => new { t.UserId, t.User!.FullName })
-            .Select(g => new HoursByUserWithCostDto
+            .Select(g =>
             {
-                UserId = g.Key.UserId,
-                UserName = g.Key.FullName,
-                TotalHours = g.SelectMany(t => t.Entries).Sum(e => e.WorkHours),
-                TotalCost = g.SelectMany(t => t.Entries).Sum(e =>
+                var totalCost = g.SelectMany(t => t.Entries).Sum(e =>
                 {
                     var cost = allCosts.FirstOrDefault(c =>
                         c.ProjectId == e.ProjectId && c.UserId == g.Key.UserId);
                     return cost != null ? e.WorkHours * cost.CostPerHour : 0;
-                })
+                });
+                var iva = totalCost * 0.23m;
+                return new HoursByUserWithCostDto
+                {
+                    UserId = g.Key.UserId,
+                    UserName = g.Key.FullName,
+                    TotalHours = g.SelectMany(t => t.Entries).Sum(e => e.WorkHours),
+                    TotalCost = totalCost,
+                    IVA = iva,
+                    TotalWithIVA = totalCost + iva
+                };
             })
             .OrderByDescending(x => x.TotalHours)
             .ToList();
@@ -157,10 +171,14 @@ public class ReportService
             return cost != null ? e.WorkHours * cost.CostPerHour : 0;
         });
 
+        var iva = totalCost * 0.23m;
+
         return new ReportSummaryDto
         {
             TotalHours = entries.Sum(e => e.WorkHours),
             TotalCost = totalCost,
+            IVA = iva,
+            TotalWithIVA = totalCost + iva,
             TotalTimesheets = timesheets.Count,
             UniqueUsers = timesheets.Select(t => t.UserId).Distinct().Count(),
             UniqueProjects = entries.Select(e => e.ProjectId).Distinct().Count(),
@@ -196,6 +214,8 @@ public class HoursByProjectWithCostDto
     public string ProjectName { get; set; } = string.Empty;
     public decimal TotalHours { get; set; }
     public decimal TotalCost { get; set; }
+    public decimal IVA { get; set; }
+    public decimal TotalWithIVA { get; set; }
 }
 
 public class HoursByUserDto
@@ -211,12 +231,16 @@ public class HoursByUserWithCostDto
     public string UserName { get; set; } = string.Empty;
     public decimal TotalHours { get; set; }
     public decimal TotalCost { get; set; }
+    public decimal IVA { get; set; }
+    public decimal TotalWithIVA { get; set; }
 }
 
 public class ReportSummaryDto
 {
     public decimal TotalHours { get; set; }
     public decimal TotalCost { get; set; }
+    public decimal IVA { get; set; }
+    public decimal TotalWithIVA { get; set; }
     public int TotalTimesheets { get; set; }
     public int UniqueUsers { get; set; }
     public int UniqueProjects { get; set; }

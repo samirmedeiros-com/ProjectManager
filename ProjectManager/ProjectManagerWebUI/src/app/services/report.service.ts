@@ -13,6 +13,8 @@ export interface HoursByProject {
   projectName: string;
   totalHours: number;
   totalCost: number;
+  iva: number;
+  totalWithIVA: number;
 }
 
 export interface HoursByUser {
@@ -20,11 +22,15 @@ export interface HoursByUser {
   userName: string;
   totalHours: number;
   totalCost: number;
+  iva: number;
+  totalWithIVA: number;
 }
 
 export interface ReportSummary {
   totalHours: number;
   totalCost: number;
+  iva: number;
+  totalWithIVA: number;
   totalTimesheets: number;
   uniqueUsers: number;
   uniqueProjects: number;

@@ -207,6 +207,11 @@
   min-width: 120px;
 }
 
+.data-table td.cost-total {
+  color: #DC0032;
+  font-weight: 700;
+}
+
 .empty-state {
   text-align: center;
   padding: 40px 20px;
