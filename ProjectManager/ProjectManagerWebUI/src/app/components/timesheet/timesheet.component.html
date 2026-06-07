@@ -156,8 +156,8 @@
           </div>
 
           <!-- Ações -->
-          <div class="actions" *ngIf="(currentTimesheet.status === 'Draft' || currentTimesheet.status === 'Rejected') && currentTimesheet.entries.length > 0">
-            <button (click)="submitTimesheet()" class="btn btn-success" [disabled]="isLoading">
+          <div class="actions" *ngIf="currentTimesheet.status === 'Draft' || currentTimesheet.status === 'Rejected'">
+            <button *ngIf="currentTimesheet.entries.length > 0" (click)="submitTimesheet()" class="btn btn-success" [disabled]="isLoading">
               <span *ngIf="isLoading">Enviando...</span>
               <span *ngIf="!isLoading">Enviar para Aprovação</span>
             </button>
