@@ -19,6 +19,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<UserSetor> UserSetores { get; set; }
     public DbSet<Timesheet> Timesheets { get; set; }
     public DbSet<TimesheetEntry> TimesheetEntries { get; set; }
+    public DbSet<ProjectUserCost> ProjectUserCosts { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -47,6 +48,26 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<TimesheetEntry>()
             .Property(te => te.WorkHours)
             .HasPrecision(5, 2);
+
+        modelBuilder.Entity<ProjectUserCost>()
+            .Property(puc => puc.CostPerHour)
+            .HasPrecision(10, 2);
+
+        modelBuilder.Entity<ProjectUserCost>()
+            .HasOne(puc => puc.Project)
+            .WithMany()
+            .HasForeignKey(puc => puc.ProjectId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<ProjectUserCost>()
+            .HasOne(puc => puc.User)
+            .WithMany()
+            .HasForeignKey(puc => puc.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<ProjectUserCost>()
+            .HasIndex(puc => new { puc.ProjectId, puc.UserId })
+            .IsUnique();
 
         // Índice único para Email
         modelBuilder.Entity<User>()
