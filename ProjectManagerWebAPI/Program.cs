@@ -117,8 +117,8 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-app.UseHttpsRedirection();
 app.UseCors("AllowAngular");
+app.UseHttpsRedirection();
 
 // Middleware para logar headers de requisição
 app.Use(async (context, next) =>
