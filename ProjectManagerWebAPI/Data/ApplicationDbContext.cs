@@ -112,22 +112,10 @@ public class ApplicationDbContext : DbContext
             .IsUnique();
 
         modelBuilder.Entity<Timesheet>()
-            .HasOne(t => t.Project)
-            .WithMany()
-            .HasForeignKey(t => t.ProjectId)
-            .OnDelete(DeleteBehavior.Cascade);
-
-        modelBuilder.Entity<Timesheet>()
             .HasOne(t => t.User)
             .WithMany()
             .HasForeignKey(t => t.UserId)
             .OnDelete(DeleteBehavior.Cascade);
-
-        modelBuilder.Entity<Timesheet>()
-            .HasOne(t => t.CreatedBy)
-            .WithMany()
-            .HasForeignKey(t => t.CreatedById)
-            .OnDelete(DeleteBehavior.SetNull);
 
         modelBuilder.Entity<Timesheet>()
             .HasOne(t => t.ApprovedBy)
@@ -142,7 +130,13 @@ public class ApplicationDbContext : DbContext
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<TimesheetEntry>()
-            .HasIndex(te => new { te.TimesheetId, te.DayOfWeek })
+            .HasOne(te => te.Project)
+            .WithMany()
+            .HasForeignKey(te => te.ProjectId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<TimesheetEntry>()
+            .HasIndex(te => new { te.TimesheetId, te.ProjectId })
             .IsUnique();
     }
 }

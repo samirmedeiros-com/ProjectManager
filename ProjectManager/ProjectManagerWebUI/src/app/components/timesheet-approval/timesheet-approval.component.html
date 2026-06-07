@@ -1,5 +1,11 @@
+<app-navbar></app-navbar>
+
 <div class="approval-container">
-  <h1>Aprovar Timesheets</h1>
+  <div class="approval-content">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+      <h1>Aprovar Timesheets</h1>
+      <button class="btn-back" (click)="goBack()">← Voltar</button>
+    </div>
 
   <!-- Mensagens -->
   <div *ngIf="message" class="alert" [ngClass]="{
@@ -24,11 +30,10 @@
              [class.active]="currentTimesheet?.id === ts.id"
              (click)="selectTimesheet(ts.id)">
           <div class="item-header">
-            <strong>{{ ts.userName }}</strong>
-            <span class="badge">{{ ts.status }}</span>
+            <strong>{{ ts.date | date:'dd/MM/yyyy' }}</strong>
+            <span class="badge" [style.backgroundColor]="getStatusColor(ts.status)">{{ ts.status }}</span>
           </div>
-          <small>{{ ts.projectName }}</small>
-          <small class="date">{{ ts.weekStartDate | date:'dd/MM/yyyy' }}</small>
+          <small>Projetos: {{ ts.projectCount }}</small>
           <small class="hours">{{ ts.totalHours | number:'1.2-2' }}h</small>
         </div>
       </div>
@@ -41,29 +46,41 @@
       </div>
 
       <div *ngIf="currentTimesheet" class="timesheet-detail">
-        <div class="header">
+        <div class="header" style="display: flex; justify-content: space-between; align-items: flex-start;">
           <div>
-            <h2>{{ currentTimesheet.userName }}</h2>
-            <p class="project">Projeto: {{ currentTimesheet.projectName }}</p>
-            <p class="period">
-              {{ currentTimesheet.weekStartDate | date:'dd MMMM yyyy' }} -
-              {{ currentTimesheet.weekEndDate | date:'dd MMMM yyyy' }}
-            </p>
+            <h2>{{ currentTimesheet.date | date:'dd MMMM yyyy' }}</h2>
+            <p class="project">Utilizador: {{ currentTimesheet.userName }}</p>
+            <p class="period">Timesheet Diária</p>
           </div>
+          <span class="status" [style.backgroundColor]="getStatusColor(currentTimesheet.status)">
+            {{ currentTimesheet.status }}
+          </span>
         </div>
 
-        <!-- Tabela de Horas -->
-        <div class="hours-table">
-          <div class="table-header">
-            <div class="col-day">Dia</div>
+        <!-- Lista de Projetos -->
+        <div class="projects-list">
+          <div class="list-header">
+            <div class="col-project">Projeto</div>
             <div class="col-hours">Horas</div>
-            <div class="col-notes">Observações</div>
+            <div class="col-notes">Notas</div>
           </div>
 
-          <div *ngFor="let entry of currentTimesheet.entries" class="table-row">
-            <div class="col-day">{{ getDayLabel(entry.dayOfWeek) }}</div>
-            <div class="col-hours">{{ entry.workHours | number:'1.2-2' }}</div>
-            <div class="col-notes">{{ entry.notes || '-' }}</div>
+          <div *ngIf="currentTimesheet.entries.length === 0" class="empty-state">
+            Nenhum projeto adicionado
+          </div>
+
+          <div *ngIf="currentTimesheet.entries.length > 0" class="list-items">
+            <div *ngFor="let entry of currentTimesheet.entries" class="project-row">
+              <div class="col-project">
+                <strong>{{ entry.projectName }}</strong>
+              </div>
+              <div class="col-hours">
+                <span class="hours-badge">{{ decimalToTimeFormat(entry.workHours) }}</span>
+              </div>
+              <div class="col-notes">
+                {{ entry.notes || '-' }}
+              </div>
+            </div>
           </div>
         </div>
 
@@ -71,10 +88,10 @@
         <div class="summary">
           <div class="total-row">
             <span>Total de Horas:</span>
-            <strong>{{ getTotalHours() | number:'1.2-2' }}</strong>
+            <strong>{{ decimalToTimeFormat(getTotalHours()) }}</strong>
           </div>
-          <small *ngIf="getTotalHours() > 50" class="warning">
-            ⚠️ Total superior a 50 horas
+          <small *ngIf="getTotalHours() > 12" class="warning">
+            ⚠️ Total superior a 12 horas
           </small>
         </div>
 
@@ -127,5 +144,6 @@
         </button>
       </div>
     </div>
+  </div>
   </div>
 </div>

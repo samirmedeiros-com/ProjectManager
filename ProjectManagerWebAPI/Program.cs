@@ -5,8 +5,17 @@ using System.Text;
 using ProjectManagerWebAPI;
 using ProjectManagerWebAPI.Data;
 using ProjectManagerWebAPI.Services;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Configurar Serilog
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Debug()
+    .WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}")
+    .CreateLogger();
+
+builder.Host.UseSerilog();
 
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
@@ -14,7 +23,8 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAngular", policy =>
     {
-        policy.AllowAnyOrigin()
+        policy
+            .AllowAnyOrigin()
             .AllowAnyMethod()
             .AllowAnyHeader();
     });
@@ -40,6 +50,21 @@ builder.Services.AddAuthentication(options =>
         ValidAudience = jwtSettings["Audience"],
         ValidateLifetime = true,
         ClockSkew = TimeSpan.Zero
+    };
+
+    options.Events = new JwtBearerEvents
+    {
+        OnAuthenticationFailed = context =>
+        {
+            Console.WriteLine($"JWT Authentication Failed: {context.Exception.Message}");
+            Console.WriteLine($"Token: {context.Request.Headers["Authorization"]}");
+            return Task.CompletedTask;
+        },
+        OnTokenValidated = context =>
+        {
+            Console.WriteLine("JWT Token validated successfully");
+            return Task.CompletedTask;
+        }
     };
 });
 
@@ -92,6 +117,21 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseCors("AllowAngular");
+
+// Middleware para logar headers de requisição
+app.Use(async (context, next) =>
+{
+    if (context.Request.Path.ToString().Contains("timesheets"))
+    {
+        Log.Information("🔍 Headers para {Path}:", context.Request.Path);
+        foreach (var header in context.Request.Headers)
+        {
+            Log.Information("  {Header}: {Value}", header.Key, header.Value);
+        }
+    }
+    await next();
+});
+
 app.UseAuthentication();
 app.UseAuthorization();
 

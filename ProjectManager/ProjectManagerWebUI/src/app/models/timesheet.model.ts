@@ -1,35 +1,30 @@
 export interface TimesheetEntry {
-  dayOfWeek: number;
+  id?: number;
+  projectId: number;
+  projectName?: string;
   workHours: number;
   notes?: string;
 }
 
 export interface Timesheet {
   id: number;
-  projectId: number;
-  projectName?: string;
   userId: number;
-  userName?: string;
-  weekStartDate: Date;
-  weekEndDate: Date;
+  userName: string;
+  date: Date;
   status: 'Draft' | 'Submitted' | 'Approved' | 'Rejected';
   entries: TimesheetEntry[];
   totalHours: number;
-  approvedByName?: string;
   approvedAt?: Date;
   rejectionReason?: string;
-  createdAt: Date;
 }
 
 export interface TimesheetListItem {
   id: number;
-  projectName?: string;
-  userName?: string;
-  weekStartDate: Date;
-  weekEndDate: Date;
-  status: string;
+  date: Date;
+  status: 'Draft' | 'Submitted' | 'Approved' | 'Rejected';
   totalHours: number;
-  createdAt: Date;
+  projectCount: number;
+  approvedAt?: Date;
 }
 
 export const DAYS_OF_WEEK = [

@@ -1,19 +1,24 @@
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
+import { NavbarComponent } from '../navbar/navbar.component';
 import { TimesheetService } from '../../services/timesheet.service';
-import { Timesheet, TimesheetListItem, DAYS_OF_WEEK } from '../../models/timesheet.model';
+import { ProjectService } from '../../services/project.service';
+import { AuthService } from '../../services/auth.service';
+import { Timesheet, TimesheetListItem } from '../../models/timesheet.model';
+import { Project } from '../../models/project.model';
 
 @Component({
   selector: 'app-timesheet-approval',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, NavbarComponent],
   templateUrl: './timesheet-approval.component.html',
   styleUrls: ['./timesheet-approval.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TimesheetApprovalComponent implements OnInit {
-  daysOfWeek = DAYS_OF_WEEK;
+  projects: Project[] = [];
   pendingTimesheets: TimesheetListItem[] = [];
   currentTimesheet: Timesheet | null = null;
   rejectForm!: FormGroup;
@@ -25,7 +30,11 @@ export class TimesheetApprovalComponent implements OnInit {
 
   constructor(
     private timesheetService: TimesheetService,
-    private fb: FormBuilder
+    private projectService: ProjectService,
+    private authService: AuthService,
+    private fb: FormBuilder,
+    private cdr: ChangeDetectorRef,
+    private router: Router
   ) {
     this.rejectForm = this.fb.group({
       reason: ['', [Validators.required, Validators.minLength(10)]]
@@ -33,21 +42,74 @@ export class TimesheetApprovalComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.userSetorId = parseInt(localStorage.getItem('setorId') || '0', 10);
+    // Get userSetorId from current user's setores
+    const currentUser = this.authService.currentUserValue;
+    console.log('Current User:', currentUser);
+    console.log('User Role:', currentUser?.role);
+    console.log('User Setores:', currentUser?.setores);
+
+    if (!currentUser) {
+      this.message = 'Usuário não autenticado. Faça login novamente.';
+      this.messageType = 'error';
+      this.cdr.markForCheck();
+      return;
+    }
+
+    // Se é Admin, usa setorId = 0 (backend retorna todos)
+    if (currentUser.role === 'Admin') {
+      this.userSetorId = 0;
+      console.log('Admin detected - loading all pending timesheets');
+    }
+    // Se é Gestor, usa o primeiro setor associado
+    else if (currentUser.role === 'Gestor') {
+      if (!currentUser.setores || currentUser.setores.length === 0) {
+        this.message = 'Você não tem setores associados. Contacte o administrador.';
+        this.messageType = 'error';
+        this.cdr.markForCheck();
+        return;
+      }
+      this.userSetorId = currentUser.setores[0].id;
+      console.log('Gestor detected - using Setor ID:', this.userSetorId);
+    }
+    else {
+      this.message = 'Você não tem permissão para aprovar timesheets.';
+      this.messageType = 'error';
+      this.cdr.markForCheck();
+      return;
+    }
+
+    this.loadProjects();
     this.loadPendingApprovals();
+  }
+
+  loadProjects(): void {
+    this.projectService.getAll().subscribe(
+      (data: Project[]) => {
+        this.projects = data;
+      },
+      (error: any) => {
+        console.error('Erro ao carregar projetos:', error);
+      }
+    );
   }
 
   loadPendingApprovals(): void {
     this.isLoading = true;
+    console.log('Loading pending approvals for setor:', this.userSetorId);
+
     this.timesheetService.getPendingApprovals(this.userSetorId).subscribe(
       (data) => {
+        console.log('Pending timesheets:', data);
         this.pendingTimesheets = data;
         this.isLoading = false;
+        this.cdr.markForCheck();
       },
       (error) => {
-        this.message = 'Erro ao carregar timesheets pendentes';
+        console.error('Error loading pending approvals:', error);
+        this.message = `Erro ao carregar timesheets: ${error.status} - ${error.statusText || error.message || 'Verifique se tem permissão'}`;
         this.messageType = 'error';
         this.isLoading = false;
+        this.cdr.markForCheck();
       }
     );
   }
@@ -56,14 +118,21 @@ export class TimesheetApprovalComponent implements OnInit {
     this.isLoading = true;
     this.timesheetService.getTimesheet(timesheetId).subscribe(
       (timesheet) => {
+        // Enrich entries with project names from local projects array
+        timesheet.entries = timesheet.entries.map(entry => ({
+          ...entry,
+          projectName: entry.projectName || this.projects.find(p => p.id === entry.projectId)?.name || 'Projeto'
+        }));
         this.currentTimesheet = timesheet;
         this.isLoading = false;
         this.message = '';
+        this.cdr.markForCheck();
       },
       (error) => {
         this.message = 'Erro ao carregar timesheet';
         this.messageType = 'error';
         this.isLoading = false;
+        this.cdr.markForCheck();
       }
     );
   }
@@ -79,11 +148,13 @@ export class TimesheetApprovalComponent implements OnInit {
         this.currentTimesheet = null;
         this.loadPendingApprovals();
         this.isLoading = false;
+        this.cdr.markForCheck();
       },
       (error) => {
         this.message = error.error?.message || 'Erro ao aprovar timesheet';
         this.messageType = 'error';
         this.isLoading = false;
+        this.cdr.markForCheck();
       }
     );
   }
@@ -112,11 +183,13 @@ export class TimesheetApprovalComponent implements OnInit {
         this.showRejectModal = false;
         this.loadPendingApprovals();
         this.isLoading = false;
+        this.cdr.markForCheck();
       },
       (error) => {
         this.message = error.error?.message || 'Erro ao rejeitar timesheet';
         this.messageType = 'error';
         this.isLoading = false;
+        this.cdr.markForCheck();
       }
     );
   }
@@ -125,9 +198,10 @@ export class TimesheetApprovalComponent implements OnInit {
     return this.currentTimesheet?.entries.reduce((sum, entry) => sum + entry.workHours, 0) || 0;
   }
 
-  getDayLabel(dayOfWeek: number): string {
-    const day = this.daysOfWeek.find(d => d.value === dayOfWeek);
-    return day?.label || '';
+  decimalToTimeFormat(decimalHours: number): string {
+    const hours = Math.floor(decimalHours);
+    const minutes = Math.round((decimalHours - hours) * 60);
+    return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
   }
 
   getStatusColor(status: string): string {
@@ -138,5 +212,9 @@ export class TimesheetApprovalComponent implements OnInit {
       case 'Rejected': return '#dc3545';
       default: return '#6c757d';
     }
+  }
+
+  goBack(): void {
+    this.router.navigate(['/dashboard']);
   }
 }

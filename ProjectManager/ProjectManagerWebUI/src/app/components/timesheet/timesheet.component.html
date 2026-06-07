@@ -1,150 +1,178 @@
+<app-navbar></app-navbar>
+
 <div class="timesheet-container">
-  <h1>Minhas Timesheets</h1>
-
-  <!-- Mensagens -->
-  <div *ngIf="message" class="alert" [ngClass]="{
-    'alert-success': messageType === 'success',
-    'alert-error': messageType === 'error',
-    'alert-info': messageType === 'info'
-  }">
-    {{ message }}
-    <button class="close-btn" (click)="message = ''">×</button>
-  </div>
-
-  <div class="content">
-    <!-- Sidebar com Timesheets -->
-    <div class="sidebar">
-      <h3>Minhas Timesheets</h3>
-      <div *ngIf="timesheets.length === 0" class="empty-state">
-        Nenhuma timesheet criada
-      </div>
-      <div class="timesheet-list">
-        <div *ngFor="let ts of timesheets"
-             class="timesheet-item"
-             [class.active]="currentTimesheet?.id === ts.id"
-             (click)="selectTimesheet(ts.id)">
-          <div class="item-header">
-            <strong>{{ ts.projectName }}</strong>
-            <span class="status-badge" [style.backgroundColor]="getStatusColor(ts.status)">
-              {{ ts.status }}
-            </span>
-          </div>
-          <small>{{ ts.weekStartDate | date:'dd/MM/yyyy' }} - {{ ts.weekEndDate | date:'dd/MM/yyyy' }}</small>
-          <small class="total-hours">Total: {{ ts.totalHours | number:'1.2-2' }}h</small>
-        </div>
-      </div>
-
-      <div class="create-section">
-        <h4>Nova Timesheet</h4>
-        <div class="form-group">
-          <label>Projeto</label>
-          <select [(ngModel)]="selectedWeekStart" class="form-control">
-            <option value="">-- Selecione um projeto --</option>
-            <option *ngFor="let project of projects" [value]="project.id">
-              {{ project.name }}
-            </option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Data Início (Domingo)</label>
-          <input type="date" [(ngModel)]="selectedWeekStart" class="form-control">
-        </div>
-        <button (click)="createNewTimesheet(parseInt(selectedWeekStart || '0'))"
-                class="btn btn-primary"
-                [disabled]="isLoading || !selectedWeekStart">
-          <span *ngIf="isLoading">Criando...</span>
-          <span *ngIf="!isLoading">Criar Nova</span>
-        </button>
-      </div>
+  <div class="timesheet-content">
+    <div class="timesheet-header">
+      <h1>Minha Timesheet Diária</h1>
+      <button class="btn-back" (click)="goBack()">← Voltar</button>
     </div>
 
-    <!-- Conteúdo Principal -->
-    <div class="main-content">
-      <div *ngIf="!currentTimesheet" class="empty-state">
-        <p>Selecione ou crie uma timesheet para começar</p>
+    <!-- Mensagens -->
+    <div *ngIf="message" class="alert" [ngClass]="{
+      'alert-success': messageType === 'success',
+      'alert-error': messageType === 'error',
+      'alert-info': messageType === 'info'
+    }">
+      {{ message }}
+      <button class="close-btn" (click)="message = ''">×</button>
+    </div>
+
+    <div class="content">
+      <!-- Sidebar com Timesheets -->
+      <div class="sidebar">
+        <h3>Minhas Timesheets</h3>
+
+        <!-- Seletor de Data -->
+        <div class="date-section">
+          <label>Selecionar Data</label>
+          <input type="date" [(ngModel)]="selectedDate" (change)="onDateChange()" class="form-control">
+        </div>
+
+        <!-- Filtro por Mês/Ano -->
+        <div class="month-filter-section">
+          <label>Filtrar por Mês</label>
+          <input type="month" [(ngModel)]="selectedMonth" (change)="onMonthChange()" class="form-control">
+        </div>
+
+        <!-- Lista de Timesheets -->
+        <div *ngIf="getFilteredTimesheets().length === 0" class="empty-state">
+          Nenhuma timesheet neste período
+        </div>
+        <div class="timesheet-list">
+          <div *ngFor="let ts of getFilteredTimesheets()"
+               class="timesheet-item"
+               [class.active]="currentTimesheet?.id === ts.id"
+               (click)="selectTimesheet(ts.id)">
+            <div class="item-header">
+              <strong>{{ ts.date | date:'dd/MM/yyyy' }}</strong>
+              <span class="status-badge" [style.backgroundColor]="getStatusColor(ts.status)">
+                {{ ts.status }}
+              </span>
+            </div>
+            <small>Projetos: {{ ts.projectCount }} | Total: {{ ts.totalHours | number:'1.2-2' }}h</small>
+          </div>
+        </div>
       </div>
 
-      <div *ngIf="currentTimesheet" class="timesheet-form">
-        <div class="header">
-          <div>
-            <h2>{{ currentTimesheet.projectName }}</h2>
-            <p class="period">
-              {{ currentTimesheet.weekStartDate | date:'dd MMMM yyyy' }} -
-              {{ currentTimesheet.weekEndDate | date:'dd MMMM yyyy' }}
+      <!-- Conteúdo Principal -->
+      <div class="main-content">
+        <div *ngIf="!currentTimesheet" class="empty-state">
+          <p>Selecione uma data para começar</p>
+        </div>
+
+        <div *ngIf="currentTimesheet" class="timesheet-form">
+          <div class="header">
+            <div>
+              <h2>{{ currentTimesheet.date | date:'dd MMMM yyyy' }}</h2>
+              <p class="period">Timesheet Diária</p>
+            </div>
+            <span class="status" [style.backgroundColor]="getStatusColor(currentTimesheet.status)">
+              {{ currentTimesheet.status }}
+            </span>
+          </div>
+
+          <!-- Rejeição Info -->
+          <div *ngIf="currentTimesheet.status === 'Rejected' && currentTimesheet.rejectionReason"
+               class="alert alert-warning">
+            <strong>Motivo da Rejeição:</strong> {{ currentTimesheet.rejectionReason }}
+          </div>
+
+          <!-- Adicionar Projeto -->
+          <div *ngIf="currentTimesheet.status === 'Draft'" class="add-project-section">
+            <h4>Adicionar Projeto</h4>
+            <form [formGroup]="entryForm" class="add-form">
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Projeto</label>
+                  <select [(ngModel)]="selectedProjectId" [ngModelOptions]="{standalone: true}" class="form-control">
+                    <option [value]="null">-- Selecione --</option>
+                    <option *ngFor="let project of projects" [value]="project.id">
+                      {{ project.name }}
+                    </option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label>Horas</label>
+                  <input type="time" formControlName="workHours" class="form-control">
+                </div>
+
+                <div class="form-group">
+                  <label>Notas</label>
+                  <input type="text" formControlName="notes" class="form-control" placeholder="(opcional)">
+                </div>
+
+                <button (click)="addProjectEntry()" class="btn btn-primary" [disabled]="isLoading || entryForm.invalid || !selectedProjectId">
+                  + Adicionar
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Lista de Projetos da Timesheet -->
+          <div class="projects-list">
+            <div class="list-header">
+              <div class="col-project">Projeto</div>
+              <div class="col-hours">Horas</div>
+              <div class="col-notes">Notas</div>
+              <div class="col-action">Ação</div>
+            </div>
+
+            <div *ngIf="currentTimesheet.entries.length === 0" class="empty-state">
+              Nenhum projeto adicionado
+            </div>
+
+            <div *ngIf="currentTimesheet.entries.length > 0" class="list-items">
+              <div *ngFor="let entry of currentTimesheet.entries" class="project-row">
+                <div class="col-project">
+                  <strong>{{ entry.projectName }}</strong>
+                </div>
+                <div class="col-hours">
+                  <span class="hours-badge">{{ decimalToTimeFormat(entry.workHours) }}</span>
+                </div>
+                <div class="col-notes">
+                  {{ entry.notes || '-' }}
+                </div>
+                <div class="col-action">
+                  <button *ngIf="currentTimesheet.status === 'Draft'"
+                          (click)="removeProjectEntry(entry.projectId)"
+                          class="btn-remove">
+                    ✕
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Resumo -->
+          <div class="summary">
+            <div class="total-row">
+              <span>Total de Horas:</span>
+              <strong>{{ currentTimesheet.totalHours | number:'1.2-2' }}</strong>
+            </div>
+            <small *ngIf="currentTimesheet.totalHours > 12" class="warning">
+              ⚠️ Total superior a 12 horas
+            </small>
+          </div>
+
+          <!-- Ações -->
+          <div class="actions" *ngIf="currentTimesheet.status === 'Draft' && currentTimesheet.entries.length > 0">
+            <button (click)="submitTimesheet()" class="btn btn-success" [disabled]="isLoading">
+              <span *ngIf="isLoading">Enviando...</span>
+              <span *ngIf="!isLoading">Enviar para Aprovação</span>
+            </button>
+          </div>
+
+          <div class="actions" *ngIf="currentTimesheet.status !== 'Draft'">
+            <p class="info-text">
+              <span *ngIf="currentTimesheet.status === 'Submitted'">
+                Aguardando aprovação
+              </span>
+              <span *ngIf="currentTimesheet.status === 'Approved'">
+                ✓ Aprovado em {{ currentTimesheet.approvedAt | date:'dd/MM/yyyy' }}
+              </span>
             </p>
           </div>
-          <span class="status" [style.backgroundColor]="getStatusColor(currentTimesheet.status)">
-            {{ currentTimesheet.status }}
-          </span>
-        </div>
-
-        <!-- Rejeição Info -->
-        <div *ngIf="currentTimesheet.status === 'Rejected' && currentTimesheet.rejectionReason"
-             class="alert alert-warning">
-          <strong>Motivo da Rejeição:</strong> {{ currentTimesheet.rejectionReason }}
-        </div>
-
-        <!-- Tabela de Horas -->
-        <form [formGroup]="hoursForm" class="hours-table">
-          <div class="table-header">
-            <div class="col-day">Dia</div>
-            <div class="col-hours">Horas</div>
-            <div class="col-notes">Observações</div>
-          </div>
-
-          <div *ngFor="let day of daysOfWeek" class="table-row">
-            <div class="col-day">{{ day.label }}</div>
-            <div class="col-hours">
-              <input type="number"
-                     [formControlName]="'hours_' + day.value"
-                     min="0"
-                     max="12"
-                     step="0.5"
-                     class="form-control"
-                     [disabled]="currentTimesheet.status !== 'Draft'">
-            </div>
-            <div class="col-notes">
-              <input type="text"
-                     [formControlName]="'notes_' + day.value"
-                     placeholder="Notas (opcional)"
-                     class="form-control"
-                     [disabled]="currentTimesheet.status !== 'Draft'">
-            </div>
-          </div>
-        </form>
-
-        <!-- Resumo -->
-        <div class="summary">
-          <div class="total-row">
-            <span>Total de Horas:</span>
-            <strong>{{ getTotalHours() | number:'1.2-2' }}</strong>
-          </div>
-          <small *ngIf="getTotalHours() > 50" class="warning">
-            ⚠️ Total superior a 50 horas
-          </small>
-        </div>
-
-        <!-- Ações -->
-        <div class="actions" *ngIf="currentTimesheet.status === 'Draft'">
-          <button (click)="saveHours()" class="btn btn-primary" [disabled]="isLoading || hoursForm.invalid">
-            <span *ngIf="isLoading">Salvando...</span>
-            <span *ngIf="!isLoading">Salvar</span>
-          </button>
-          <button (click)="submitTimesheet()" class="btn btn-success" [disabled]="isLoading || getTotalHours() === 0">
-            <span *ngIf="isLoading">Enviando...</span>
-            <span *ngIf="!isLoading">Enviar para Aprovação</span>
-          </button>
-        </div>
-
-        <div class="actions" *ngIf="currentTimesheet.status !== 'Draft'">
-          <p class="info-text">
-            <span *ngIf="currentTimesheet.status === 'Submitted'">
-              Aguardando aprovação do gestor
-            </span>
-            <span *ngIf="currentTimesheet.status === 'Approved'">
-              ✓ Aprovado em {{ currentTimesheet.approvedAt | date:'dd/MM/yyyy' }}
-            </span>
-          </p>
         </div>
       </div>
     </div>

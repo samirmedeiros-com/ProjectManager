@@ -839,6 +839,29 @@
   box-shadow: 0 5px 15px rgba(220, 0, 50, 0.4);
 }
 
+.timesheet-btn {
+  background-color: #DC0032;
+  color: white;
+  border: none;
+  padding: 9px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.3s;
+  height: 40px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.timesheet-btn:hover {
+  background-color: #b80029;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(220, 0, 50, 0.3);
+}
+
 .user-menu {
   position: relative;
 }

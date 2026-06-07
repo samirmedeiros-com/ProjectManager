@@ -6,17 +6,25 @@ import { Router } from '@angular/router';
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
-  constructor(private router: Router) {}
+  constructor(private router: Router) {
+    console.log('✅ AuthInterceptor instanciado');
+  }
 
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     const token = localStorage.getItem('token');
 
+    console.log('AuthInterceptor - URL:', request.url);
+    console.log('AuthInterceptor - Token existe:', !!token);
+
     if (token) {
+      console.log('AuthInterceptor - Adicionando token ao header');
       request = request.clone({
         setHeaders: {
           Authorization: `Bearer ${token}`
         }
       });
+    } else {
+      console.log('AuthInterceptor - NENHUM TOKEN ENCONTRADO no localStorage');
     }
 
     return next.handle(request).pipe(

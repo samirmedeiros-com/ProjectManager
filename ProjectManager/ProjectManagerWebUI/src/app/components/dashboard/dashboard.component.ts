@@ -6,6 +6,7 @@ import { AuthService } from '../../services/auth.service';
 import { UserService } from '../../services/user.service';
 import { ProjectService } from '../../services/project.service';
 import { SetorService } from '../../services/setor.service';
+import { NavbarComponent } from '../navbar/navbar.component';
 import { ChangePasswordComponent } from '../change-password/change-password.component';
 import { Project, CreateProjectRequest } from '../../models/project.model';
 import { User } from '../../models/user.model';
@@ -14,8 +15,7 @@ import jsPDF from 'jspdf';
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule, ChangePasswordComponent],
-  // ChangePasswordComponent importado para usar no template
+  imports: [CommonModule, FormsModule, NavbarComponent, ChangePasswordComponent],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -30,7 +30,6 @@ export class DashboardComponent implements OnInit {
   loadingUsers = false;
   loadingSetores = false;
   showNewProjectForm = false;
-  showUserMenu = false;
 
   get currentUser(): User | null {
     return this.authService.currentUserValue;
@@ -46,6 +45,13 @@ export class DashboardComponent implements OnInit {
     newPassword: '',
     confirmPassword: ''
   };
+
+  ngOnInit2(): void {
+    // Listen for openChangePassword event from navbar
+    window.addEventListener('openChangePassword', () => {
+      this.openChangePassword();
+    });
+  }
 
   // Edição inline
   editingManagerId: number | null = null;
@@ -904,13 +910,7 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  toggleUserMenu() {
-    this.showUserMenu = !this.showUserMenu;
-    this.cdr.markForCheck();
-  }
-
   openChangePassword() {
-    this.showUserMenu = false;
     this.showChangePasswordModal = true;
     this.resetChangePasswordForm();
     this.cdr.markForCheck();

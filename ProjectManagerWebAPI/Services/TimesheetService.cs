@@ -14,31 +14,28 @@ public class TimesheetService
         _context = context;
     }
 
-    public async Task<Timesheet> CreateTimesheetAsync(int projectId, int userId, DateTime weekStartDate, int createdById)
+    public async Task<Timesheet> GetOrCreateDailyTimesheetAsync(int userId, DateTime date)
     {
-        var weekEndDate = weekStartDate.AddDays(6);
+        var dateOnly = date.Date;
+        var timesheet = await _context.Timesheets
+            .Include(t => t.Entries)
+            .ThenInclude(e => e.Project)
+            .FirstOrDefaultAsync(t => t.UserId == userId && t.Date == dateOnly);
 
-        var existingTimesheet = await _context.Timesheets.FirstOrDefaultAsync(t =>
-            t.ProjectId == projectId &&
-            t.UserId == userId &&
-            t.WeekStartDate == weekStartDate) != null;
-
-        if (existingTimesheet)
-            throw new InvalidOperationException("Timesheet já existe para este período");
-
-        var timesheet = new Timesheet
+        if (timesheet == null)
         {
-            ProjectId = projectId,
-            UserId = userId,
-            WeekStartDate = weekStartDate,
-            WeekEndDate = weekEndDate,
-            Status = "Draft",
-            CreatedById = createdById,
-            CreatedAt = DateTime.UtcNow
-        };
+            timesheet = new Timesheet
+            {
+                UserId = userId,
+                Date = dateOnly,
+                Status = "Draft",
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
 
-        _context.Timesheets.Add(timesheet);
-        await _context.SaveChangesAsync();
+            _context.Timesheets.Add(timesheet);
+            await _context.SaveChangesAsync();
+        }
 
         return timesheet;
     }
@@ -46,69 +43,77 @@ public class TimesheetService
     public async Task<Timesheet?> GetTimesheetByIdAsync(int id)
     {
         return await _context.Timesheets
-            .Include(t => t.Project)
             .Include(t => t.User)
             .Include(t => t.Entries)
-            .Include(t => t.ApprovedBy)
+            .ThenInclude(e => e.Project)
             .FirstOrDefaultAsync(t => t.Id == id);
     }
 
-    public async Task<List<Timesheet>> GetUserTimesheetsAsync(int userId)
+    public async Task<List<Timesheet>> GetUserTimesheetsAsync(int userId, DateTime? startDate = null, DateTime? endDate = null)
     {
-        return await _context.Timesheets
+        var query = _context.Timesheets
             .Where(t => t.UserId == userId)
-            .Include(t => t.Project)
             .Include(t => t.Entries)
-            .OrderByDescending(t => t.WeekStartDate)
-            .ToListAsync();
+            .ThenInclude(e => e.Project)
+            .AsQueryable();
+
+        if (startDate.HasValue)
+            query = query.Where(t => t.Date >= startDate.Value.Date);
+
+        if (endDate.HasValue)
+            query = query.Where(t => t.Date <= endDate.Value.Date);
+
+        return await query.OrderByDescending(t => t.Date).ToListAsync();
     }
 
-    public async Task<List<Timesheet>> GetPendingApprovalsAsync(int setorId)
+    public async Task<Timesheet> AddProjectEntryAsync(int timesheetId, int projectId, decimal workHours, string? notes)
     {
-        return await _context.Timesheets
-            .Where(t => t.Status == "Submitted" && t.Project != null && t.Project.SetorId == setorId)
-            .Include(t => t.Project)
-            .Include(t => t.User)
-            .Include(t => t.Entries)
-            .OrderByDescending(t => t.CreatedAt)
-            .ToListAsync();
-    }
-
-    public async Task<Timesheet> UpdateEntriesAsync(int id, List<Controllers.TimesheetEntryRequest> entries)
-    {
-        var timesheet = await GetTimesheetByIdAsync(id);
+        var timesheet = await GetTimesheetByIdAsync(timesheetId);
         if (timesheet == null)
             throw new KeyNotFoundException("Timesheet não encontrado");
 
         if (timesheet.Status != "Draft")
-            throw new InvalidOperationException("Apenas timesheets em Draft podem ser editados");
+            throw new InvalidOperationException("Só é possível adicionar horas em timesheets em Draft");
 
-        _context.TimesheetEntries.RemoveRange(timesheet.Entries);
-
-        var totalHours = 0m;
-        foreach (var entry in entries)
+        var existingEntry = timesheet.Entries.FirstOrDefault(e => e.ProjectId == projectId);
+        if (existingEntry != null)
         {
-            if (entry.WorkHours < 0 || entry.WorkHours > 12)
-                throw new InvalidOperationException("Horas devem estar entre 0 e 12");
-
-            totalHours += entry.WorkHours;
-
-            var timesheetEntry = new TimesheetEntry
-            {
-                TimesheetId = id,
-                DayOfWeek = entry.DayOfWeek,
-                WorkHours = entry.WorkHours,
-                Notes = entry.Notes
-            };
-
-            _context.TimesheetEntries.Add(timesheetEntry);
+            existingEntry.WorkHours = workHours;
+            existingEntry.Notes = notes;
         }
-
-        if (totalHours > 60)
-            throw new InvalidOperationException("Total de horas na semana não pode exceder 60");
+        else
+        {
+            var entry = new TimesheetEntry
+            {
+                TimesheetId = timesheetId,
+                ProjectId = projectId,
+                WorkHours = workHours,
+                Notes = notes
+            };
+            timesheet.Entries.Add(entry);
+        }
 
         timesheet.UpdatedAt = DateTime.UtcNow;
         await _context.SaveChangesAsync();
+        return timesheet;
+    }
+
+    public async Task<Timesheet> RemoveProjectEntryAsync(int timesheetId, int projectId)
+    {
+        var timesheet = await GetTimesheetByIdAsync(timesheetId);
+        if (timesheet == null)
+            throw new KeyNotFoundException("Timesheet não encontrado");
+
+        if (timesheet.Status != "Draft")
+            throw new InvalidOperationException("Só é possível remover horas em timesheets em Draft");
+
+        var entry = timesheet.Entries.FirstOrDefault(e => e.ProjectId == projectId);
+        if (entry != null)
+        {
+            timesheet.Entries.Remove(entry);
+            timesheet.UpdatedAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+        }
 
         return timesheet;
     }
@@ -120,36 +125,31 @@ public class TimesheetService
             throw new KeyNotFoundException("Timesheet não encontrado");
 
         if (timesheet.Status != "Draft")
-            throw new InvalidOperationException("Apenas timesheets em Draft podem ser submetidos");
+            throw new InvalidOperationException("Apenas timesheets em Draft podem ser submetidas");
 
-        var totalHours = timesheet.Entries.Sum(e => e.WorkHours);
-        if (totalHours == 0)
-            throw new InvalidOperationException("Timesheet deve ter pelo menos uma hora registrada");
+        if (!timesheet.Entries.Any())
+            throw new InvalidOperationException("Timesheet deve ter pelo menos uma entrada");
 
         timesheet.Status = "Submitted";
         timesheet.UpdatedAt = DateTime.UtcNow;
-
         await _context.SaveChangesAsync();
-
         return timesheet;
     }
 
-    public async Task<Timesheet> ApproveTimesheetAsync(int id, int approvedById)
+    public async Task<Timesheet> ApproveTimesheetAsync(int id, int approverId)
     {
         var timesheet = await GetTimesheetByIdAsync(id);
         if (timesheet == null)
             throw new KeyNotFoundException("Timesheet não encontrado");
 
         if (timesheet.Status != "Submitted")
-            throw new InvalidOperationException("Apenas timesheets submetidos podem ser aprovados");
+            throw new InvalidOperationException("Apenas timesheets submetidas podem ser aprovadas");
 
         timesheet.Status = "Approved";
-        timesheet.ApprovedById = approvedById;
+        timesheet.ApprovedById = approverId;
         timesheet.ApprovedAt = DateTime.UtcNow;
         timesheet.UpdatedAt = DateTime.UtcNow;
-
         await _context.SaveChangesAsync();
-
         return timesheet;
     }
 
@@ -160,56 +160,60 @@ public class TimesheetService
             throw new KeyNotFoundException("Timesheet não encontrado");
 
         if (timesheet.Status != "Submitted")
-            throw new InvalidOperationException("Apenas timesheets submetidos podem ser rejeitados");
+            throw new InvalidOperationException("Apenas timesheets submetidas podem ser rejeitadas");
 
-        timesheet.Status = "Draft";
+        timesheet.Status = "Rejected";
         timesheet.RejectionReason = reason;
         timesheet.UpdatedAt = DateTime.UtcNow;
-
         await _context.SaveChangesAsync();
-
         return timesheet;
     }
 
-    public async Task<List<Timesheet>> GetTimesheetsByProjectAsync(int projectId)
+    public async Task<List<Timesheet>> GetPendingApprovalsAsync(int setorId)
     {
-        return await _context.Timesheets
-            .Where(t => t.ProjectId == projectId)
+        var query = _context.Timesheets
+            .Where(t => t.Status == "Submitted")
             .Include(t => t.User)
+            .ThenInclude(u => u.UserSetores)
             .Include(t => t.Entries)
-            .OrderByDescending(t => t.WeekStartDate)
-            .ToListAsync();
-    }
+            .ThenInclude(e => e.Project);
 
-    private TimesheetResponse MapToResponse(Timesheet timesheet)
-    {
-        return new TimesheetResponse
+        // Se setorId > 0, filtra por setor específico (para Gestor)
+        // Se setorId = 0, retorna todos (para Admin)
+        if (setorId > 0)
         {
-            Id = timesheet.Id,
-            ProjectId = timesheet.ProjectId,
-            ProjectName = timesheet.Project?.Name,
-            UserId = timesheet.UserId,
-            UserName = timesheet.User?.FullName,
-            WeekStartDate = timesheet.WeekStartDate,
-            WeekEndDate = timesheet.WeekEndDate,
-            Status = timesheet.Status,
-            Entries = timesheet.Entries.Select(e => new TimesheetEntryResponse
-            {
-                DayOfWeek = e.DayOfWeek,
-                WorkHours = e.WorkHours,
-                Notes = e.Notes
-            }).ToList(),
-            TotalHours = timesheet.Entries.Sum(e => e.WorkHours),
-            ApprovedByName = timesheet.ApprovedBy?.FullName,
-            ApprovedAt = timesheet.ApprovedAt,
-            RejectionReason = timesheet.RejectionReason,
-            CreatedAt = timesheet.CreatedAt
-        };
+            return await query
+                .Where(t => t.User!.UserSetores.Any(us => us.SetorId == setorId))
+                .OrderByDescending(t => t.Date)
+                .ToListAsync();
+        }
+
+        return await query
+            .OrderByDescending(t => t.Date)
+            .ToListAsync();
     }
 
     public TimesheetResponse GetTimesheetResponse(Timesheet timesheet)
     {
-        return MapToResponse(timesheet);
+        return new TimesheetResponse
+        {
+            Id = timesheet.Id,
+            UserId = timesheet.UserId,
+            UserName = timesheet.User?.FullName ?? "",
+            Date = timesheet.Date,
+            Status = timesheet.Status,
+            TotalHours = timesheet.Entries.Sum(e => e.WorkHours),
+            ApprovedAt = timesheet.ApprovedAt,
+            RejectionReason = timesheet.RejectionReason,
+            Entries = timesheet.Entries.Select(e => new TimesheetEntryResponse
+            {
+                Id = e.Id,
+                ProjectId = e.ProjectId,
+                ProjectName = e.Project?.Name ?? "",
+                WorkHours = e.WorkHours,
+                Notes = e.Notes
+            }).ToList()
+        };
     }
 
     public List<TimesheetListResponse> GetTimesheetListResponse(List<Timesheet> timesheets)
@@ -217,13 +221,48 @@ public class TimesheetService
         return timesheets.Select(t => new TimesheetListResponse
         {
             Id = t.Id,
-            ProjectName = t.Project?.Name,
-            UserName = t.User?.FullName,
-            WeekStartDate = t.WeekStartDate,
-            WeekEndDate = t.WeekEndDate,
+            Date = t.Date,
             Status = t.Status,
             TotalHours = t.Entries.Sum(e => e.WorkHours),
-            CreatedAt = t.CreatedAt
+            ProjectCount = t.Entries.Count,
+            ApprovedAt = t.ApprovedAt
         }).ToList();
     }
+}
+
+public class TimesheetResponse
+{
+    public int Id { get; set; }
+    public int UserId { get; set; }
+    public string UserName { get; set; }
+    public DateTime Date { get; set; }
+    public string Status { get; set; }
+    public decimal TotalHours { get; set; }
+    public DateTime? ApprovedAt { get; set; }
+    public string? RejectionReason { get; set; }
+    public List<TimesheetEntryResponse> Entries { get; set; } = new();
+}
+
+public class TimesheetEntryResponse
+{
+    public int Id { get; set; }
+    public int ProjectId { get; set; }
+    public string ProjectName { get; set; }
+    public decimal WorkHours { get; set; }
+    public string? Notes { get; set; }
+}
+
+public class TimesheetListResponse
+{
+    public int Id { get; set; }
+    public DateTime Date { get; set; }
+    public string Status { get; set; }
+    public decimal TotalHours { get; set; }
+    public int ProjectCount { get; set; }
+    public DateTime? ApprovedAt { get; set; }
+}
+
+public class RejectTimesheetRequest
+{
+    public string Reason { get; set; }
 }

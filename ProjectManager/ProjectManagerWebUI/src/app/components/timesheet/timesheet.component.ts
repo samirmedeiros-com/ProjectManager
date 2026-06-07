@@ -1,159 +1,188 @@
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
+import { NavbarComponent } from '../navbar/navbar.component';
 import { TimesheetService } from '../../services/timesheet.service';
 import { ProjectService } from '../../services/project.service';
-import { Timesheet, TimesheetEntry, DAYS_OF_WEEK } from '../../models/timesheet.model';
+import { Timesheet, TimesheetEntry, TimesheetListItem } from '../../models/timesheet.model';
 import { Project } from '../../models/project.model';
 
 @Component({
   selector: 'app-timesheet',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, NavbarComponent],
   templateUrl: './timesheet.component.html',
   styleUrls: ['./timesheet.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TimesheetComponent implements OnInit {
-  daysOfWeek = DAYS_OF_WEEK;
   projects: Project[] = [];
-  timesheets: Timesheet[] = [];
+  timesheets: TimesheetListItem[] = [];
   currentTimesheet: Timesheet | null = null;
-  hoursForm!: FormGroup;
+
+  selectedDate: string = new Date().toISOString().split('T')[0];
+  selectedProjectId: number | null = null;
+  selectedMonth: string = new Date().toISOString().split('T')[0].slice(0, 7);
+
   isLoading = false;
   message = '';
   messageType: 'success' | 'error' | 'info' = 'info';
-  selectedWeekStart: Date | null = null;
+
+  entryForm: FormGroup;
 
   constructor(
     private timesheetService: TimesheetService,
     private projectService: ProjectService,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private cdr: ChangeDetectorRef,
+    private router: Router
   ) {
-    this.hoursForm = this.fb.group({});
+    this.entryForm = this.fb.group({
+      workHours: ['', Validators.required],
+      notes: ['']
+    });
   }
 
   ngOnInit(): void {
     this.loadProjects();
     this.loadMyTimesheets();
+    this.loadDayTimesheet();
   }
 
   loadProjects(): void {
     this.isLoading = true;
-    this.projectService.getProjects().subscribe(
+    this.projectService.getAll().subscribe(
       (data: Project[]) => {
         this.projects = data;
         this.isLoading = false;
+        this.cdr.markForCheck();
       },
-      (error) => {
+      (error: any) => {
         this.message = 'Erro ao carregar projetos';
         this.messageType = 'error';
         this.isLoading = false;
+        this.cdr.markForCheck();
       }
     );
   }
 
   loadMyTimesheets(): void {
     this.timesheetService.getMyTimesheets().subscribe(
-      (data) => {
+      (data: TimesheetListItem[]) => {
         this.timesheets = data;
+        this.cdr.markForCheck();
       },
-      (error) => {
-        this.message = 'Erro ao carregar timesheets';
-        this.messageType = 'error';
+      (error: any) => {
+        console.error('Erro ao carregar timesheets:', error);
       }
     );
   }
 
-  createNewTimesheet(projectId: number): void {
-    if (!this.selectedWeekStart) {
-      this.message = 'Selecione uma data de início de semana';
+  loadDayTimesheet(): void {
+    if (!this.selectedDate) return;
+
+    const date = new Date(this.selectedDate);
+    this.isLoading = true;
+
+    this.timesheetService.getDayTimesheet(date).subscribe(
+      (timesheet: Timesheet) => {
+        // Enrich entries with project names from local projects array
+        timesheet.entries = timesheet.entries.map(entry => ({
+          ...entry,
+          projectName: entry.projectName || this.projects.find(p => p.id === entry.projectId)?.name || 'Projeto'
+        }));
+        this.currentTimesheet = timesheet;
+        this.isLoading = false;
+        this.message = '';
+        this.cdr.markForCheck();
+      },
+      (error: any) => {
+        this.message = 'Erro ao carregar timesheet do dia';
+        this.messageType = 'error';
+        this.isLoading = false;
+        this.cdr.markForCheck();
+      }
+    );
+  }
+
+  addProjectEntry(): void {
+    if (!this.currentTimesheet) {
+      this.message = 'Selecione um dia primeiro';
       this.messageType = 'error';
+      this.cdr.markForCheck();
       return;
     }
 
-    const userId = parseInt(localStorage.getItem('userId') || '0', 10);
-    if (!userId) {
-      this.message = 'Usuário não identificado';
+    if (!this.selectedProjectId) {
+      this.message = 'Selecione um projeto';
       this.messageType = 'error';
+      this.cdr.markForCheck();
       return;
     }
+
+    if (this.entryForm.invalid) {
+      this.message = 'Preencha as horas';
+      this.messageType = 'error';
+      this.cdr.markForCheck();
+      return;
+    }
+
+    const { workHours, notes } = this.entryForm.value;
+    // Convert time format (hh:mm) to decimal hours
+    const [hours, minutes] = workHours.split(':').map(Number);
+    const decimalHours = hours + minutes / 60;
 
     this.isLoading = true;
-    this.timesheetService.createTimesheet(projectId, userId, this.selectedWeekStart).subscribe(
-      (timesheet) => {
-        this.currentTimesheet = timesheet;
-        this.initializeForm();
-        this.message = 'Timesheet criado com sucesso';
+
+    this.timesheetService.addProjectEntry(this.currentTimesheet.id, this.selectedProjectId, decimalHours, notes).subscribe(
+      (updated: Timesheet) => {
+        // Enrich entries with project names from local projects array
+        updated.entries = updated.entries.map(entry => ({
+          ...entry,
+          projectName: entry.projectName || this.projects.find(p => p.id === entry.projectId)?.name || 'Projeto'
+        }));
+        this.currentTimesheet = updated;
+        this.message = 'Projeto adicionado com sucesso';
+        this.messageType = 'success';
+        this.isLoading = false;
+        this.entryForm.reset();
+        this.selectedProjectId = null;
+        this.loadMyTimesheets();
+        this.cdr.markForCheck();
+      },
+      (error: any) => {
+        this.message = error.error?.message || 'Erro ao adicionar projeto';
+        this.messageType = 'error';
+        this.isLoading = false;
+        this.cdr.markForCheck();
+      }
+    );
+  }
+
+  removeProjectEntry(projectId: number): void {
+    if (!this.currentTimesheet) return;
+
+    this.isLoading = true;
+    this.timesheetService.removeProjectEntry(this.currentTimesheet.id, projectId).subscribe(
+      (updated: Timesheet) => {
+        // Enrich entries with project names from local projects array
+        updated.entries = updated.entries.map(entry => ({
+          ...entry,
+          projectName: entry.projectName || this.projects.find(p => p.id === entry.projectId)?.name || 'Projeto'
+        }));
+        this.currentTimesheet = updated;
+        this.message = 'Projeto removido';
         this.messageType = 'success';
         this.isLoading = false;
         this.loadMyTimesheets();
+        this.cdr.markForCheck();
       },
-      (error) => {
-        this.message = error.error?.message || 'Erro ao criar timesheet';
+      (error: any) => {
+        this.message = 'Erro ao remover projeto';
         this.messageType = 'error';
         this.isLoading = false;
-      }
-    );
-  }
-
-  selectTimesheet(timesheetId: number): void {
-    this.isLoading = true;
-    this.timesheetService.getTimesheet(timesheetId).subscribe(
-      (timesheet) => {
-        this.currentTimesheet = timesheet;
-        this.initializeForm();
-        this.isLoading = false;
-        this.message = '';
-      },
-      (error) => {
-        this.message = 'Erro ao carregar timesheet';
-        this.messageType = 'error';
-        this.isLoading = false;
-      }
-    );
-  }
-
-  initializeForm(): void {
-    const group: any = {};
-    this.daysOfWeek.forEach(day => {
-      const entry = this.currentTimesheet?.entries.find(e => e.dayOfWeek === day.value);
-      group[`hours_${day.value}`] = [
-        { value: entry?.workHours || 0, disabled: this.currentTimesheet?.status !== 'Draft' },
-        [Validators.required, Validators.min(0), Validators.max(12)]
-      ];
-      group[`notes_${day.value}`] = [
-        { value: entry?.notes || '', disabled: this.currentTimesheet?.status !== 'Draft' }
-      ];
-    });
-    this.hoursForm = this.fb.group(group);
-  }
-
-  saveHours(): void {
-    if (!this.currentTimesheet || this.hoursForm.invalid) {
-      this.message = 'Formulário inválido';
-      this.messageType = 'error';
-      return;
-    }
-
-    const entries: TimesheetEntry[] = this.daysOfWeek.map(day => ({
-      dayOfWeek: day.value,
-      workHours: parseFloat(this.hoursForm.get(`hours_${day.value}`)?.value || 0),
-      notes: this.hoursForm.get(`notes_${day.value}`)?.value || undefined
-    }));
-
-    this.isLoading = true;
-    this.timesheetService.updateEntries(this.currentTimesheet.id, entries).subscribe(
-      (updated) => {
-        this.currentTimesheet = updated;
-        this.message = 'Horas atualizadas com sucesso';
-        this.messageType = 'success';
-        this.isLoading = false;
-      },
-      (error) => {
-        this.message = error.error?.message || 'Erro ao atualizar horas';
-        this.messageType = 'error';
-        this.isLoading = false;
+        this.cdr.markForCheck();
       }
     );
   }
@@ -163,28 +192,26 @@ export class TimesheetComponent implements OnInit {
 
     this.isLoading = true;
     this.timesheetService.submitTimesheet(this.currentTimesheet.id).subscribe(
-      (updated) => {
+      (updated: Timesheet) => {
+        // Enrich entries with project names from local projects array
+        updated.entries = updated.entries.map(entry => ({
+          ...entry,
+          projectName: entry.projectName || this.projects.find(p => p.id === entry.projectId)?.name || 'Projeto'
+        }));
         this.currentTimesheet = updated;
-        this.initializeForm();
-        this.message = 'Timesheet enviado para aprovação';
+        this.message = 'Timesheet enviada para aprovação';
         this.messageType = 'success';
         this.isLoading = false;
         this.loadMyTimesheets();
+        this.cdr.markForCheck();
       },
-      (error) => {
+      (error: any) => {
         this.message = error.error?.message || 'Erro ao enviar timesheet';
         this.messageType = 'error';
         this.isLoading = false;
+        this.cdr.markForCheck();
       }
     );
-  }
-
-  getTotalHours(): number {
-    if (!this.hoursForm) return 0;
-    return this.daysOfWeek.reduce((sum, day) => {
-      const value = parseFloat(this.hoursForm.get(`hours_${day.value}`)?.value || 0);
-      return sum + (isNaN(value) ? 0 : value);
-    }, 0);
   }
 
   getStatusColor(status: string): string {
@@ -195,5 +222,60 @@ export class TimesheetComponent implements OnInit {
       case 'Rejected': return '#dc3545';
       default: return '#6c757d';
     }
+  }
+
+  selectTimesheet(timesheetId: number): void {
+    this.timesheetService.getTimesheet(timesheetId).subscribe(
+      (timesheet: Timesheet) => {
+        // Enrich entries with project names from local projects array
+        timesheet.entries = timesheet.entries.map(entry => ({
+          ...entry,
+          projectName: entry.projectName || this.projects.find(p => p.id === entry.projectId)?.name || 'Projeto'
+        }));
+        this.currentTimesheet = timesheet;
+        this.selectedDate = new Date(timesheet.date).toISOString().split('T')[0];
+        this.message = '';
+        this.cdr.markForCheck();
+      },
+      (error: any) => {
+        this.message = 'Erro ao carregar timesheet';
+        this.messageType = 'error';
+        this.cdr.markForCheck();
+      }
+    );
+  }
+
+  onDateChange(): void {
+    this.loadDayTimesheet();
+  }
+
+  goBack(): void {
+    this.router.navigate(['/dashboard']);
+  }
+
+  getFilteredTimesheets(): TimesheetListItem[] {
+    if (!this.selectedMonth) return this.timesheets;
+
+    const [year, month] = this.selectedMonth.split('-');
+    return this.timesheets.filter(ts => {
+      const tsDate = new Date(ts.date);
+      const tsYear = tsDate.getFullYear().toString();
+      const tsMonth = String(tsDate.getMonth() + 1).padStart(2, '0');
+      return tsYear === year && tsMonth === month;
+    });
+  }
+
+  onMonthChange(): void {
+    // Reset to first day of selected month
+    const [year, month] = this.selectedMonth.split('-');
+    this.selectedDate = `${year}-${month}-01`;
+    this.loadDayTimesheet();
+    this.cdr.markForCheck();
+  }
+
+  decimalToTimeFormat(decimalHours: number): string {
+    const hours = Math.floor(decimalHours);
+    const minutes = Math.round((decimalHours - hours) * 60);
+    return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
   }
 }

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { Timesheet, TimesheetEntry, TimesheetListItem } from '../models/timesheet.model';
@@ -8,50 +8,65 @@ import { Timesheet, TimesheetEntry, TimesheetListItem } from '../models/timeshee
   providedIn: 'root'
 })
 export class TimesheetService {
-  private apiUrl = `${environment.apiUrl}/timesheets`;
+  private apiUrl = `${environment.apiUrl}/api/timesheets`;
 
   constructor(private http: HttpClient) { }
 
-  createTimesheet(projectId: number, userId: number, weekStartDate: Date): Observable<Timesheet> {
-    const request = {
-      projectId,
-      userId,
-      weekStartDate
-    };
-    return this.http.post<Timesheet>(`${this.apiUrl}/criar`, request);
+  private getHeaders(): HttpHeaders {
+    const token = localStorage.getItem('token');
+    if (token) {
+      return new HttpHeaders({
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      });
+    }
+    return new HttpHeaders({
+      'Content-Type': 'application/json'
+    });
+  }
+
+  getDayTimesheet(date: Date): Observable<Timesheet> {
+    const dateStr = date.toISOString().split('T')[0];
+    return this.http.get<Timesheet>(`${this.apiUrl}/dia/${dateStr}`, { headers: this.getHeaders() });
   }
 
   getTimesheet(id: number): Observable<Timesheet> {
-    return this.http.get<Timesheet>(`${this.apiUrl}/${id}`);
+    return this.http.get<Timesheet>(`${this.apiUrl}/${id}`, { headers: this.getHeaders() });
   }
 
-  getMyTimesheets(): Observable<TimesheetListItem[]> {
-    return this.http.get<TimesheetListItem[]>(`${this.apiUrl}/meus-timesheets`);
+  getMyTimesheets(startDate?: Date, endDate?: Date): Observable<TimesheetListItem[]> {
+    let url = `${this.apiUrl}/meus`;
+    const params = [];
+    if (startDate) params.push(`startDate=${startDate.toISOString().split('T')[0]}`);
+    if (endDate) params.push(`endDate=${endDate.toISOString().split('T')[0]}`);
+    if (params.length > 0) url += '?' + params.join('&');
+
+    return this.http.get<TimesheetListItem[]>(url, { headers: this.getHeaders() });
   }
 
-  getTimesheetsByProject(projectId: number): Observable<TimesheetListItem[]> {
-    return this.http.get<TimesheetListItem[]>(`${this.apiUrl}/projeto/${projectId}`);
+  addProjectEntry(timesheetId: number, projectId: number, workHours: number, notes?: string): Observable<Timesheet> {
+    const request = { workHours, notes };
+    return this.http.post<Timesheet>(`${this.apiUrl}/${timesheetId}/projeto/${projectId}`, request, { headers: this.getHeaders() });
   }
 
-  updateEntries(id: number, entries: TimesheetEntry[]): Observable<Timesheet> {
-    const request = { entries };
-    return this.http.put<Timesheet>(`${this.apiUrl}/${id}/horas`, request);
+  removeProjectEntry(timesheetId: number, projectId: number): Observable<Timesheet> {
+    return this.http.delete<Timesheet>(`${this.apiUrl}/${timesheetId}/projeto/${projectId}`, { headers: this.getHeaders() });
   }
 
   submitTimesheet(id: number): Observable<Timesheet> {
-    return this.http.put<Timesheet>(`${this.apiUrl}/${id}/submeter`, {});
+    return this.http.put<Timesheet>(`${this.apiUrl}/${id}/submeter`, {}, { headers: this.getHeaders() });
   }
 
   approveTimesheet(id: number): Observable<Timesheet> {
-    return this.http.put<Timesheet>(`${this.apiUrl}/${id}/aprovar`, {});
+    return this.http.put<Timesheet>(`${this.apiUrl}/${id}/aprovar`, {}, { headers: this.getHeaders() });
   }
 
   rejectTimesheet(id: number, reason: string): Observable<Timesheet> {
     const request = { reason };
-    return this.http.put<Timesheet>(`${this.apiUrl}/${id}/rejeitar`, request);
+    return this.http.put<Timesheet>(`${this.apiUrl}/${id}/rejeitar`, request, { headers: this.getHeaders() });
   }
 
   getPendingApprovals(setorId: number): Observable<TimesheetListItem[]> {
-    return this.http.get<TimesheetListItem[]>(`${this.apiUrl}/pendentes-aprovacao/${setorId}`);
+    return this.http.get<TimesheetListItem[]>(`${this.apiUrl}/pendentes-aprovacao/${setorId}`, { headers: this.getHeaders() });
   }
 }

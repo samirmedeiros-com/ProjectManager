@@ -47,7 +47,7 @@ namespace ProjectManagerWebAPI.Migrations
 
                     b.HasIndex("ProjectId");
 
-                    b.ToTable("Comments");
+                    b.ToTable("Comments", (string)null);
                 });
 
             modelBuilder.Entity("ProjectManagerWebAPI.Models.Project", b =>
@@ -105,7 +105,7 @@ namespace ProjectManagerWebAPI.Migrations
 
                     b.HasIndex("SetorId");
 
-                    b.ToTable("Projects");
+                    b.ToTable("Projects", (string)null);
                 });
 
             modelBuilder.Entity("ProjectManagerWebAPI.Models.ProjectManagerHistory", b =>
@@ -137,7 +137,7 @@ namespace ProjectManagerWebAPI.Migrations
 
                     b.HasIndex("ProjectId");
 
-                    b.ToTable("ProjectManagerHistories");
+                    b.ToTable("ProjectManagerHistories", (string)null);
                 });
 
             modelBuilder.Entity("ProjectManagerWebAPI.Models.ProjectMember", b =>
@@ -170,7 +170,7 @@ namespace ProjectManagerWebAPI.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("ProjectMembers");
+                    b.ToTable("ProjectMembers", (string)null);
                 });
 
             modelBuilder.Entity("ProjectManagerWebAPI.Models.ProjectOwnerHistory", b =>
@@ -200,7 +200,7 @@ namespace ProjectManagerWebAPI.Migrations
 
                     b.HasIndex("ProjectId");
 
-                    b.ToTable("ProjectOwnerHistories");
+                    b.ToTable("ProjectOwnerHistories", (string)null);
                 });
 
             modelBuilder.Entity("ProjectManagerWebAPI.Models.ProjectStatusHistory", b =>
@@ -235,7 +235,7 @@ namespace ProjectManagerWebAPI.Migrations
 
                     b.HasIndex("ProjectId");
 
-                    b.ToTable("ProjectStatusHistories");
+                    b.ToTable("ProjectStatusHistories", (string)null);
                 });
 
             modelBuilder.Entity("ProjectManagerWebAPI.Models.ProjectTask", b =>
@@ -290,7 +290,7 @@ namespace ProjectManagerWebAPI.Migrations
 
                     b.HasIndex("ProjectId");
 
-                    b.ToTable("ProjectTasks");
+                    b.ToTable("ProjectTasks", (string)null);
                 });
 
             modelBuilder.Entity("ProjectManagerWebAPI.Models.Setor", b =>
@@ -319,7 +319,91 @@ namespace ProjectManagerWebAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Setores");
+                    b.ToTable("Setores", (string)null);
+                });
+
+            modelBuilder.Entity("ProjectManagerWebAPI.Models.Timesheet", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("NUMBER(10)");
+
+                    OraclePropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime?>("ApprovedAt")
+                        .HasColumnType("TIMESTAMP(7)");
+
+                    b.Property<int?>("ApprovedById")
+                        .HasColumnType("NUMBER(10)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TIMESTAMP(7)");
+
+                    b.Property<int?>("CreatedById")
+                        .HasColumnType("NUMBER(10)");
+
+                    b.Property<int>("ProjectId")
+                        .HasColumnType("NUMBER(10)");
+
+                    b.Property<string>("RejectionReason")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("TIMESTAMP(7)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("NUMBER(10)");
+
+                    b.Property<DateTime>("WeekEndDate")
+                        .HasColumnType("TIMESTAMP(7)");
+
+                    b.Property<DateTime>("WeekStartDate")
+                        .HasColumnType("TIMESTAMP(7)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ApprovedById");
+
+                    b.HasIndex("CreatedById");
+
+                    b.HasIndex("ProjectId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Timesheets", (string)null);
+                });
+
+            modelBuilder.Entity("ProjectManagerWebAPI.Models.TimesheetEntry", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("NUMBER(10)");
+
+                    OraclePropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("DayOfWeek")
+                        .HasColumnType("NUMBER(10)");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<int>("TimesheetId")
+                        .HasColumnType("NUMBER(10)");
+
+                    b.Property<decimal>("WorkHours")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("DECIMAL(5,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TimesheetId", "DayOfWeek")
+                        .IsUnique();
+
+                    b.ToTable("TimesheetEntries", (string)null);
                 });
 
             modelBuilder.Entity("ProjectManagerWebAPI.Models.User", b =>
@@ -362,7 +446,7 @@ namespace ProjectManagerWebAPI.Migrations
                     b.HasIndex("Email")
                         .IsUnique();
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("ProjectManagerWebAPI.Models.UserSetor", b =>
@@ -389,7 +473,7 @@ namespace ProjectManagerWebAPI.Migrations
                     b.HasIndex("UserId", "SetorId")
                         .IsUnique();
 
-                    b.ToTable("UserSetores");
+                    b.ToTable("UserSetores", (string)null);
                 });
 
             modelBuilder.Entity("ProjectManagerWebAPI.Models.Comment", b =>
@@ -481,6 +565,50 @@ namespace ProjectManagerWebAPI.Migrations
                     b.Navigation("Project");
                 });
 
+            modelBuilder.Entity("ProjectManagerWebAPI.Models.Timesheet", b =>
+                {
+                    b.HasOne("ProjectManagerWebAPI.Models.User", "ApprovedBy")
+                        .WithMany()
+                        .HasForeignKey("ApprovedById")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("ProjectManagerWebAPI.Models.User", "CreatedBy")
+                        .WithMany()
+                        .HasForeignKey("CreatedById")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("ProjectManagerWebAPI.Models.Project", "Project")
+                        .WithMany()
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ProjectManagerWebAPI.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ApprovedBy");
+
+                    b.Navigation("CreatedBy");
+
+                    b.Navigation("Project");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("ProjectManagerWebAPI.Models.TimesheetEntry", b =>
+                {
+                    b.HasOne("ProjectManagerWebAPI.Models.Timesheet", "Timesheet")
+                        .WithMany("Entries")
+                        .HasForeignKey("TimesheetId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Timesheet");
+                });
+
             modelBuilder.Entity("ProjectManagerWebAPI.Models.UserSetor", b =>
                 {
                     b.HasOne("ProjectManagerWebAPI.Models.Setor", "Setor")
@@ -518,6 +646,11 @@ namespace ProjectManagerWebAPI.Migrations
             modelBuilder.Entity("ProjectManagerWebAPI.Models.Setor", b =>
                 {
                     b.Navigation("UserSetores");
+                });
+
+            modelBuilder.Entity("ProjectManagerWebAPI.Models.Timesheet", b =>
+                {
+                    b.Navigation("Entries");
                 });
 
             modelBuilder.Entity("ProjectManagerWebAPI.Models.User", b =>
