@@ -78,7 +78,7 @@
           </div>
 
           <!-- Adicionar Projeto -->
-          <div *ngIf="currentTimesheet.status === 'Draft'" class="add-project-section">
+          <div *ngIf="currentTimesheet.status === 'Draft' || currentTimesheet.status === 'Rejected'" class="add-project-section">
             <h4>Adicionar Projeto</h4>
             <form [formGroup]="entryForm" class="add-form">
               <div class="form-row">
@@ -134,7 +134,7 @@
                   {{ entry.notes || '-' }}
                 </div>
                 <div class="col-action">
-                  <button *ngIf="currentTimesheet.status === 'Draft'"
+                  <button *ngIf="currentTimesheet.status === 'Draft' || currentTimesheet.status === 'Rejected'"
                           (click)="removeProjectEntry(entry.projectId)"
                           class="btn-remove">
                     ✕
@@ -156,7 +156,7 @@
           </div>
 
           <!-- Ações -->
-          <div class="actions" *ngIf="currentTimesheet.status === 'Draft' && currentTimesheet.entries.length > 0">
+          <div class="actions" *ngIf="(currentTimesheet.status === 'Draft' || currentTimesheet.status === 'Rejected') && currentTimesheet.entries.length > 0">
             <button (click)="submitTimesheet()" class="btn btn-success" [disabled]="isLoading">
               <span *ngIf="isLoading">Enviando...</span>
               <span *ngIf="!isLoading">Enviar para Aprovação</span>

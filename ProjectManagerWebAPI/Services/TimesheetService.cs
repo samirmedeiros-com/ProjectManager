@@ -72,8 +72,8 @@ public class TimesheetService
         if (timesheet == null)
             throw new KeyNotFoundException("Timesheet não encontrado");
 
-        if (timesheet.Status != "Draft")
-            throw new InvalidOperationException("Só é possível adicionar horas em timesheets em Draft");
+        if (timesheet.Status != "Draft" && timesheet.Status != "Rejected")
+            throw new InvalidOperationException("Só é possível adicionar horas em timesheets em Draft ou Rejeitadas");
 
         var existingEntry = timesheet.Entries.FirstOrDefault(e => e.ProjectId == projectId);
         if (existingEntry != null)
@@ -104,8 +104,8 @@ public class TimesheetService
         if (timesheet == null)
             throw new KeyNotFoundException("Timesheet não encontrado");
 
-        if (timesheet.Status != "Draft")
-            throw new InvalidOperationException("Só é possível remover horas em timesheets em Draft");
+        if (timesheet.Status != "Draft" && timesheet.Status != "Rejected")
+            throw new InvalidOperationException("Só é possível remover horas em timesheets em Draft ou Rejeitadas");
 
         var entry = timesheet.Entries.FirstOrDefault(e => e.ProjectId == projectId);
         if (entry != null)
@@ -124,8 +124,8 @@ public class TimesheetService
         if (timesheet == null)
             throw new KeyNotFoundException("Timesheet não encontrado");
 
-        if (timesheet.Status != "Draft")
-            throw new InvalidOperationException("Apenas timesheets em Draft podem ser submetidas");
+        if (timesheet.Status != "Draft" && timesheet.Status != "Rejected")
+            throw new InvalidOperationException("Apenas timesheets em Draft ou Rejeitadas podem ser submetidas");
 
         if (!timesheet.Entries.Any())
             throw new InvalidOperationException("Timesheet deve ter pelo menos uma entrada");
