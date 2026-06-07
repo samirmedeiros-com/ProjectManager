@@ -46,11 +46,11 @@ public class ReportsController : ControllerBase
     }
 
     [HttpGet("hours-by-project")]
-    public async Task<ActionResult<List<HoursByProjectDto>>> GetHoursByProject([FromQuery] int? userId = null, [FromQuery] int? monthOffset = null)
+    public async Task<ActionResult<List<HoursByProjectWithCostDto>>> GetHoursByProject([FromQuery] int? userId = null, [FromQuery] int? monthOffset = null)
     {
         try
         {
-            var hours = await _reportService.GetHoursByProjectAsync(userId, monthOffset);
+            var hours = await _reportService.GetHoursByProjectWithCostAsync(userId, monthOffset);
             return Ok(hours);
         }
         catch (Exception ex)
@@ -60,11 +60,11 @@ public class ReportsController : ControllerBase
     }
 
     [HttpGet("hours-by-user")]
-    public async Task<ActionResult<List<HoursByUserDto>>> GetHoursByUser([FromQuery] int? monthOffset = null)
+    public async Task<ActionResult<List<HoursByUserWithCostDto>>> GetHoursByUser([FromQuery] int? monthOffset = null)
     {
         try
         {
-            var hours = await _reportService.GetHoursByUserAsync(monthOffset);
+            var hours = await _reportService.GetHoursByUserWithCostAsync(monthOffset);
             return Ok(hours);
         }
         catch (Exception ex)

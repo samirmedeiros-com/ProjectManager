@@ -12,16 +12,19 @@ export interface HoursByProject {
   projectId: number;
   projectName: string;
   totalHours: number;
+  totalCost: number;
 }
 
 export interface HoursByUser {
   userId: number;
   userName: string;
   totalHours: number;
+  totalCost: number;
 }
 
 export interface ReportSummary {
   totalHours: number;
+  totalCost: number;
   totalTimesheets: number;
   uniqueUsers: number;
   uniqueProjects: number;

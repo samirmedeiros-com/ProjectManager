@@ -200,6 +200,13 @@
   min-width: 100px;
 }
 
+.data-table td.cost {
+  text-align: right;
+  font-weight: 600;
+  color: #17a2b8;
+  min-width: 120px;
+}
+
 .empty-state {
   text-align: center;
   padding: 40px 20px;
