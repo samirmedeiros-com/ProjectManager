@@ -61,7 +61,7 @@
           </div>
           <div class="summary-card">
             <div class="card-label">Custo Total</div>
-            <div class="card-value">€ {{ summary.totalCost | number:'1.2-2' }}</div>
+            <div class="card-value">{{ summary.totalCost | currency:'EUR':'symbol':'1.2-2' }}</div>
           </div>
           <div class="summary-card">
             <div class="card-label">Timesheets Aprovadas</div>
@@ -93,7 +93,7 @@
               <tr *ngFor="let item of hoursByProject">
                 <td>{{ item.projectName }}</td>
                 <td class="hours">{{ decimalToTimeFormat(item.totalHours) }}</td>
-                <td class="cost">{{ item.totalCost | number:'1.2-2' }}</td>
+                <td class="cost">{{ item.totalCost | currency:'EUR':'symbol':'1.2-2' }}</td>
               </tr>
             </tbody>
           </table>
@@ -118,7 +118,7 @@
               <tr *ngFor="let item of hoursByUser">
                 <td>{{ item.userName }}</td>
                 <td class="hours">{{ decimalToTimeFormat(item.totalHours) }}</td>
-                <td class="cost">{{ item.totalCost | number:'1.2-2' }}</td>
+                <td class="cost">{{ item.totalCost | currency:'EUR':'symbol':'1.2-2' }}</td>
               </tr>
             </tbody>
           </table>
