@@ -21,11 +21,18 @@
     <!-- Sidebar com Pendentes -->
     <div class="sidebar">
       <h3>Pendentes de Aprovação</h3>
-      <div *ngIf="pendingTimesheets.length === 0" class="empty-state">
+
+      <!-- Filtro por Mês/Ano -->
+      <div class="month-filter-section">
+        <label>Filtrar por Mês</label>
+        <input type="month" [(ngModel)]="selectedMonth" (change)="onMonthChange()" class="form-control">
+      </div>
+
+      <div *ngIf="getFilteredTimesheets().length === 0" class="empty-state">
         Nenhuma timesheet pendente
       </div>
       <div class="list">
-        <div *ngFor="let ts of pendingTimesheets"
+        <div *ngFor="let ts of getFilteredTimesheets()"
              class="list-item"
              [class.active]="currentTimesheet?.id === ts.id"
              (click)="selectTimesheet(ts.id)">

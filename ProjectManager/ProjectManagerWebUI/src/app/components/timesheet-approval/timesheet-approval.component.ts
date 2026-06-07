@@ -27,6 +27,7 @@ export class TimesheetApprovalComponent implements OnInit {
   message = '';
   messageType: 'success' | 'error' | 'info' = 'info';
   userSetorId: number = 0;
+  selectedMonth: string = new Date().toISOString().split('T')[0].slice(0, 7);
 
   constructor(
     private timesheetService: TimesheetService,
@@ -216,5 +217,20 @@ export class TimesheetApprovalComponent implements OnInit {
 
   goBack(): void {
     this.router.navigate(['/dashboard']);
+  }
+
+  getFilteredTimesheets(): TimesheetListItem[] {
+    if (!this.selectedMonth) {
+      return this.pendingTimesheets;
+    }
+    return this.pendingTimesheets.filter(ts => {
+      const tsMonth = new Date(ts.date).toISOString().split('T')[0].slice(0, 7);
+      return tsMonth === this.selectedMonth;
+    });
+  }
+
+  onMonthChange(): void {
+    this.currentTimesheet = null;
+    this.cdr.markForCheck();
   }
 }

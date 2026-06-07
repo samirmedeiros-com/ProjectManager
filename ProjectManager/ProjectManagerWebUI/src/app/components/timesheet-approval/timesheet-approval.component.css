@@ -71,6 +71,35 @@
   font-weight: 600;
 }
 
+.month-filter-section {
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.month-filter-section label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #424143;
+  font-size: 13px;
+}
+
+.month-filter-section .form-control {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-size: 13px;
+  box-sizing: border-box;
+}
+
+.month-filter-section .form-control:focus {
+  outline: none;
+  border-color: #DC0032;
+  box-shadow: 0 0 0 3px rgba(220, 0, 50, 0.1);
+}
+
 .empty-state {
   text-align: center;
   color: #999;
