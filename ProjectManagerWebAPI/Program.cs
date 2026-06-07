@@ -118,8 +118,14 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
+// CORS DEVE SER O PRIMEIRO MIDDLEWARE
 app.UseCors("AllowAngular");
-app.UseHttpsRedirection();
+
+// Não redirecionar para HTTPS em development
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
 
 // Middleware para logar headers de requisição
 app.Use(async (context, next) =>
