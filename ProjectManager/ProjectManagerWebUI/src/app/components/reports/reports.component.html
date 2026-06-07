@@ -1,0 +1,147 @@
+<app-navbar></app-navbar>
+
+<div class="reports-container">
+  <div class="reports-content">
+    <!-- Header -->
+    <div class="reports-header">
+      <h1>Relatório de Horas</h1>
+      <button class="btn-back" (click)="goBack()">← Voltar</button>
+    </div>
+
+    <!-- Filtro de Mês -->
+    <div class="filter-section">
+      <label>Período:</label>
+      <select [(ngModel)]="selectedMonthOffset" (change)="onMonthOffsetChange()" class="form-control">
+        <option [value]="0">Mês Atual</option>
+        <option [value]="1">Último Mês</option>
+        <option [value]="2">Há 2 Meses</option>
+        <option [value]="3">Há 3 Meses</option>
+        <option [value]="6">Últimos 6 Meses</option>
+        <option [value]="12">Último Ano</option>
+      </select>
+      <span class="period-label">{{ getMonthLabel() }}</span>
+    </div>
+
+    <!-- Abas -->
+    <div class="tabs">
+      <button
+        class="tab-button"
+        [class.active]="activeTab === 'summary'"
+        (click)="selectTab('summary')">
+        Resumo
+      </button>
+      <button
+        class="tab-button"
+        [class.active]="activeTab === 'projects'"
+        (click)="selectTab('projects')">
+        Por Projeto
+      </button>
+      <button
+        class="tab-button"
+        [class.active]="activeTab === 'users'"
+        (click)="selectTab('users')">
+        Por Utilizador
+      </button>
+      <button
+        class="tab-button"
+        [class.active]="activeTab === 'months'"
+        (click)="selectTab('months')">
+        Por Mês
+      </button>
+    </div>
+
+    <!-- Conteúdo das Abas -->
+    <div class="tab-content">
+      <!-- TAB: RESUMO -->
+      <div *ngIf="activeTab === 'summary' && summary" class="summary-tab">
+        <div class="summary-cards">
+          <div class="summary-card">
+            <div class="card-label">Total de Horas</div>
+            <div class="card-value">{{ summary.totalHours | number:'1.2-2' }}h</div>
+          </div>
+          <div class="summary-card">
+            <div class="card-label">Timesheets Aprovadas</div>
+            <div class="card-value">{{ summary.totalTimesheets }}</div>
+          </div>
+          <div class="summary-card">
+            <div class="card-label">Utilizadores</div>
+            <div class="card-value">{{ summary.uniqueUsers }}</div>
+          </div>
+          <div class="summary-card">
+            <div class="card-label">Projetos</div>
+            <div class="card-value">{{ summary.uniqueProjects }}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: POR PROJETO -->
+      <div *ngIf="activeTab === 'projects'" class="table-tab">
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Projeto</th>
+                <th>Horas</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of hoursByProject">
+                <td>{{ item.projectName }}</td>
+                <td class="hours">{{ item.totalHours | number:'1.2-2' }}h</td>
+              </tr>
+            </tbody>
+          </table>
+          <div *ngIf="hoursByProject.length === 0" class="empty-state">
+            Nenhum dado disponível
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: POR UTILIZADOR -->
+      <div *ngIf="activeTab === 'users'" class="table-tab">
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Utilizador</th>
+                <th>Horas</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of hoursByUser">
+                <td>{{ item.userName }}</td>
+                <td class="hours">{{ item.totalHours | number:'1.2-2' }}h</td>
+              </tr>
+            </tbody>
+          </table>
+          <div *ngIf="hoursByUser.length === 0" class="empty-state">
+            Nenhum dado disponível
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: POR MÊS -->
+      <div *ngIf="activeTab === 'months'" class="table-tab">
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Mês</th>
+                <th>Horas</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of hoursByMonth">
+                <td>{{ getMonthName(item.month) }} {{ item.year }}</td>
+                <td class="hours">{{ item.totalHours | number:'1.2-2' }}h</td>
+              </tr>
+            </tbody>
+          </table>
+          <div *ngIf="hoursByMonth.length === 0" class="empty-state">
+            Nenhum dado disponível
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
