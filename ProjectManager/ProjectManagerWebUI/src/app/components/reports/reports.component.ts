@@ -60,10 +60,12 @@ export class ReportsComponent implements OnInit {
   }
 
   onMonthOffsetChange(): void {
+    console.log('Botão filtrar clicado, selectedDate:', this.selectedDate);
     this.updateMonthOffset();
   }
 
   updateMonthOffset(): void {
+    console.log('updateMonthOffset chamado');
     if (!this.selectedDate) {
       this.selectedMonthOffset = 0;
       this.loadSummary();
@@ -76,10 +78,11 @@ export class ReportsComponent implements OnInit {
 
     const [selectedYear, selectedMonth] = this.selectedDate.split('-').map(Number);
 
-    // Calcular o monthOffset
+    // Calcular o monthOffset (diferença em meses, sempre positivo)
     let monthDiff = (currentYear - selectedYear) * 12 + (currentMonth - (selectedMonth - 1));
-    this.selectedMonthOffset = monthDiff > 0 ? monthDiff : 0;
+    this.selectedMonthOffset = Math.abs(monthDiff);
 
+    console.log('monthDiff calculado:', monthDiff, 'selectedMonthOffset:', this.selectedMonthOffset);
     this.loadSummary();
   }
 
