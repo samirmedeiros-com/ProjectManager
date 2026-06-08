@@ -16,7 +16,7 @@ export interface CreateEventRequest {
   date: Date;
   startTime: string;
   endTime: string;
-  projectId?: number;
+  projectId?: number | null;
   isApplicableToProject: boolean;
 }
 
@@ -26,6 +26,6 @@ export interface UpdateEventRequest {
   date: Date;
   startTime: string;
   endTime: string;
-  projectId?: number;
+  projectId?: number | null;
   isApplicableToProject: boolean;
 }
