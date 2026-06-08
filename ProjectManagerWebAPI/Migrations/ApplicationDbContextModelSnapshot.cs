@@ -47,7 +47,7 @@ namespace ProjectManagerWebAPI.Migrations
 
                     b.HasIndex("ProjectId");
 
-                    b.ToTable("Comments");
+                    b.ToTable("Comments", (string)null);
                 });
 
             modelBuilder.Entity("ProjectManagerWebAPI.Models.Event", b =>
@@ -71,29 +71,11 @@ namespace ProjectManagerWebAPI.Migrations
                         .IsRequired()
                         .HasColumnType("NVARCHAR2(2000)");
 
-                    b.Property<int>("IsApplicableToProject")
-                        .HasColumnType("NUMBER(10)");
-
-                    b.Property<int>("IsRecurrenceParent")
-                        .HasColumnType("NUMBER(10)");
-
-                    b.Property<int?>("ParentEventId")
-                        .HasColumnType("NUMBER(10)");
+                    b.Property<bool>("IsApplicableToProject")
+                        .HasColumnType("BOOLEAN");
 
                     b.Property<int?>("ProjectId")
                         .HasColumnType("NUMBER(10)");
-
-                    b.Property<string>("RecurrenceDaysOfWeek")
-                        .HasColumnType("NVARCHAR2(2000)");
-
-                    b.Property<int?>("RecurrenceEndCount")
-                        .HasColumnType("NUMBER(10)");
-
-                    b.Property<DateTime?>("RecurrenceEndDate")
-                        .HasColumnType("TIMESTAMP(7)");
-
-                    b.Property<string>("RecurrenceType")
-                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("StartTime")
                         .IsRequired()
@@ -115,7 +97,7 @@ namespace ProjectManagerWebAPI.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Events");
+                    b.ToTable("Events", (string)null);
                 });
 
             modelBuilder.Entity("ProjectManagerWebAPI.Models.Project", b =>
@@ -173,7 +155,7 @@ namespace ProjectManagerWebAPI.Migrations
 
                     b.HasIndex("SetorId");
 
-                    b.ToTable("Projects");
+                    b.ToTable("Projects", (string)null);
                 });
 
             modelBuilder.Entity("ProjectManagerWebAPI.Models.ProjectManagerHistory", b =>
@@ -205,7 +187,7 @@ namespace ProjectManagerWebAPI.Migrations
 
                     b.HasIndex("ProjectId");
 
-                    b.ToTable("ProjectManagerHistories");
+                    b.ToTable("ProjectManagerHistories", (string)null);
                 });
 
             modelBuilder.Entity("ProjectManagerWebAPI.Models.ProjectMember", b =>
@@ -238,7 +220,7 @@ namespace ProjectManagerWebAPI.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("ProjectMembers");
+                    b.ToTable("ProjectMembers", (string)null);
                 });
 
             modelBuilder.Entity("ProjectManagerWebAPI.Models.ProjectOwnerHistory", b =>
@@ -268,7 +250,7 @@ namespace ProjectManagerWebAPI.Migrations
 
                     b.HasIndex("ProjectId");
 
-                    b.ToTable("ProjectOwnerHistories");
+                    b.ToTable("ProjectOwnerHistories", (string)null);
                 });
 
             modelBuilder.Entity("ProjectManagerWebAPI.Models.ProjectStatusHistory", b =>
@@ -303,7 +285,7 @@ namespace ProjectManagerWebAPI.Migrations
 
                     b.HasIndex("ProjectId");
 
-                    b.ToTable("ProjectStatusHistories");
+                    b.ToTable("ProjectStatusHistories", (string)null);
                 });
 
             modelBuilder.Entity("ProjectManagerWebAPI.Models.ProjectTask", b =>
@@ -358,7 +340,7 @@ namespace ProjectManagerWebAPI.Migrations
 
                     b.HasIndex("ProjectId");
 
-                    b.ToTable("ProjectTasks");
+                    b.ToTable("ProjectTasks", (string)null);
                 });
 
             modelBuilder.Entity("ProjectManagerWebAPI.Models.ProjectUserCost", b =>
@@ -392,7 +374,7 @@ namespace ProjectManagerWebAPI.Migrations
                     b.HasIndex("ProjectId", "UserId")
                         .IsUnique();
 
-                    b.ToTable("ProjectUserCosts");
+                    b.ToTable("ProjectUserCosts", (string)null);
                 });
 
             modelBuilder.Entity("ProjectManagerWebAPI.Models.Setor", b =>
@@ -421,7 +403,7 @@ namespace ProjectManagerWebAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Setores");
+                    b.ToTable("Setores", (string)null);
                 });
 
             modelBuilder.Entity("ProjectManagerWebAPI.Models.Timesheet", b =>
@@ -463,7 +445,7 @@ namespace ProjectManagerWebAPI.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Timesheets");
+                    b.ToTable("Timesheets", (string)null);
                 });
 
             modelBuilder.Entity("ProjectManagerWebAPI.Models.TimesheetEntry", b =>
@@ -494,7 +476,7 @@ namespace ProjectManagerWebAPI.Migrations
                     b.HasIndex("TimesheetId", "ProjectId")
                         .IsUnique();
 
-                    b.ToTable("TimesheetEntries");
+                    b.ToTable("TimesheetEntries", (string)null);
                 });
 
             modelBuilder.Entity("ProjectManagerWebAPI.Models.User", b =>
@@ -537,7 +519,7 @@ namespace ProjectManagerWebAPI.Migrations
                     b.HasIndex("Email")
                         .IsUnique();
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("ProjectManagerWebAPI.Models.UserSetor", b =>
@@ -564,7 +546,7 @@ namespace ProjectManagerWebAPI.Migrations
                     b.HasIndex("UserId", "SetorId")
                         .IsUnique();
 
-                    b.ToTable("UserSetores");
+                    b.ToTable("UserSetores", (string)null);
                 });
 
             modelBuilder.Entity("ProjectManagerWebAPI.Models.Comment", b =>
