@@ -66,12 +66,10 @@ export class AgendaComponent implements OnInit {
     this.projectService.getAll().subscribe({
       next: (data: Project[]) => {
         this.projects = data;
-        console.log('Projetos carregados:', this.projects);
         this.cdr.markForCheck();
       },
       error: (error: any) => {
         console.error('Erro ao carregar projetos:', error);
-        alert('Erro ao carregar projetos. Por favor, recarregue a página.');
       }
     });
   }
@@ -173,7 +171,9 @@ export class AgendaComponent implements OnInit {
       isApplicableToProject: false
     };
     this.showEventModal = true;
-    console.log('Modal aberto. Projetos disponíveis:', this.projects);
+
+    // Recarregar projetos quando abre o modal para garantir dados frescos
+    this.loadProjects();
     this.cdr.markForCheck();
   }
 
