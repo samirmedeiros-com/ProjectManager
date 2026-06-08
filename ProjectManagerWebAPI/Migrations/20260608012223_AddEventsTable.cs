@@ -820,7 +820,7 @@ namespace ProjectManagerWebAPI.Migrations
                     StartTime = table.Column<string>(type: "NVARCHAR2(2000)", nullable: false),
                     EndTime = table.Column<string>(type: "NVARCHAR2(2000)", nullable: false),
                     ProjectId = table.Column<int>(type: "NUMBER(10)", nullable: true),
-                    IsApplicableToProject = table.Column<bool>(type: "BOOLEAN", nullable: false),
+                    IsApplicableToProject = table.Column<bool>(type: "NUMBER(1)", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "TIMESTAMP(7)", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "TIMESTAMP(7)", nullable: false)
                 },
