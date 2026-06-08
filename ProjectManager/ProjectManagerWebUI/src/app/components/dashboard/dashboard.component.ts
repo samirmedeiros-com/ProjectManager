@@ -30,9 +30,20 @@ export class DashboardComponent implements OnInit {
   loadingUsers = false;
   loadingSetores = false;
   showNewProjectForm = false;
+  showWorkspaceMenu = false;
 
   get currentUser(): User | null {
     return this.authService.currentUserValue;
+  }
+
+  toggleWorkspaceMenu(): void {
+    this.showWorkspaceMenu = !this.showWorkspaceMenu;
+    this.cdr.markForCheck();
+  }
+
+  closeWorkspaceMenu(): void {
+    this.showWorkspaceMenu = false;
+    this.cdr.markForCheck();
   }
 
   // Change Password Modal
