@@ -274,6 +274,10 @@ export class AgendaComponent implements OnInit {
           next: () => {
             this.loadEvents();
             this.showAlert('Sucesso', 'Evento eliminado com sucesso!', 'info');
+            // Fechar modal de sucesso automaticamente após 1.5 segundos
+            setTimeout(() => {
+              this.closeAlertModal();
+            }, 1500);
           },
           error: (error: any) => {
             console.error('Erro ao eliminar evento:', error);
