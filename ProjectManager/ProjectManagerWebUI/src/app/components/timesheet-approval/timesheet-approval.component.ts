@@ -274,16 +274,6 @@ export class TimesheetApprovalComponent implements OnInit {
     this.router.navigate(['/reports']);
   }
 
-  getFilteredTimesheets(): TimesheetListItem[] {
-    if (!this.selectedMonth) {
-      return this.pendingTimesheets;
-    }
-    return this.pendingTimesheets.filter(ts => {
-      const tsMonth = new Date(ts.date).toISOString().split('T')[0].slice(0, 7);
-      return tsMonth === this.selectedMonth;
-    });
-  }
-
   onMonthChange(): void {
     this.currentTimesheet = null;
     this.cdr.markForCheck();
