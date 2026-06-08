@@ -48,23 +48,18 @@ public class EventService
             EndTime = request.EndTime,
             ProjectId = request.ProjectId,
             IsApplicableToProject = request.IsApplicableToProject,
-            RecurrenceType = request.RecurrenceType,
-            RecurrenceDaysOfWeek = request.RecurrenceDaysOfWeek,
-            RecurrenceEndDate = request.RecurrenceEndDate,
-            RecurrenceEndCount = request.RecurrenceEndCount,
-            IsRecurrenceParent = !string.IsNullOrEmpty(request.RecurrenceType) && request.RecurrenceType != "None",
+            // Recurrence fields are temporarily disabled until database columns are created
+            // RecurrenceType = request.RecurrenceType,
+            // RecurrenceDaysOfWeek = request.RecurrenceDaysOfWeek,
+            // RecurrenceEndDate = request.RecurrenceEndDate,
+            // RecurrenceEndCount = request.RecurrenceEndCount,
+            // IsRecurrenceParent = !string.IsNullOrEmpty(request.RecurrenceType) && request.RecurrenceType != "None",
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
         };
 
         _context.Events.Add(@event);
         await _context.SaveChangesAsync();
-
-        // Se é um evento recorrente, gerar instâncias
-        if (!string.IsNullOrEmpty(request.RecurrenceType) && request.RecurrenceType != "None")
-        {
-            await GenerateRecurringEventsAsync(@event, request);
-        }
 
         return @event;
     }
@@ -210,9 +205,10 @@ public class EventService
             ProjectId = e.ProjectId,
             ProjectName = e.Project?.Name ?? "",
             IsApplicableToProject = e.IsApplicableToProject,
-            RecurrenceType = e.RecurrenceType,
-            IsRecurrenceParent = e.IsRecurrenceParent,
-            ParentEventId = e.ParentEventId
+            // Recurrence fields disabled until DB columns exist
+            RecurrenceType = null,
+            IsRecurrenceParent = false,
+            ParentEventId = null
         }).ToList();
     }
 }
