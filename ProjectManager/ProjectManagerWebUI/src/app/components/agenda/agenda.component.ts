@@ -149,12 +149,14 @@ export class AgendaComponent implements OnInit {
 
   getEventsForDate(day: number): Event[] {
     const date = this.createDate(day);
-    return this.events.filter(e => {
-      const eventDate = new Date(e.date);
-      return eventDate.getDate() === date.getDate() &&
-             eventDate.getMonth() === date.getMonth() &&
-             eventDate.getFullYear() === date.getFullYear();
-    });
+    return this.events
+      .filter(e => {
+        const eventDate = new Date(e.date);
+        return eventDate.getDate() === date.getDate() &&
+               eventDate.getMonth() === date.getMonth() &&
+               eventDate.getFullYear() === date.getFullYear();
+      })
+      .sort((a, b) => a.startTime.localeCompare(b.startTime));
   }
 
   openEventModal(): void {
