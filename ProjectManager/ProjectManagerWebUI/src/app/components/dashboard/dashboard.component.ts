@@ -10,7 +10,6 @@ import { NavbarComponent } from '../navbar/navbar.component';
 import { ChangePasswordComponent } from '../change-password/change-password.component';
 import { Project, CreateProjectRequest } from '../../models/project.model';
 import { User } from '../../models/user.model';
-import jsPDF from 'jspdf';
 
 @Component({
   selector: 'app-dashboard',
@@ -1012,6 +1011,7 @@ export class DashboardComponent implements OnInit {
         return;
       }
 
+      const { jsPDF } = await import('jspdf');
       const doc = new jsPDF({
         orientation: 'landscape',
         unit: 'mm',
