@@ -266,6 +266,22 @@
   box-shadow: 0 4px 12px rgba(220, 0, 50, 0.1);
 }
 
+.event-item.event-out-of-hours {
+  border-left: 4px solid #ff9800;
+  background: #fff8f0;
+}
+
+.event-item.event-out-of-hours:hover {
+  border-left-color: #ff9800;
+  background: #fffbf7;
+}
+
+.event-alert {
+  font-size: 14px;
+  cursor: help;
+  display: inline-block;
+}
+
 .event-time {
   font-weight: 700;
   color: #DC0032;

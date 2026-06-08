@@ -266,6 +266,12 @@ export class AgendaComponent implements OnInit {
     }
   }
 
+  isOutOfBusinessHours(event: Event): boolean {
+    const startHour = parseInt(event.startTime.split(':')[0]);
+    const endHour = parseInt(event.endTime.split(':')[0]);
+    return startHour < 8 || endHour > 18;
+  }
+
   deleteEvent(event: Event): void {
     this.showAlert(
       'Confirmar Eliminação',

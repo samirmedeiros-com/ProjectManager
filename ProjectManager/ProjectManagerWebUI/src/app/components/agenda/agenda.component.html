@@ -46,10 +46,15 @@
         <div *ngIf="getEventsForDate(selectedDate.getDate()).length === 0" class="no-events">
           <p>Nenhum evento agendado para este dia</p>
         </div>
-        <div *ngFor="let event of getEventsForDate(selectedDate.getDate())" class="event-item">
+        <div *ngFor="let event of getEventsForDate(selectedDate.getDate())"
+             class="event-item"
+             [class.event-out-of-hours]="isOutOfBusinessHours(event)">
           <div class="event-time">{{ event.startTime }} - {{ event.endTime }}</div>
           <div class="event-details">
-            <h5>{{ event.title }}</h5>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <h5 style="margin: 0;">{{ event.title }}</h5>
+              <span *ngIf="isOutOfBusinessHours(event)" class="event-alert" title="Fora do horário de negócio">⚠️</span>
+            </div>
             <p *ngIf="event.description">{{ event.description }}</p>
             <div class="event-meta">
               <span *ngIf="event.projectName" class="event-project">📌 {{ event.projectName }}</span>
