@@ -175,8 +175,8 @@ public class TimesheetService
         if (timesheet == null)
             throw new KeyNotFoundException("Timesheet não encontrado");
 
-        if (timesheet.Status != "Draft" && timesheet.Status != "Rejected")
-            throw new InvalidOperationException("Apenas timesheets em Draft ou Rejeitadas podem ser deletadas");
+        if (timesheet.Status != "Draft" && timesheet.Status != "Rejected" && timesheet.Status != "Approved")
+            throw new InvalidOperationException("Apenas timesheets em Draft, Rejeitadas ou Aprovadas podem ser deletadas");
 
         _context.Timesheets.Remove(timesheet);
         await _context.SaveChangesAsync();
