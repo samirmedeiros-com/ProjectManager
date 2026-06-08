@@ -1,12 +1,17 @@
 import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { NavbarComponent } from '../navbar/navbar.component';
+import { EventService } from '../../services/event.service';
+import { ProjectService } from '../../services/project.service';
+import { Event, CreateEventRequest } from '../../models/event.model';
+import { Project } from '../../models/project.model';
 
 @Component({
   selector: 'app-agenda',
   standalone: true,
-  imports: [CommonModule, NavbarComponent],
+  imports: [CommonModule, FormsModule, NavbarComponent],
   templateUrl: './agenda.component.html',
   styleUrls: ['./agenda.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -15,21 +20,58 @@ export class AgendaComponent implements OnInit {
   currentDate: Date = new Date();
   selectedDate: Date = new Date();
   isLoading = false;
+  events: Event[] = [];
+  projects: Project[] = [];
+
+  showEventModal = false;
+  eventForm = {
+    title: '',
+    description: '',
+    startTime: '09:00',
+    endTime: '10:00',
+    projectId: null as number | null,
+    isApplicableToProject: false
+  };
+  isEditingEvent = false;
+  editingEventId: number | null = null;
 
   constructor(
     private router: Router,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private eventService: EventService,
+    private projectService: ProjectService
   ) {}
 
   ngOnInit(): void {
-    this.loadAgendaData();
+    this.loadProjects();
+    this.loadEvents();
   }
 
-  loadAgendaData(): void {
-    this.isLoading = true;
-    // TODO: Implementar carregamento de dados da agenda
-    this.isLoading = false;
-    this.cdr.markForCheck();
+  loadEvents(): void {
+    const firstDay = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth(), 1);
+    const lastDay = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth() + 1, 0);
+
+    this.eventService.getUserEvents(firstDay, lastDay).subscribe({
+      next: (data) => {
+        this.events = data;
+        this.cdr.markForCheck();
+      },
+      error: (error) => {
+        console.error('Erro ao carregar eventos:', error);
+      }
+    });
+  }
+
+  loadProjects(): void {
+    this.projectService.getAllProjects().subscribe({
+      next: (data) => {
+        this.projects = data;
+        this.cdr.markForCheck();
+      },
+      error: (error) => {
+        console.error('Erro ao carregar projetos:', error);
+      }
+    });
   }
 
   goBack(): void {
@@ -103,5 +145,92 @@ export class AgendaComponent implements OnInit {
 
   createDate(day: number): Date {
     return new Date(this.currentDate.getFullYear(), this.currentDate.getMonth(), day);
+  }
+
+  getEventsForDate(day: number): Event[] {
+    const date = this.createDate(day);
+    return this.events.filter(e => {
+      const eventDate = new Date(e.date);
+      return eventDate.getDate() === date.getDate() &&
+             eventDate.getMonth() === date.getMonth() &&
+             eventDate.getFullYear() === date.getFullYear();
+    });
+  }
+
+  openEventModal(): void {
+    this.isEditingEvent = false;
+    this.editingEventId = null;
+    this.eventForm = {
+      title: '',
+      description: '',
+      startTime: '09:00',
+      endTime: '10:00',
+      projectId: null,
+      isApplicableToProject: false
+    };
+    this.showEventModal = true;
+    this.cdr.markForCheck();
+  }
+
+  closeEventModal(): void {
+    this.showEventModal = false;
+    this.cdr.markForCheck();
+  }
+
+  saveEvent(): void {
+    if (!this.eventForm.title.trim()) {
+      alert('Título é obrigatório');
+      return;
+    }
+
+    const [startHours, startMinutes] = this.eventForm.startTime.split(':').map(Number);
+    const [endHours, endMinutes] = this.eventForm.endTime.split(':').map(Number);
+
+    const request: CreateEventRequest = {
+      title: this.eventForm.title,
+      description: this.eventForm.description,
+      date: this.selectedDate,
+      startTime: `${String(startHours).padStart(2, '0')}:${String(startMinutes).padStart(2, '0')}:00`,
+      endTime: `${String(endHours).padStart(2, '0')}:${String(endMinutes).padStart(2, '0')}:00`,
+      projectId: this.eventForm.projectId,
+      isApplicableToProject: this.eventForm.isApplicableToProject
+    };
+
+    if (this.isEditingEvent && this.editingEventId) {
+      this.eventService.updateEvent(this.editingEventId, request).subscribe({
+        next: () => {
+          this.loadEvents();
+          this.closeEventModal();
+        },
+        error: (error) => {
+          console.error('Erro ao atualizar evento:', error);
+        }
+      });
+    } else {
+      this.eventService.createEvent(request).subscribe({
+        next: () => {
+          this.loadEvents();
+          this.closeEventModal();
+        },
+        error: (error) => {
+          console.error('Erro ao criar evento:', error);
+        }
+      });
+    }
+  }
+
+  deleteEvent(event: Event): void {
+    if (!confirm(`Tem a certeza que deseja eliminar "${event.title}"?`)) {
+      return;
+    }
+
+    this.eventService.deleteEvent(event.id).subscribe({
+      next: () => {
+        this.loadEvents();
+      },
+      error: (error) => {
+        console.error('Erro ao eliminar evento:', error);
+      }
+    });
   }
 }

@@ -20,6 +20,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<Timesheet> Timesheets { get; set; }
     public DbSet<TimesheetEntry> TimesheetEntries { get; set; }
     public DbSet<ProjectUserCost> ProjectUserCosts { get; set; }
+    public DbSet<Event> Events { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -159,5 +160,17 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<TimesheetEntry>()
             .HasIndex(te => new { te.TimesheetId, te.ProjectId })
             .IsUnique();
+
+        modelBuilder.Entity<Event>()
+            .HasOne(e => e.User)
+            .WithMany()
+            .HasForeignKey(e => e.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Event>()
+            .HasOne(e => e.Project)
+            .WithMany()
+            .HasForeignKey(e => e.ProjectId)
+            .OnDelete(DeleteBehavior.SetNull);
     }
 }
