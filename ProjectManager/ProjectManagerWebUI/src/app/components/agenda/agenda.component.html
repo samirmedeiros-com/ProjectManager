@@ -103,6 +103,26 @@
     </div>
   </div>
 
+  <!-- Modal de Seleção de Deleção de Recorrência -->
+  <div *ngIf="showDeleteRecurrenceModal" class="modal-overlay" (click)="closeDeleteRecurrenceModal()">
+    <div class="modal-alert" (click)="$event.stopPropagation()">
+      <div class="modal-alert-header">
+        <h3>Deletar Evento Recorrente</h3>
+      </div>
+      <div class="modal-alert-body">
+        <p>Este é um evento recorrente. O que deseja fazer?</p>
+      </div>
+      <div class="modal-alert-footer">
+        <button class="btn-alert-cancel" (click)="deleteRecurrenceEventOnly()">
+          Deletar Apenas Este
+        </button>
+        <button class="btn-alert-confirm" (click)="deleteRecurrenceSeries()">
+          Deletar Toda a Série
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Modal de Novo Evento -->
   <div *ngIf="showEventModal" class="modal-overlay" (click)="closeEventModal()">
     <div class="modal-content" (click)="$event.stopPropagation()">
@@ -168,6 +188,84 @@
                    name="isApplicableToProject">
             Aplicável ao projeto
           </label>
+        </div>
+
+        <!-- Recorrência -->
+        <div class="form-group">
+          <label>Recorrência</label>
+          <select class="form-control"
+                  [(ngModel)]="eventForm.recurrenceType"
+                  name="recurrenceType">
+            <option value="None">Nenhuma</option>
+            <option value="Daily">Diária</option>
+            <option value="Weekly">Semanal</option>
+            <option value="Monthly">Mensal</option>
+            <option value="Yearly">Anual</option>
+          </select>
+        </div>
+
+        <!-- Dias da semana (apenas para semanal) -->
+        <div class="form-group" *ngIf="eventForm.recurrenceType === 'Weekly'">
+          <label>Dias da Semana</label>
+          <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <label class="checkbox-label">
+              <input type="checkbox" (change)="toggleWeekday('Mon')">
+              Segunda
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" (change)="toggleWeekday('Tue')">
+              Terça
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" (change)="toggleWeekday('Wed')">
+              Quarta
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" (change)="toggleWeekday('Thu')">
+              Quinta
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" (change)="toggleWeekday('Fri')">
+              Sexta
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" (change)="toggleWeekday('Sat')">
+              Sábado
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" (change)="toggleWeekday('Sun')">
+              Domingo
+            </label>
+          </div>
+        </div>
+
+        <!-- Término da recorrência -->
+        <div class="form-group" *ngIf="eventForm.recurrenceType !== 'None'">
+          <label>Término da Recorrência</label>
+          <select class="form-control"
+                  [(ngModel)]="eventForm.recurrenceEndType"
+                  name="recurrenceEndType">
+            <option value="none">Sem término</option>
+            <option value="date">Em uma data específica</option>
+            <option value="count">Após N ocorrências</option>
+          </select>
+        </div>
+
+        <div class="form-group" *ngIf="eventForm.recurrenceEndType === 'date'">
+          <label>Data Final</label>
+          <input type="date"
+                 class="form-control"
+                 [(ngModel)]="eventForm.recurrenceEndDate"
+                 name="recurrenceEndDate">
+        </div>
+
+        <div class="form-group" *ngIf="eventForm.recurrenceEndType === 'count'">
+          <label>Número de Ocorrências</label>
+          <input type="number"
+                 class="form-control"
+                 [(ngModel)]="eventForm.recurrenceEndCount"
+                 name="recurrenceEndCount"
+                 min="1">
         </div>
 
         <div class="modal-footer">

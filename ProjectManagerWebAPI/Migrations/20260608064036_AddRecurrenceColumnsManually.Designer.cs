@@ -12,8 +12,8 @@ using ProjectManagerWebAPI.Data;
 namespace ProjectManagerWebAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260608063357_AddRecurrenceToEvents")]
-    partial class AddRecurrenceToEvents
+    [Migration("20260608064036_AddRecurrenceColumnsManually")]
+    partial class AddRecurrenceColumnsManually
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -77,8 +77,8 @@ namespace ProjectManagerWebAPI.Migrations
                     b.Property<int>("IsApplicableToProject")
                         .HasColumnType("NUMBER(10)");
 
-                    b.Property<bool>("IsRecurrenceParent")
-                        .HasColumnType("BOOLEAN");
+                    b.Property<int>("IsRecurrenceParent")
+                        .HasColumnType("NUMBER(10)");
 
                     b.Property<int?>("ParentEventId")
                         .HasColumnType("NUMBER(10)");

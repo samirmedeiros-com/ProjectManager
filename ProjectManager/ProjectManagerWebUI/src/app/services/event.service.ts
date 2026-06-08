@@ -34,7 +34,11 @@ export class EventService {
     return this.http.put<Event>(`${this.apiUrl}/${id}`, event);
   }
 
-  deleteEvent(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  deleteEvent(id: number, deleteAll: boolean = false): Observable<void> {
+    let url = `${this.apiUrl}/${id}`;
+    if (deleteAll) {
+      url += '?deleteAll=true';
+    }
+    return this.http.delete<void>(url);
   }
 }

@@ -74,8 +74,8 @@ namespace ProjectManagerWebAPI.Migrations
                     b.Property<int>("IsApplicableToProject")
                         .HasColumnType("NUMBER(10)");
 
-                    b.Property<bool>("IsRecurrenceParent")
-                        .HasColumnType("BOOLEAN");
+                    b.Property<int>("IsRecurrenceParent")
+                        .HasColumnType("NUMBER(10)");
 
                     b.Property<int?>("ParentEventId")
                         .HasColumnType("NUMBER(10)");

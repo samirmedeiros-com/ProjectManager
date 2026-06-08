@@ -8,6 +8,9 @@ export interface Event {
   projectId?: number;
   projectName?: string;
   isApplicableToProject: boolean;
+  recurrenceType?: string;
+  isRecurrenceParent?: boolean;
+  parentEventId?: number;
 }
 
 export interface CreateEventRequest {
@@ -18,6 +21,10 @@ export interface CreateEventRequest {
   endTime: string;
   projectId?: number | null;
   isApplicableToProject: boolean;
+  recurrenceType?: string;
+  recurrenceDaysOfWeek?: string;
+  recurrenceEndDate?: Date;
+  recurrenceEndCount?: number;
 }
 
 export interface UpdateEventRequest {
@@ -28,4 +35,8 @@ export interface UpdateEventRequest {
   endTime: string;
   projectId?: number | null;
   isApplicableToProject: boolean;
+  recurrenceType?: string;
+  recurrenceDaysOfWeek?: string;
+  recurrenceEndDate?: Date;
+  recurrenceEndCount?: number;
 }

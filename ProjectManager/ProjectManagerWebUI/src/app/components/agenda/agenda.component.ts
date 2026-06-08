@@ -30,10 +30,17 @@ export class AgendaComponent implements OnInit {
     startTime: '09:00',
     endTime: '10:00',
     projectId: null as number | null,
-    isApplicableToProject: false
+    isApplicableToProject: false,
+    recurrenceType: 'None' as string,
+    recurrenceDaysOfWeek: '' as string,
+    recurrenceEndType: 'none' as string, // 'none', 'date', 'count'
+    recurrenceEndDate: null as Date | null,
+    recurrenceEndCount: null as number | null
   };
   isEditingEvent = false;
   editingEventId: number | null = null;
+  showDeleteRecurrenceModal = false;
+  deleteRecurrenceEvent: any = null;
 
   showAlertModal = false;
   alertData = {
@@ -180,7 +187,12 @@ export class AgendaComponent implements OnInit {
       startTime: '09:00',
       endTime: '10:00',
       projectId: null,
-      isApplicableToProject: false
+      isApplicableToProject: false,
+      recurrenceType: 'None',
+      recurrenceDaysOfWeek: '',
+      recurrenceEndType: 'none',
+      recurrenceEndDate: null,
+      recurrenceEndCount: null
     };
     this.showEventModal = true;
 
@@ -240,7 +252,11 @@ export class AgendaComponent implements OnInit {
       startTime: this.eventForm.startTime,
       endTime: this.eventForm.endTime,
       projectId: this.eventForm.projectId,
-      isApplicableToProject: this.eventForm.isApplicableToProject
+      isApplicableToProject: this.eventForm.isApplicableToProject,
+      recurrenceType: this.eventForm.recurrenceType,
+      recurrenceDaysOfWeek: this.eventForm.recurrenceDaysOfWeek || undefined,
+      recurrenceEndDate: this.eventForm.recurrenceEndDate || undefined,
+      recurrenceEndCount: this.eventForm.recurrenceEndCount || undefined
     };
 
     if (this.isEditingEvent && this.editingEventId) {
@@ -273,26 +289,86 @@ export class AgendaComponent implements OnInit {
   }
 
   deleteEvent(event: Event): void {
-    this.showAlert(
-      'Confirmar Eliminação',
-      `Tem a certeza que deseja eliminar "${event.title}"?`,
-      'confirm',
-      () => {
-        this.eventService.deleteEvent(event.id).subscribe({
-          next: () => {
-            this.loadEvents();
-            this.showAlert('Sucesso', 'Evento eliminado com sucesso!', 'info');
-            // Fechar modal de sucesso automaticamente após 1.5 segundos
-            setTimeout(() => {
-              this.closeAlertModal();
-            }, 1500);
-          },
-          error: (error: any) => {
-            console.error('Erro ao eliminar evento:', error);
-            this.showAlert('Erro', 'Erro ao eliminar evento. Por favor, tente novamente.');
-          }
-        });
+    // Se é um evento recorrente (parent ou instância), mostrar opção de deleção
+    if (event.isRecurrenceParent || event.parentEventId) {
+      this.deleteRecurrenceEvent = event;
+      this.showDeleteRecurrenceModal = true;
+      this.cdr.markForCheck();
+    } else {
+      // Evento simples
+      this.showAlert(
+        'Confirmar Eliminação',
+        `Tem a certeza que deseja eliminar "${event.title}"?`,
+        'confirm',
+        () => {
+          this.eventService.deleteEvent(event.id).subscribe({
+            next: () => {
+              this.loadEvents();
+              this.showAlert('Sucesso', 'Evento eliminado com sucesso!', 'info');
+              setTimeout(() => {
+                this.closeAlertModal();
+              }, 1500);
+            },
+            error: (error: any) => {
+              console.error('Erro ao eliminar evento:', error);
+              this.showAlert('Erro', 'Erro ao eliminar evento. Por favor, tente novamente.');
+            }
+          });
+        }
+      );
+    }
+  }
+
+  deleteRecurrenceEventOnly(): void {
+    this.eventService.deleteEvent(this.deleteRecurrenceEvent.id).subscribe({
+      next: () => {
+        this.closeDeleteRecurrenceModal();
+        this.loadEvents();
+        this.showAlert('Sucesso', 'Evento eliminado com sucesso!', 'info');
+        setTimeout(() => {
+          this.closeAlertModal();
+        }, 1500);
+      },
+      error: (error: any) => {
+        this.showAlert('Erro', 'Erro ao eliminar evento. Por favor, tente novamente.');
       }
-    );
+    });
+  }
+
+  deleteRecurrenceSeries(): void {
+    this.eventService.deleteEvent(this.deleteRecurrenceEvent.id, true).subscribe({
+      next: () => {
+        this.closeDeleteRecurrenceModal();
+        this.loadEvents();
+        this.showAlert('Sucesso', 'Série eliminada com sucesso!', 'info');
+        setTimeout(() => {
+          this.closeAlertModal();
+        }, 1500);
+      },
+      error: (error: any) => {
+        this.showAlert('Erro', 'Erro ao eliminar série. Por favor, tente novamente.');
+      }
+    });
+  }
+
+  closeDeleteRecurrenceModal(): void {
+    this.showDeleteRecurrenceModal = false;
+    this.deleteRecurrenceEvent = null;
+    this.cdr.markForCheck();
+  }
+
+  toggleWeekday(day: string): void {
+    if (!this.eventForm.recurrenceDaysOfWeek) {
+      this.eventForm.recurrenceDaysOfWeek = day;
+    } else {
+      const days = this.eventForm.recurrenceDaysOfWeek.split(',');
+      const index = days.indexOf(day);
+      if (index > -1) {
+        days.splice(index, 1);
+      } else {
+        days.push(day);
+      }
+      this.eventForm.recurrenceDaysOfWeek = days.filter(d => d).join(',');
+    }
   }
 }

@@ -69,7 +69,7 @@ public class EventsController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteEvent(int id)
+    public async Task<IActionResult> DeleteEvent(int id, [FromQuery] bool deleteAll = false)
     {
         var userId = GetUserId();
         var @event = await _eventService.GetEventByIdAsync(id);
@@ -79,7 +79,15 @@ public class EventsController : ControllerBase
         if (@event.UserId != userId)
             return Forbid();
 
-        await _eventService.DeleteEventAsync(id);
+        if (deleteAll && (@event.IsRecurrenceParent || @event.ParentEventId.HasValue))
+        {
+            await _eventService.DeleteRecurrenceSeriesAsync(id);
+        }
+        else
+        {
+            await _eventService.DeleteEventAsync(id);
+        }
+
         return NoContent();
     }
 

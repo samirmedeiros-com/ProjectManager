@@ -166,6 +166,10 @@ public class ApplicationDbContext : DbContext
             .HasConversion<int>();
 
         modelBuilder.Entity<Event>()
+            .Property(e => e.IsRecurrenceParent)
+            .HasConversion<int>();
+
+        modelBuilder.Entity<Event>()
             .HasOne(e => e.User)
             .WithMany()
             .HasForeignKey(e => e.UserId)
