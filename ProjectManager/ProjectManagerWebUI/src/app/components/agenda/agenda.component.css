@@ -31,24 +31,24 @@
 }
 
 .btn-back {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: #424143;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 600;
-  transition: all 0.3s ease;
-  white-space: nowrap;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  background: #424143 !important;
+  color: white !important;
+  border: none !important;
+  padding: 10px 20px !important;
+  border-radius: 6px !important;
+  cursor: pointer !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  transition: all 0.3s ease !important;
+  white-space: nowrap !important;
 }
 
 .btn-back:hover {
-  background: #2a2a2c;
-  transform: translateY(-1px);
+  background: #2a2a2c !important;
+  transform: translateY(-1px) !important;
 }
 
 .agenda-content {
