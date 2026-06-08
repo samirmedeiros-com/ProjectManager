@@ -28,7 +28,7 @@
                   class="day-btn"
                   [class.today]="isToday(day)"
                   [class.selected]="isSelected(day)"
-                  (click)="selectDate(new Date(currentDate.getFullYear(), currentDate.getMonth(), day))">
+                  (click)="selectDate(createDate(day))">
             {{ day }}
           </button>
         </div>

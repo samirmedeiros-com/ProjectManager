@@ -100,4 +100,8 @@ export class AgendaComponent implements OnInit {
 
     return days;
   }
+
+  createDate(day: number): Date {
+    return new Date(this.currentDate.getFullYear(), this.currentDate.getMonth(), day);
+  }
 }
