@@ -165,14 +165,9 @@ public class ApplicationDbContext : DbContext
             .Property(e => e.IsApplicableToProject)
             .HasConversion<int>();
 
-        // Configurar colunas de recorrência como opcionais (não obrigatórias na query)
         modelBuilder.Entity<Event>()
-            .Ignore(e => e.ParentEventId)
-            .Ignore(e => e.RecurrenceType)
-            .Ignore(e => e.RecurrenceDaysOfWeek)
-            .Ignore(e => e.RecurrenceEndDate)
-            .Ignore(e => e.RecurrenceEndCount)
-            .Ignore(e => e.IsRecurrenceParent);
+            .Property(e => e.IsRecurrenceParent)
+            .HasConversion<int>();
 
         modelBuilder.Entity<Event>()
             .HasOne(e => e.User)
