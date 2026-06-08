@@ -94,8 +94,8 @@ public class EventService
             Title = e.Title,
             Description = e.Description,
             Date = e.Date,
-            StartTime = e.StartTime.ToString(@"hh\:mm"),
-            EndTime = e.EndTime.ToString(@"hh\:mm"),
+            StartTime = e.StartTime,
+            EndTime = e.EndTime,
             ProjectId = e.ProjectId,
             ProjectName = e.Project?.Name ?? "",
             IsApplicableToProject = e.IsApplicableToProject
@@ -108,8 +108,8 @@ public class CreateEventRequest
     public string Title { get; set; } = string.Empty;
     public string? Description { get; set; }
     public DateTime Date { get; set; }
-    public TimeSpan StartTime { get; set; }
-    public TimeSpan EndTime { get; set; }
+    public string StartTime { get; set; } = string.Empty; // Formato: HH:mm
+    public string EndTime { get; set; } = string.Empty;   // Formato: HH:mm
     public int? ProjectId { get; set; }
     public bool IsApplicableToProject { get; set; }
 }
@@ -119,8 +119,8 @@ public class UpdateEventRequest
     public string Title { get; set; } = string.Empty;
     public string? Description { get; set; }
     public DateTime Date { get; set; }
-    public TimeSpan StartTime { get; set; }
-    public TimeSpan EndTime { get; set; }
+    public string StartTime { get; set; } = string.Empty; // Formato: HH:mm
+    public string EndTime { get; set; } = string.Empty;   // Formato: HH:mm
     public int? ProjectId { get; set; }
     public bool IsApplicableToProject { get; set; }
 }

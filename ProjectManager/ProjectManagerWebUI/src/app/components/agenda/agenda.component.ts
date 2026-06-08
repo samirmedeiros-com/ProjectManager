@@ -183,15 +183,12 @@ export class AgendaComponent implements OnInit {
       return;
     }
 
-    const [startHours, startMinutes] = this.eventForm.startTime.split(':').map(Number);
-    const [endHours, endMinutes] = this.eventForm.endTime.split(':').map(Number);
-
     const request: CreateEventRequest = {
       title: this.eventForm.title,
       description: this.eventForm.description,
       date: this.selectedDate,
-      startTime: `${String(startHours).padStart(2, '0')}:${String(startMinutes).padStart(2, '0')}:00`,
-      endTime: `${String(endHours).padStart(2, '0')}:${String(endMinutes).padStart(2, '0')}:00`,
+      startTime: this.eventForm.startTime,
+      endTime: this.eventForm.endTime,
       projectId: this.eventForm.projectId,
       isApplicableToProject: this.eventForm.isApplicableToProject
     };
