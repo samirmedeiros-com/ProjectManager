@@ -20,7 +20,8 @@
   opacity: 0.8;
 }
 
-.navbar-logo {
+.dpd-logo {
+  width: 84px;
   height: 38px;
   object-fit: contain;
   object-position: left center;
@@ -114,7 +115,8 @@
     gap: 10px;
   }
 
-  .navbar-logo {
+  .dpd-logo {
+    width: 60px;
     height: 28px;
   }
 
