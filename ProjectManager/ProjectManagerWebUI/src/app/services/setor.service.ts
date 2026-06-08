@@ -7,7 +7,7 @@ import { Setor } from '../models/setor.model';
   providedIn: 'root'
 })
 export class SetorService {
-  private apiUrl = 'http://localhost:5000/api/setores';
+  private apiUrl = `${environment.apiUrl}/api/setores';
 
   constructor(private http: HttpClient) { }
 
