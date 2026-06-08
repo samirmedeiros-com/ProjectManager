@@ -103,7 +103,9 @@ export class AgendaComponent implements OnInit {
   }
 
   getFirstDayOfMonth(date: Date): number {
-    return new Date(date.getFullYear(), date.getMonth(), 1).getDay();
+    const firstDay = new Date(date.getFullYear(), date.getMonth(), 1).getDay();
+    // Converter de domingo=0 para segunda=0 (7 dias começam na segunda)
+    return (firstDay + 6) % 7;
   }
 
   getPreviousMonth(): void {
