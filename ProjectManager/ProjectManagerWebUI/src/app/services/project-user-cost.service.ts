@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface ProjectUserCost {
   id: number;
@@ -18,7 +19,7 @@ export interface CreateProjectUserCostRequest {
   providedIn: 'root'
 })
 export class ProjectUserCostService {
-  private apiUrl = 'http://localhost:5000/api/projects';
+  private apiUrl = `${environment.apiUrl}/api/projects`;
 
   constructor(private http: HttpClient) {}
 

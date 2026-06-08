@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface HoursByMonth {
   year: number;
@@ -43,7 +44,7 @@ export interface ReportSummary {
   providedIn: 'root'
 })
 export class ReportService {
-  private apiUrl = 'http://localhost:5000/api/reports';
+  private apiUrl = `${environment.apiUrl}/api/reports`;
 
   constructor(private http: HttpClient) {}
 

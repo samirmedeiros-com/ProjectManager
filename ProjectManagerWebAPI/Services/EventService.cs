@@ -74,59 +74,91 @@ public class EventService
         var recurringEvents = new List<Event>();
         DateTime currentDate = parentEvent.Date;
         int occurrenceCount = 0;
-        int maxIterations = 10000; // Limite de segurança para evitar ciclos infinitos
+
+        // Limite de iterações como rede de segurança contra loops infinitos
+        // (ex.: dias da semana inválidos que nunca correspondem). Sem isto, o
+        // AddDays repetido estoura DateTime.MaxValue e lança ArgumentOutOfRangeException.
+        const int maxIterations = 366 * 5; // ~5 anos varrendo dia a dia
         int iterations = 0;
 
-        while (iterations < maxIterations)
+        // Se tem limite de ocorrências, gerar exatamente essa quantidade
+        if (request.RecurrenceEndCount.HasValue)
         {
-            iterations++;
-
-            // Verificar limite de data
-            if (request.RecurrenceEndDate.HasValue && currentDate > request.RecurrenceEndDate.Value)
-                break;
-
-            // Verificar limite de ocorrências
-            if (request.RecurrenceEndCount.HasValue && occurrenceCount >= request.RecurrenceEndCount.Value)
-                break;
-
-            // Gerar evento recorrente
-            if (ShouldCreateEventOnDate(currentDate, request.RecurrenceType, request.RecurrenceDaysOfWeek))
+            while (occurrenceCount < request.RecurrenceEndCount.Value && iterations++ < maxIterations)
             {
-                var recurringEvent = new Event
+                if (ShouldCreateEventOnDate(currentDate, request.RecurrenceType, request.RecurrenceDaysOfWeek))
                 {
-                    UserId = parentEvent.UserId,
-                    Title = parentEvent.Title,
-                    Description = parentEvent.Description,
-                    Date = currentDate,
-                    StartTime = parentEvent.StartTime,
-                    EndTime = parentEvent.EndTime,
-                    ProjectId = parentEvent.ProjectId,
-                    IsApplicableToProject = parentEvent.IsApplicableToProject,
-                    ParentEventId = parentEvent.Id,
-                    IsRecurrenceParent = false,
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow
-                };
+                    var recurringEvent = new Event
+                    {
+                        UserId = parentEvent.UserId,
+                        Title = parentEvent.Title,
+                        Description = parentEvent.Description,
+                        Date = currentDate,
+                        StartTime = parentEvent.StartTime,
+                        EndTime = parentEvent.EndTime,
+                        ProjectId = parentEvent.ProjectId,
+                        IsApplicableToProject = parentEvent.IsApplicableToProject,
+                        ParentEventId = parentEvent.Id,
+                        IsRecurrenceParent = false,
+                        CreatedAt = DateTime.UtcNow,
+                        UpdatedAt = DateTime.UtcNow
+                    };
 
-                recurringEvents.Add(recurringEvent);
-                occurrenceCount++;
-            }
+                    recurringEvents.Add(recurringEvent);
+                    occurrenceCount++;
+                }
 
-            // Avançar para o próximo dia/semana/mês/ano
-            try
-            {
                 currentDate = GetNextDate(currentDate, request.RecurrenceType);
             }
-            catch (ArgumentOutOfRangeException)
+        }
+        // Se tem limite de data, gerar até essa data
+        else if (request.RecurrenceEndDate.HasValue)
+        {
+            while (currentDate <= request.RecurrenceEndDate.Value && iterations++ < maxIterations)
             {
-                // Se a data ultrapassou DateTime.MaxValue, parar
-                break;
+                if (ShouldCreateEventOnDate(currentDate, request.RecurrenceType, request.RecurrenceDaysOfWeek))
+                {
+                    var recurringEvent = new Event
+                    {
+                        UserId = parentEvent.UserId,
+                        Title = parentEvent.Title,
+                        Description = parentEvent.Description,
+                        Date = currentDate,
+                        StartTime = parentEvent.StartTime,
+                        EndTime = parentEvent.EndTime,
+                        ProjectId = parentEvent.ProjectId,
+                        IsApplicableToProject = parentEvent.IsApplicableToProject,
+                        ParentEventId = parentEvent.Id,
+                        IsRecurrenceParent = false,
+                        CreatedAt = DateTime.UtcNow,
+                        UpdatedAt = DateTime.UtcNow
+                    };
+
+                    recurringEvents.Add(recurringEvent);
+                    occurrenceCount++;
+                }
+
+                currentDate = GetNextDate(currentDate, request.RecurrenceType);
             }
         }
 
         _context.Events.AddRange(recurringEvents);
         await _context.SaveChangesAsync();
     }
+
+    // Mapeamento culture-independent: abreviação enviada pelo frontend -> DayOfWeek.
+    // Evita depender de date.ToString("ddd"), que retorna nomes localizados
+    // (ex.: "seg.", "ter." em pt-PT) e quebraria a comparação com "Mon,Tue,Wed".
+    private static readonly Dictionary<string, DayOfWeek> DayAbbreviations = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ["Sun"] = DayOfWeek.Sunday,
+        ["Mon"] = DayOfWeek.Monday,
+        ["Tue"] = DayOfWeek.Tuesday,
+        ["Wed"] = DayOfWeek.Wednesday,
+        ["Thu"] = DayOfWeek.Thursday,
+        ["Fri"] = DayOfWeek.Friday,
+        ["Sat"] = DayOfWeek.Saturday
+    };
 
     private bool ShouldCreateEventOnDate(DateTime date, string? recurrenceType, string? daysOfWeek)
     {
@@ -138,8 +170,12 @@ public class EventService
 
         if (recurrenceType == "Weekly" && !string.IsNullOrEmpty(daysOfWeek))
         {
-            var dayName = date.ToString("ddd");
-            return daysOfWeek.Contains(dayName.Substring(0, 1).ToUpper() + dayName.Substring(1).ToLower());
+            foreach (var token in daysOfWeek.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+            {
+                if (DayAbbreviations.TryGetValue(token, out var dow) && dow == date.DayOfWeek)
+                    return true;
+            }
+            return false;
         }
 
         if (recurrenceType == "Monthly")
@@ -153,6 +189,10 @@ public class EventService
 
     private DateTime GetNextDate(DateTime current, string? recurrenceType)
     {
+        // Protege contra overflow ao aproximar-se de DateTime.MaxValue.
+        if (current >= DateTime.MaxValue.AddYears(-1))
+            return DateTime.MaxValue;
+
         return recurrenceType switch
         {
             "Daily" => current.AddDays(1),
