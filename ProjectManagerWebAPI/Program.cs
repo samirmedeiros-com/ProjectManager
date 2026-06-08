@@ -102,7 +102,9 @@ using (var scope = app.Services.CreateScope())
     try
     {
         // Aplicar migrações (idempotente - só aplica as não executadas)
+        Console.WriteLine("🔄 Iniciando aplicação de migrações...");
         db.Database.Migrate();
+        Console.WriteLine("✅ Migrações aplicadas com sucesso!");
 
         // Criar apenas o usuário admin (verifica se já existe antes de criar)
         SeedAdminAndOwner.CreateAdminAndOwnerUsers(db);
@@ -110,7 +112,13 @@ using (var scope = app.Services.CreateScope())
     catch (Exception ex)
     {
         // Log de erro se houver problema nas migrações
-        Console.WriteLine($"Erro ao aplicar migrações: {ex.Message}");
+        Console.WriteLine($"❌ Erro ao aplicar migrações: {ex.Message}");
+        Console.WriteLine($"📋 Stack trace: {ex.StackTrace}");
+        if (ex.InnerException != null)
+        {
+            Console.WriteLine($"📋 Inner Exception: {ex.InnerException.Message}");
+            Console.WriteLine($"📋 Inner Stack trace: {ex.InnerException.StackTrace}");
+        }
     }
 }
 
