@@ -165,15 +165,9 @@ public class ApplicationDbContext : DbContext
             .Property(e => e.IsApplicableToProject)
             .HasConversion<int>();
 
-        // Ignore recurrence fields - migration fails due to ORA-00955
-        // These columns need to be created manually via SQL or by DBA
         modelBuilder.Entity<Event>()
-            .Ignore(e => e.ParentEventId)
-            .Ignore(e => e.RecurrenceType)
-            .Ignore(e => e.RecurrenceDaysOfWeek)
-            .Ignore(e => e.RecurrenceEndDate)
-            .Ignore(e => e.RecurrenceEndCount)
-            .Ignore(e => e.IsRecurrenceParent);
+            .Property(e => e.IsRecurrenceParent)
+            .HasConversion<int>();
 
         modelBuilder.Entity<Event>()
             .HasOne(e => e.User)
