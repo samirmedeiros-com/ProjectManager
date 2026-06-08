@@ -10,10 +10,10 @@ public interface IProjectService
     Task<List<ProjectDto>> GetAllProjects();
     Task<ProjectDto?> GetProjectById(int id);
     Task<ProjectDto> CreateProject(CreateProjectRequest request);
-    Task<ProjectDto?> UpdateProject(int id, UpdateProjectRequest request);
-    Task<ProjectDto?> UpdateProjectManager(int id, string manager, string? changedByEmail = null);
-    Task<ProjectDto?> UpdateProjectOwner(int id, int? ownerId, string? changedByEmail = null);
-    Task<ProjectDto?> UpdateProjectStatus(int id, string status, string? changedByEmail = null);
+    Task<ProjectDto?> UpdateProject(int id, UpdateProjectRequest request, string? userEmail = null, string? userRole = null);
+    Task<ProjectDto?> UpdateProjectManager(int id, string manager, string? changedByEmail = null, string? userRole = null);
+    Task<ProjectDto?> UpdateProjectOwner(int id, int? ownerId, string? changedByEmail = null, string? userRole = null);
+    Task<ProjectDto?> UpdateProjectStatus(int id, string status, string? changedByEmail = null, string? userRole = null);
     Task<bool> DeleteProject(int id);
     Task<bool> AddProjectMember(int projectId, int userId, string role = "Member");
     Task<bool> RemoveProjectMember(int projectMemberId);
@@ -80,10 +80,37 @@ public class ProjectService : IProjectService
         return await GetProjectById(project.Id);
     }
 
-    public async Task<ProjectDto?> UpdateProject(int id, UpdateProjectRequest request)
+    private async Task<bool> CanEditProject(Project project, string? userEmail, string? userRole)
     {
-        var project = await _context.Projects.FindAsync(id);
+        if (userRole == "Admin") return true;
+
+        if (string.IsNullOrEmpty(userEmail)) return false;
+
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == userEmail);
+        if (user == null) return false;
+
+        if (project.OwnerId == user.Id) return true;
+
+        if (userRole == "Gestor" && project.SetorId.HasValue)
+        {
+            var setorId = project.SetorId.Value;
+            var userSetorIds = await _context.UserSetores
+                .Where(us => us.UserId == user.Id)
+                .Select(us => us.SetorId)
+                .ToListAsync();
+
+            if (userSetorIds.Contains(setorId)) return true;
+        }
+
+        return false;
+    }
+
+    public async Task<ProjectDto?> UpdateProject(int id, UpdateProjectRequest request, string? userEmail = null, string? userRole = null)
+    {
+        var project = await _context.Projects.Include(p => p.Owner).FirstOrDefaultAsync(p => p.Id == id);
         if (project == null) return null;
+
+        if (!await CanEditProject(project, userEmail, userRole)) return null;
 
         if (!string.IsNullOrEmpty(request.Name)) project.Name = request.Name;
         if (!string.IsNullOrEmpty(request.Description)) project.Description = request.Description;
@@ -103,10 +130,12 @@ public class ProjectService : IProjectService
         return await GetProjectById(id);
     }
 
-    public async Task<ProjectDto?> UpdateProjectManager(int id, string manager, string? changedByEmail = null)
+    public async Task<ProjectDto?> UpdateProjectManager(int id, string manager, string? changedByEmail = null, string? userRole = null)
     {
-        var project = await _context.Projects.FindAsync(id);
+        var project = await _context.Projects.Include(p => p.Owner).FirstOrDefaultAsync(p => p.Id == id);
         if (project == null) return null;
+
+        if (!await CanEditProject(project, changedByEmail, userRole)) return null;
 
         var oldManager = project.Manager ?? "Desconhecido";
 
@@ -131,12 +160,14 @@ public class ProjectService : IProjectService
         return await GetProjectById(id);
     }
 
-    public async Task<ProjectDto?> UpdateProjectOwner(int id, int? ownerId, string? changedByEmail = null)
+    public async Task<ProjectDto?> UpdateProjectOwner(int id, int? ownerId, string? changedByEmail = null, string? userRole = null)
     {
         var project = await _context.Projects
             .Include(p => p.Owner)
             .FirstOrDefaultAsync(p => p.Id == id);
         if (project == null) return null;
+
+        if (!await CanEditProject(project, changedByEmail, userRole)) return null;
 
         var oldOwner = project.Owner?.FullName ?? "Sem atribuição";
         var newOwner = "Sem atribuição";
@@ -169,10 +200,12 @@ public class ProjectService : IProjectService
         return await GetProjectById(id);
     }
 
-    public async Task<ProjectDto?> UpdateProjectStatus(int id, string status, string? changedByEmail = null)
+    public async Task<ProjectDto?> UpdateProjectStatus(int id, string status, string? changedByEmail = null, string? userRole = null)
     {
-        var project = await _context.Projects.FindAsync(id);
+        var project = await _context.Projects.Include(p => p.Owner).FirstOrDefaultAsync(p => p.Id == id);
         if (project == null) return null;
+
+        if (!await CanEditProject(project, changedByEmail, userRole)) return null;
 
         var oldStatus = project.Status;
 

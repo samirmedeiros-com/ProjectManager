@@ -76,9 +76,10 @@ public class ProjectsController : ControllerBase
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        var project = await _projectService.UpdateProject(id, request);
+        var userEmail = User.FindFirst("email")?.Value ?? User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress")?.Value;
+        var project = await _projectService.UpdateProject(id, request, userEmail, GetUserRole());
         if (project == null)
-            return NotFound();
+            return Unauthorized(new { message = "Você não tem permissão para editar este projeto" });
 
         return Ok(project);
     }
@@ -90,9 +91,9 @@ public class ProjectsController : ControllerBase
             return BadRequest(ModelState);
 
         var userEmail = User.FindFirst("email")?.Value ?? User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress")?.Value;
-        var project = await _projectService.UpdateProjectManager(id, request.Manager, userEmail);
+        var project = await _projectService.UpdateProjectManager(id, request.Manager, userEmail, GetUserRole());
         if (project == null)
-            return NotFound();
+            return Unauthorized(new { message = "Você não tem permissão para editar este projeto" });
 
         return Ok(project);
     }
@@ -104,9 +105,9 @@ public class ProjectsController : ControllerBase
             return BadRequest(ModelState);
 
         var userEmail = User.FindFirst("email")?.Value ?? User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress")?.Value;
-        var project = await _projectService.UpdateProjectStatus(id, request.Status, userEmail);
+        var project = await _projectService.UpdateProjectStatus(id, request.Status, userEmail, GetUserRole());
         if (project == null)
-            return NotFound();
+            return Unauthorized(new { message = "Você não tem permissão para editar este projeto" });
 
         return Ok(project);
     }
@@ -118,9 +119,9 @@ public class ProjectsController : ControllerBase
             return BadRequest(ModelState);
 
         var userEmail = User.FindFirst("email")?.Value ?? User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress")?.Value;
-        var project = await _projectService.UpdateProjectOwner(id, request.OwnerId, userEmail);
+        var project = await _projectService.UpdateProjectOwner(id, request.OwnerId, userEmail, GetUserRole());
         if (project == null)
-            return NotFound();
+            return Unauthorized(new { message = "Você não tem permissão para editar este projeto" });
 
         return Ok(project);
     }

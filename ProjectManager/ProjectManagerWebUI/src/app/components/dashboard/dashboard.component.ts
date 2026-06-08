@@ -299,12 +299,14 @@ export class DashboardComponent implements OnInit {
   }
 
   canChangeStatus(currentStatus: string, project?: Project): boolean {
+    if (this.currentUser?.role === 'Admin') return true;
+    if (this.isGestor()) return true;
+
     // Owners-apenas não podem alterar status
     if (project && this.isOnlyOwner(project)) {
       return false;
     }
 
-    if (this.isGestor()) return true;
     // Utilizadores podem apenas mudar: Released → Development, Development → Completed
     return currentStatus === 'Released' || currentStatus === 'Development';
   }

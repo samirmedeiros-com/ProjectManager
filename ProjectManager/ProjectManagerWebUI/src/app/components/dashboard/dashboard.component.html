@@ -281,7 +281,7 @@
           </div>
 
           <div class="col-action">
-            <button *ngIf="!isOnlyOwner(project)" class="btn-view" (click)="viewProject(project.id)">
+            <button *ngIf="currentUser?.role === 'Admin' || currentUser?.role === 'Gestor' || !isOnlyOwner(project)" class="btn-view" (click)="viewProject(project.id)">
               Ver →
             </button>
           </div>
