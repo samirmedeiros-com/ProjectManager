@@ -69,6 +69,35 @@
     <p>Carregando agenda...</p>
   </div>
 
+  <!-- Modal de Alerta -->
+  <div *ngIf="showAlertModal" class="modal-overlay" (click)="closeAlertModal()">
+    <div class="modal-alert" (click)="$event.stopPropagation()">
+      <div class="modal-alert-header">
+        <h3>{{ alertData.title }}</h3>
+      </div>
+      <div class="modal-alert-body">
+        {{ alertData.message }}
+      </div>
+      <div class="modal-alert-footer">
+        <button *ngIf="alertData.type === 'confirm'"
+                class="btn-alert-cancel"
+                (click)="closeAlertModal()">
+          {{ alertData.cancelText }}
+        </button>
+        <button *ngIf="alertData.type === 'confirm'"
+                class="btn-alert-confirm"
+                (click)="confirmAlert()">
+          {{ alertData.confirmText }}
+        </button>
+        <button *ngIf="alertData.type !== 'confirm'"
+                class="btn-alert-confirm"
+                (click)="closeAlertModal()">
+          {{ alertData.confirmText }}
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Modal de Novo Evento -->
   <div *ngIf="showEventModal" class="modal-overlay" (click)="closeEventModal()">
     <div class="modal-content" (click)="$event.stopPropagation()">

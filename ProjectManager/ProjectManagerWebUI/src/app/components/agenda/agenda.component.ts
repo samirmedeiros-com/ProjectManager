@@ -35,6 +35,16 @@ export class AgendaComponent implements OnInit {
   isEditingEvent = false;
   editingEventId: number | null = null;
 
+  showAlertModal = false;
+  alertData = {
+    title: '',
+    message: '',
+    type: 'info', // 'info', 'error', 'confirm'
+    confirmAction: () => {},
+    confirmText: 'OK',
+    cancelText: 'Cancelar'
+  };
+
   constructor(
     private router: Router,
     private cdr: ChangeDetectorRef,
@@ -182,19 +192,42 @@ export class AgendaComponent implements OnInit {
     this.cdr.markForCheck();
   }
 
+  showAlert(title: string, message: string, type: string = 'info', confirmAction: () => void = () => {}): void {
+    this.alertData = {
+      title,
+      message,
+      type,
+      confirmAction,
+      confirmText: type === 'confirm' ? 'Confirmar' : 'OK',
+      cancelText: 'Cancelar'
+    };
+    this.showAlertModal = true;
+    this.cdr.markForCheck();
+  }
+
+  closeAlertModal(): void {
+    this.showAlertModal = false;
+    this.cdr.markForCheck();
+  }
+
+  confirmAlert(): void {
+    this.alertData.confirmAction();
+    this.closeAlertModal();
+  }
+
   saveEvent(): void {
     if (!this.eventForm.title.trim()) {
-      alert('Título é obrigatório');
+      this.showAlert('Campo Obrigatório', 'Título é obrigatório');
       return;
     }
 
     if (!this.eventForm.startTime || !this.eventForm.endTime) {
-      alert('Hora de início e hora de fim são obrigatórias');
+      this.showAlert('Campos Obrigatórios', 'Hora de início e hora de fim são obrigatórias');
       return;
     }
 
     if (this.eventForm.endTime <= this.eventForm.startTime) {
-      alert('A hora de fim não pode ser menor ou igual à hora de início');
+      this.showAlert('Hora Inválida', 'A hora de fim não pode ser menor ou igual à hora de início');
       return;
     }
 
@@ -232,17 +265,22 @@ export class AgendaComponent implements OnInit {
   }
 
   deleteEvent(event: Event): void {
-    if (!confirm(`Tem a certeza que deseja eliminar "${event.title}"?`)) {
-      return;
-    }
-
-    this.eventService.deleteEvent(event.id).subscribe({
-      next: () => {
-        this.loadEvents();
-      },
-      error: (error: any) => {
-        console.error('Erro ao eliminar evento:', error);
+    this.showAlert(
+      'Confirmar Eliminação',
+      `Tem a certeza que deseja eliminar "${event.title}"?`,
+      'confirm',
+      () => {
+        this.eventService.deleteEvent(event.id).subscribe({
+          next: () => {
+            this.loadEvents();
+            this.showAlert('Sucesso', 'Evento eliminado com sucesso!', 'info');
+          },
+          error: (error: any) => {
+            console.error('Erro ao eliminar evento:', error);
+            this.showAlert('Erro', 'Erro ao eliminar evento. Por favor, tente novamente.');
+          }
+        });
       }
-    });
+    );
   }
 }
