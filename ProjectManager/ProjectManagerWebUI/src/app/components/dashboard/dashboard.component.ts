@@ -219,6 +219,10 @@ export class DashboardComponent implements OnInit {
     this.router.navigate(['/timesheet/approval']);
   }
 
+  goToAgenda() {
+    this.router.navigate(['/agenda']);
+  }
+
   openFreshDeskTicket(freshDeskId: string | undefined) {
     if (freshDeskId) {
       const url = `https://suporte.dpd.pt/a/tickets/${freshDeskId}`;

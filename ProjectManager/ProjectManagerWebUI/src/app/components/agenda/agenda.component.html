@@ -1,0 +1,54 @@
+<app-navbar></app-navbar>
+
+<div class="agenda-container">
+  <div class="agenda-header">
+    <div class="header-content">
+      <h2>📅 Agenda</h2>
+      <button class="btn btn-outline-secondary btn-back" (click)="goBack()">← Voltar</button>
+    </div>
+  </div>
+
+  <div class="agenda-content" *ngIf="!isLoading">
+    <div class="calendar-wrapper">
+      <div class="calendar-header">
+        <button class="btn btn-sm btn-outline-secondary" (click)="getPreviousMonth()">◀</button>
+        <h3>{{ getMonthName() }} {{ currentDate.getFullYear() }}</h3>
+        <button class="btn btn-sm btn-outline-secondary" (click)="getNextMonth()">▶</button>
+      </div>
+
+      <div class="weekdays">
+        <div class="weekday" *ngFor="let day of getWeekDays()">
+          {{ day }}
+        </div>
+      </div>
+
+      <div class="calendar-days">
+        <div class="calendar-day empty" *ngFor="let day of getCalendarDays(); let i = index">
+          <button *ngIf="day !== null"
+                  class="day-btn"
+                  [class.today]="isToday(day)"
+                  [class.selected]="isSelected(day)"
+                  (click)="selectDate(new Date(currentDate.getFullYear(), currentDate.getMonth(), day))">
+            {{ day }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="events-wrapper" *ngIf="selectedDate">
+      <div class="events-header">
+        <h4>Eventos do dia {{ selectedDate.getDate() }} de {{ getMonthName() }}</h4>
+      </div>
+      <div class="events-list">
+        <div class="no-events">
+          <p>Nenhum evento agendado para este dia</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="isLoading" class="loading-spinner">
+    <div class="spinner"></div>
+    <p>Carregando agenda...</p>
+  </div>
+</div>
