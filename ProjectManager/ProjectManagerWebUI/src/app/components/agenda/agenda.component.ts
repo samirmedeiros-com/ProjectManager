@@ -66,10 +66,12 @@ export class AgendaComponent implements OnInit {
     this.projectService.getAll().subscribe({
       next: (data: Project[]) => {
         this.projects = data;
+        console.log('Projetos carregados:', this.projects);
         this.cdr.markForCheck();
       },
       error: (error: any) => {
         console.error('Erro ao carregar projetos:', error);
+        alert('Erro ao carregar projetos. Por favor, recarregue a página.');
       }
     });
   }
@@ -171,6 +173,7 @@ export class AgendaComponent implements OnInit {
       isApplicableToProject: false
     };
     this.showEventModal = true;
+    console.log('Modal aberto. Projetos disponíveis:', this.projects);
     this.cdr.markForCheck();
   }
 
@@ -182,6 +185,16 @@ export class AgendaComponent implements OnInit {
   saveEvent(): void {
     if (!this.eventForm.title.trim()) {
       alert('Título é obrigatório');
+      return;
+    }
+
+    if (!this.eventForm.startTime || !this.eventForm.endTime) {
+      alert('Hora de início e hora de fim são obrigatórias');
+      return;
+    }
+
+    if (this.eventForm.endTime <= this.eventForm.startTime) {
+      alert('A hora de fim não pode ser menor ou igual à hora de início');
       return;
     }
 

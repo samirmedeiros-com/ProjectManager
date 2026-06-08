@@ -120,7 +120,8 @@
                   [(ngModel)]="eventForm.projectId"
                   name="projectId">
             <option [value]="null">Nenhum projeto</option>
-            <option *ngFor="let project of projects" [value]="project.id">
+            <option *ngFor="let project of projects"
+                    [value]="project.id">
               {{ project.name }}
             </option>
           </select>
