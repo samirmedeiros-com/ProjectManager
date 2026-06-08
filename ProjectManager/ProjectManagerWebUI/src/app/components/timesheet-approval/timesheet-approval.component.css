@@ -71,6 +71,49 @@
   font-weight: 600;
 }
 
+.status-filter-section {
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.status-filter-section label {
+  display: block;
+  margin-bottom: 10px;
+  font-weight: 600;
+  color: #424143;
+  font-size: 13px;
+}
+
+.filter-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.filter-btn {
+  flex: 1;
+  padding: 8px 12px;
+  border: 2px solid #ced4da;
+  background: white;
+  color: #666;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 13px;
+  transition: all 0.3s;
+}
+
+.filter-btn:hover {
+  border-color: #DC0032;
+  color: #424143;
+}
+
+.filter-btn.active {
+  background: #DC0032;
+  color: white;
+  border-color: #DC0032;
+}
+
 .month-filter-section {
   margin-bottom: 20px;
   padding-bottom: 20px;

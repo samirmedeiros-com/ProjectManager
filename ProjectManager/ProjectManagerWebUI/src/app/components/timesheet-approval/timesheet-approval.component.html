@@ -24,12 +24,31 @@
   <div class="content">
     <!-- Sidebar com Pendentes -->
     <div class="sidebar">
-      <h3>Pendentes de Aprovação</h3>
+      <h3>{{ statusFilter === 'pending' ? 'Pendentes de Aprovação' : 'Timesheets Aprovadas' }}</h3>
+
+      <!-- Filtro de Status -->
+      <div class="status-filter-section">
+        <label>Status:</label>
+        <div class="filter-buttons">
+          <button
+            [class.active]="statusFilter === 'pending'"
+            (click)="statusFilter = 'pending'; onStatusFilterChange()"
+            class="filter-btn">
+            ⏳ Pendentes
+          </button>
+          <button
+            [class.active]="statusFilter === 'approved'"
+            (click)="statusFilter = 'approved'; onStatusFilterChange()"
+            class="filter-btn">
+            ✓ Aprovadas
+          </button>
+        </div>
+      </div>
 
       <!-- Filtro por Mês/Ano -->
       <div class="month-filter-section">
         <label>Filtrar por Mês</label>
-        <input type="month" [(ngModel)]="selectedMonth" (change)="onMonthChange()" class="form-control">
+        <input type="month" [(ngModel)]="selectedMonth" class="form-control">
       </div>
 
       <div *ngIf="getFilteredTimesheets().length === 0" class="empty-state">
@@ -108,13 +127,21 @@
 
         <!-- Ações -->
         <div class="actions">
-          <button (click)="approveTimesheet()" class="btn btn-success" [disabled]="isLoading">
-            <span *ngIf="isLoading">Aprovando...</span>
-            <span *ngIf="!isLoading">✓ Aprovar</span>
-          </button>
-          <button (click)="openRejectModal()" class="btn btn-danger" [disabled]="isLoading">
-            ✗ Rejeitar
-          </button>
+          <div *ngIf="statusFilter === 'pending'">
+            <button (click)="approveTimesheet()" class="btn btn-success" [disabled]="isLoading">
+              <span *ngIf="isLoading">Aprovando...</span>
+              <span *ngIf="!isLoading">✓ Aprovar</span>
+            </button>
+            <button (click)="openRejectModal()" class="btn btn-danger" [disabled]="isLoading">
+              ✗ Rejeitar
+            </button>
+          </div>
+          <div *ngIf="statusFilter === 'approved'">
+            <button (click)="deleteTimesheet()" class="btn btn-danger" [disabled]="isLoading">
+              <span *ngIf="isLoading">Apagando...</span>
+              <span *ngIf="!isLoading">🗑️ Apagar</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -239,5 +266,32 @@
       </div>
     </div>
   </div>
+
+  <!-- Modal de Confirmação - Apagar Timesheet -->
+  <div *ngIf="showDeleteModal" class="modal-overlay" (click)="closeDeleteModal()">
+    <div class="modal modal-confirm" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Apagar Timesheet</h2>
+        <button type="button" class="close-btn" (click)="closeDeleteModal()">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="alert alert-warning">
+          <p><strong>⚠️ Tem a certeza que deseja apagar esta timesheet?</strong></p>
+          <p>Esta ação não pode ser desfeita.</p>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeDeleteModal()" [disabled]="isLoading">
+          Cancelar
+        </button>
+        <button type="button" class="btn btn-danger" (click)="confirmDeleteTimesheet()" [disabled]="isLoading">
+          {{ isLoading ? 'A apagar...' : '🗑️ Apagar' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
   </div>
 </div>

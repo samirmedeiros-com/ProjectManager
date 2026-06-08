@@ -23,14 +23,17 @@ import { User } from '../../models/user.model';
 export class TimesheetApprovalComponent implements OnInit {
   projects: Project[] = [];
   pendingTimesheets: TimesheetListItem[] = [];
+  approvedTimesheets: TimesheetListItem[] = [];
   currentTimesheet: Timesheet | null = null;
   rejectForm!: FormGroup;
   showRejectModal = false;
+  showDeleteModal = false;
   isLoading = false;
   message = '';
   messageType: 'success' | 'error' | 'info' = 'info';
   userSetorId: number = 0;
   selectedMonth: string = new Date().toISOString().split('T')[0].slice(0, 7);
+  statusFilter: 'pending' | 'approved' = 'pending';
 
   showCostsModal = false;
   costsForm!: FormGroup;
@@ -96,6 +99,13 @@ export class TimesheetApprovalComponent implements OnInit {
 
     this.loadProjects();
     this.loadPendingApprovals();
+    this.loadApprovedTimesheets();
+  }
+
+  onStatusFilterChange(): void {
+    this.currentTimesheet = null;
+    this.message = '';
+    this.cdr.markForCheck();
   }
 
   loadProjects(): void {
@@ -128,6 +138,32 @@ export class TimesheetApprovalComponent implements OnInit {
         this.cdr.markForCheck();
       }
     );
+  }
+
+  loadApprovedTimesheets(): void {
+    this.timesheetService.getMyTimesheets().subscribe(
+      (data) => {
+        this.approvedTimesheets = data.filter(ts => ts.status === 'Approved');
+        this.cdr.markForCheck();
+      },
+      (error) => {
+        console.error('Error loading approved timesheets:', error);
+      }
+    );
+  }
+
+  getFilteredTimesheets(): TimesheetListItem[] {
+    const timesheets = this.statusFilter === 'pending' ? this.pendingTimesheets : this.approvedTimesheets;
+
+    if (!this.selectedMonth) return timesheets;
+
+    const [year, month] = this.selectedMonth.split('-');
+    return timesheets.filter(ts => {
+      const tsDate = new Date(ts.date);
+      const tsYear = tsDate.getFullYear().toString();
+      const tsMonth = String(tsDate.getMonth() + 1).padStart(2, '0');
+      return tsYear === year && tsMonth === month;
+    });
   }
 
   selectTimesheet(timesheetId: number): void {
@@ -353,6 +389,41 @@ export class TimesheetApprovalComponent implements OnInit {
       (error: any) => {
         this.message = 'Erro ao remover custo';
         this.messageType = 'error';
+        this.cdr.markForCheck();
+      }
+    );
+  }
+
+  deleteTimesheet(): void {
+    if (!this.currentTimesheet) return;
+    this.showDeleteModal = true;
+    this.cdr.markForCheck();
+  }
+
+  closeDeleteModal(): void {
+    this.showDeleteModal = false;
+    this.cdr.markForCheck();
+  }
+
+  confirmDeleteTimesheet(): void {
+    if (!this.currentTimesheet) return;
+
+    this.isLoading = true;
+    this.timesheetService.deleteTimesheet(this.currentTimesheet.id).subscribe(
+      () => {
+        this.message = 'Timesheet apagada com sucesso';
+        this.messageType = 'success';
+        this.isLoading = false;
+        this.currentTimesheet = null;
+        this.showDeleteModal = false;
+        this.loadApprovedTimesheets();
+        this.cdr.markForCheck();
+      },
+      (error: any) => {
+        this.message = 'Erro ao apagar timesheet';
+        this.messageType = 'error';
+        this.isLoading = false;
+        this.showDeleteModal = false;
         this.cdr.markForCheck();
       }
     );
