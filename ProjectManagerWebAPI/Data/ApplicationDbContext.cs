@@ -162,6 +162,10 @@ public class ApplicationDbContext : DbContext
             .IsUnique();
 
         modelBuilder.Entity<Event>()
+            .Property(e => e.IsApplicableToProject)
+            .HasConversion<int>();
+
+        modelBuilder.Entity<Event>()
             .HasOne(e => e.User)
             .WithMany()
             .HasForeignKey(e => e.UserId)
