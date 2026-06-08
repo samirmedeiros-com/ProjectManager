@@ -165,9 +165,14 @@ public class ApplicationDbContext : DbContext
             .Property(e => e.IsApplicableToProject)
             .HasConversion<int>();
 
+        // Ignore recurrence fields - columns don't exist in Oracle yet
         modelBuilder.Entity<Event>()
-            .Property(e => e.IsRecurrenceParent)
-            .HasConversion<int>();
+            .Ignore(e => e.ParentEventId)
+            .Ignore(e => e.RecurrenceType)
+            .Ignore(e => e.RecurrenceDaysOfWeek)
+            .Ignore(e => e.RecurrenceEndDate)
+            .Ignore(e => e.RecurrenceEndCount)
+            .Ignore(e => e.IsRecurrenceParent);
 
         modelBuilder.Entity<Event>()
             .HasOne(e => e.User)
