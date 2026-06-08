@@ -5,7 +5,7 @@
 namespace ProjectManagerWebAPI.Migrations
 {
     /// <inheritdoc />
-    public partial class AddEventsTable : Migration
+    public partial class AddEventsTableFixed : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

@@ -12,8 +12,8 @@ using ProjectManagerWebAPI.Data;
 namespace ProjectManagerWebAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260608013139_AddEventsTable")]
-    partial class AddEventsTable
+    [Migration("20260608013505_AddEventsTableFixed")]
+    partial class AddEventsTableFixed
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

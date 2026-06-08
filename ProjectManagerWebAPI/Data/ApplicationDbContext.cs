@@ -172,9 +172,5 @@ public class ApplicationDbContext : DbContext
             .WithMany()
             .HasForeignKey(e => e.ProjectId)
             .OnDelete(DeleteBehavior.SetNull);
-
-        modelBuilder.Entity<Event>()
-            .Property(e => e.Id)
-            .ValueGeneratedOnAdd();
     }
 }
