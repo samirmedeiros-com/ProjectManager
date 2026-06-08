@@ -159,7 +159,7 @@ public class AuthService : IAuthService
 
                 <p><strong>Importante:</strong> Por sua segurança, recomendamos que altere esta password no seu primeiro acesso.</p>
 
-                <p>Para fazer login, visite: <a href='http://10.2.6.81/login'>DPD Project Manager</a></p>
+                <p>Para fazer login, visite: <a href='http://10.2.2.172/login'>DPD Project Manager</a></p>
 
                 <hr style='border: none; border-top: 1px solid #ccc; margin: 20px 0;'>
                 <p style='color: #666; font-size: 12px;'>
