@@ -74,9 +74,13 @@ public class EventService
         var recurringEvents = new List<Event>();
         DateTime currentDate = parentEvent.Date;
         int occurrenceCount = 0;
+        int maxIterations = 10000; // Limite de segurança para evitar ciclos infinitos
+        int iterations = 0;
 
-        while (true)
+        while (iterations < maxIterations)
         {
+            iterations++;
+
             // Verificar limite de data
             if (request.RecurrenceEndDate.HasValue && currentDate > request.RecurrenceEndDate.Value)
                 break;
@@ -109,7 +113,15 @@ public class EventService
             }
 
             // Avançar para o próximo dia/semana/mês/ano
-            currentDate = GetNextDate(currentDate, request.RecurrenceType);
+            try
+            {
+                currentDate = GetNextDate(currentDate, request.RecurrenceType);
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                // Se a data ultrapassou DateTime.MaxValue, parar
+                break;
+            }
         }
 
         _context.Events.AddRange(recurringEvents);
