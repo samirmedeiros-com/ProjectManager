@@ -515,25 +515,25 @@
 }
 
 .form-group {
-  margin-bottom: 18px;
+  margin-bottom: 12px;
 }
 
 .form-group label {
   display: block;
-  margin-bottom: 8px;
+  margin-bottom: 5px;
   font-weight: 600;
   color: #424143;
-  font-size: 13px;
+  font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.3px;
 }
 
 .form-control {
   width: 100%;
-  padding: 12px 14px;
+  padding: 8px 10px;
   border: 1px solid #ddd;
   border-radius: 4px;
-  font-size: 14px;
+  font-size: 13px;
   font-family: inherit;
   background-color: #fafafa;
   transition: all 0.3s ease;
