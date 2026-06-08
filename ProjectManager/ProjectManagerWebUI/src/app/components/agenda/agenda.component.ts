@@ -52,23 +52,23 @@ export class AgendaComponent implements OnInit {
     const lastDay = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth() + 1, 0);
 
     this.eventService.getUserEvents(firstDay, lastDay).subscribe({
-      next: (data) => {
+      next: (data: Event[]) => {
         this.events = data;
         this.cdr.markForCheck();
       },
-      error: (error) => {
+      error: (error: any) => {
         console.error('Erro ao carregar eventos:', error);
       }
     });
   }
 
   loadProjects(): void {
-    this.projectService.getAllProjects().subscribe({
-      next: (data) => {
+    this.projectService.getAll().subscribe({
+      next: (data: Project[]) => {
         this.projects = data;
         this.cdr.markForCheck();
       },
-      error: (error) => {
+      error: (error: any) => {
         console.error('Erro ao carregar projetos:', error);
       }
     });
@@ -202,7 +202,7 @@ export class AgendaComponent implements OnInit {
           this.loadEvents();
           this.closeEventModal();
         },
-        error: (error) => {
+        error: (error: any) => {
           console.error('Erro ao atualizar evento:', error);
         }
       });
@@ -212,7 +212,7 @@ export class AgendaComponent implements OnInit {
           this.loadEvents();
           this.closeEventModal();
         },
-        error: (error) => {
+        error: (error: any) => {
           console.error('Erro ao criar evento:', error);
         }
       });
@@ -228,7 +228,7 @@ export class AgendaComponent implements OnInit {
       next: () => {
         this.loadEvents();
       },
-      error: (error) => {
+      error: (error: any) => {
         console.error('Erro ao eliminar evento:', error);
       }
     });
