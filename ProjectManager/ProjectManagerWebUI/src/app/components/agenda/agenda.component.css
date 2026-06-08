@@ -167,9 +167,9 @@
 }
 
 .day-btn.selected {
-  background-color: #e8f4f8;
+  background: linear-gradient(135deg, #DC0032 0%, #BB0033 100%);
   border: 2px solid #DC0032;
-  color: #DC0032;
+  color: white;
   font-weight: 700;
 }
 
