@@ -1,0 +1,27 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Logs
+*.log
+nohup.out
+/tmp/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Database (SQLite — não versionar dados locais)
+*.db
+*.db-shm
+*.db-wal
+
+# Secrets / Configuração local
+appsettings.Development.json
+appsettings.Production.json
+secrets.json
+.env
+.env.local

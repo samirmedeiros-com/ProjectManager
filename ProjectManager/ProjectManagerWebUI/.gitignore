@@ -42,3 +42,18 @@ __screenshots__/
 # System files
 .DS_Store
 Thumbs.db
+
+# Environment (contém URLs e configurações sensíveis)
+src/environments/environment.prod.ts
+src/environments/environment.staging.ts
+
+# Logs
+*.log
+nohup.out
+
+# Test coverage
+/coverage
+.nyc_output
+
+# Package lock (opcional — remover se quiser versionar)
+# package-lock.json

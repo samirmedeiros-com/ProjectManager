@@ -293,6 +293,11 @@
   margin: 0;
   color: #aaa;
   font-size: 14px;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  max-height: 180px;
+  overflow-y: auto;
+  line-height: 1.6;
 }
 
 .btn-danger {
@@ -502,6 +507,8 @@
 .tab-panel {
   animation: fadeIn 0.3s ease;
   padding: 25px;
+  max-height: 480px;
+  overflow-y: auto;
 }
 
 @keyframes fadeIn {
@@ -658,9 +665,11 @@
 .comment-content {
   color: #555;
   font-size: 14px;
-  line-height: 1.5;
+  line-height: 1.6;
   white-space: pre-wrap;
   word-wrap: break-word;
+  max-height: 150px;
+  overflow-y: auto;
 }
 
 .history-section {

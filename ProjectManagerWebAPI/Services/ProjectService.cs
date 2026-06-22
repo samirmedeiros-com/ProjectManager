@@ -102,7 +102,22 @@ public class ProjectService : IProjectService
             if (userSetorIds.Contains(setorId)) return true;
         }
 
+        // Gestor sem setor atribuído pode editar projetos sem setor
+        if (userRole == "Gestor" && !project.SetorId.HasValue) return true;
+
         return false;
+    }
+
+    private bool CanChangeStatus(string fromStatus, string toStatus, string? userRole)
+    {
+        if (userRole == "Admin" || userRole == "Gestor") return true;
+
+        // Owners não podem alterar status
+        if (userRole == "Owner") return false;
+
+        // Utilizadores regulares: apenas transições permitidas
+        return (fromStatus == "Released" && toStatus == "Development")
+            || (fromStatus == "Development" && toStatus == "Completed");
     }
 
     public async Task<ProjectDto?> UpdateProject(int id, UpdateProjectRequest request, string? userEmail = null, string? userRole = null)
@@ -116,11 +131,28 @@ public class ProjectService : IProjectService
         if (!string.IsNullOrEmpty(request.Description)) project.Description = request.Description;
         if (request.StartDate.HasValue) project.StartDate = request.StartDate.Value;
         if (request.EndDate.HasValue) project.EndDate = request.EndDate.Value;
-        if (!string.IsNullOrEmpty(request.Status)) project.Status = request.Status;
         if (request.Priority.HasValue) project.Priority = request.Priority.Value;
         if (request.OwnerId.HasValue) project.OwnerId = request.OwnerId.Value;
         if (request.SetorId.HasValue) project.SetorId = request.SetorId.Value;
         if (!string.IsNullOrEmpty(request.FreshDeskId)) project.FreshDeskId = request.FreshDeskId;
+
+        if (!string.IsNullOrEmpty(request.Status) && project.Status != request.Status)
+        {
+            var oldStatus = project.Status;
+            project.Status = request.Status;
+
+            if (request.Status == "Completed" && oldStatus != "Completed")
+                project.CompletedAt = DateTime.UtcNow;
+
+            _context.ProjectStatusHistories.Add(new ProjectStatusHistory
+            {
+                ProjectId = id,
+                FromStatus = oldStatus,
+                ToStatus = request.Status,
+                ChangedBy = userEmail ?? project.Manager,
+                ChangedAt = DateTime.UtcNow
+            });
+        }
 
         project.UpdatedAt = DateTime.UtcNow;
 
@@ -205,9 +237,9 @@ public class ProjectService : IProjectService
         var project = await _context.Projects.Include(p => p.Owner).FirstOrDefaultAsync(p => p.Id == id);
         if (project == null) return null;
 
-        if (!await CanEditProject(project, changedByEmail, userRole)) return null;
-
         var oldStatus = project.Status;
+
+        if (!CanChangeStatus(oldStatus, status, userRole)) return null;
 
         project.Status = status;
         project.UpdatedAt = DateTime.UtcNow;

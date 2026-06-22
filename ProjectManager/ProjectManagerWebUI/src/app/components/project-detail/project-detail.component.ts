@@ -353,17 +353,10 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
 
     this.projectService.update(this.projectId, updateRequest).subscribe(
       (updatedProject) => {
-        // Se status mudou, registar histórico
-        if (this.editForm.status !== this.project?.status) {
-          this.projectService.updateStatus(this.projectId, this.editForm.status).subscribe();
-        }
-
-        // Se manager mudou, registar histórico
         if (this.editForm.manager !== this.project?.manager) {
           this.projectService.updateManager(this.projectId, this.editForm.manager).subscribe();
         }
 
-        // Se owner mudou, registar no histórico
         if (this.editForm.ownerId !== this.project?.ownerId) {
           this.projectService.updateOwner(this.projectId, this.editForm.ownerId).subscribe();
         }
