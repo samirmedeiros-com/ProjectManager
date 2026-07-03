@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using ProjectManagerWebAPI.Data;
 
 namespace ProjectManagerWebAPI.Controllers;
 
@@ -7,6 +9,10 @@ namespace ProjectManagerWebAPI.Controllers;
 [ApiController]
 public class DebugController : ControllerBase
 {
+    private readonly ApplicationDbContext _context;
+    public DebugController(ApplicationDbContext context) { _context = context; }
+
+
     [HttpGet("headers")]
     public IActionResult GetHeaders()
     {

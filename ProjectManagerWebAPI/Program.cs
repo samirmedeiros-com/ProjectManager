@@ -30,6 +30,7 @@ builder.Services.AddAuthentication(options =>
 })
 .AddJwtBearer(options =>
 {
+    options.MapInboundClaims = false;
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuerSigningKey = true,
@@ -39,7 +40,8 @@ builder.Services.AddAuthentication(options =>
         ValidateAudience = true,
         ValidAudience = jwtSettings["Audience"],
         ValidateLifetime = true,
-        ClockSkew = TimeSpan.Zero
+        ClockSkew = TimeSpan.Zero,
+        RoleClaimType = "role"
     };
 });
 
@@ -50,6 +52,9 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 });
 
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<ISeurAuthService, SeurAuthService>();
+builder.Services.AddScoped<ISeurGuiaService, SeurGuiaService>();
+builder.Services.AddScoped<ISeurTabelasService, SeurTabelasService>();
 builder.Services.AddScoped<IProjectService, ProjectService>();
 builder.Services.AddScoped<ITaskService, TaskService>();
 builder.Services.AddScoped<ICommentService, CommentService>();
@@ -71,15 +76,13 @@ using (var scope = app.Services.CreateScope())
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     try
     {
-        // Aplicar migrações (idempotente - só aplica as não executadas)
         db.Database.Migrate();
 
-        // Criar apenas o usuário admin (verifica se já existe antes de criar)
         SeedAdminAndOwner.CreateAdminAndOwnerUsers(db);
+        SeedSeurAdmin.CreateSeurAdminUser(db);
     }
     catch (Exception ex)
     {
-        // Log de erro se houver problema nas migrações
         Console.WriteLine($"Erro ao aplicar migrações: {ex.Message}");
     }
 }

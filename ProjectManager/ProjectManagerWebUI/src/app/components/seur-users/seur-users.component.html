@@ -1,0 +1,117 @@
+<div class="su-container">
+  <div class="su-header">
+    <div class="su-title">
+      <h2>Utilizadores</h2>
+      <span class="su-count">{{ users.length }} utilizadores</span>
+    </div>
+    <button class="btn-primary" (click)="abrirCriar()">+ Novo Utilizador</button>
+  </div>
+
+  @if (loading) {
+    <div class="su-loading"><span class="spinner spinner-lg"></span></div>
+  } @else if (erro) {
+    <div class="su-error">{{ erro }}</div>
+  } @else {
+    <div class="su-table-wrap">
+      <table class="su-table">
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Email</th>
+            <th>Perfil</th>
+            <th>Último Login</th>
+            <th>Estado</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (u of users; track u.id) {
+            <tr [class.inactive]="!u.isActive">
+              <td class="td-name">{{ u.fullName }}</td>
+              <td class="td-email">{{ u.email }}</td>
+              <td>
+                <span [class]="u.role === 'Admin' ? 'role-badge role-admin' : 'role-badge role-user'">
+                  {{ roleLabel(u.role) }}
+                </span>
+              </td>
+              <td class="td-date">{{ u.lastLoginAt ? (u.lastLoginAt | date:'dd/MM/yy HH:mm') : '—' }}</td>
+              <td>
+                <span [class]="u.isActive ? 'status-badge status-active' : 'status-badge status-inactive'">
+                  {{ u.isActive ? 'Ativo' : 'Inativo' }}
+                </span>
+              </td>
+              <td class="td-actions">
+                @if (u.isActive) {
+                  <button class="btn-act" (click)="resetarPassword(u)" title="Resetar password">🔑 Reset</button>
+                  <button class="btn-act btn-act-danger" (click)="desativarUtilizador(u)"
+                    [disabled]="deactivatingId === u.id" title="Desativar utilizador">Desativar</button>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>
+
+<!-- MODAL CRIAR UTILIZADOR -->
+@if (showCreateModal) {
+  <div class="modal-backdrop" (click)="fecharCriar()">
+    <div class="modal-box" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Novo Utilizador</h3>
+        <button class="modal-close" (click)="fecharCriar()">✕</button>
+      </div>
+      <div class="modal-body">
+        @if (erroCreate) { <div class="form-err">{{ erroCreate }}</div> }
+        <div class="form-field">
+          <label>Nome completo</label>
+          <input type="text" [(ngModel)]="newUser.fullName" placeholder="Nome do utilizador" class="form-input" (keyup.enter)="criarUtilizador()">
+        </div>
+        <div class="form-field">
+          <label>Email</label>
+          <input type="email" [(ngModel)]="newUser.email" placeholder="email@exemplo.pt" class="form-input" (keyup.enter)="criarUtilizador()">
+        </div>
+        <div class="form-field">
+          <label>Perfil</label>
+          <select [(ngModel)]="newUser.role" class="form-input">
+            @for (r of roles; track r.value) { <option [value]="r.value">{{ r.label }}</option> }
+          </select>
+        </div>
+        <p class="form-hint">Uma password temporária será gerada automaticamente e enviada por email.</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" (click)="fecharCriar()" [disabled]="creating">Cancelar</button>
+        <button class="btn-primary" (click)="criarUtilizador()" [disabled]="creating" style="display:flex;align-items:center;gap:6px">
+          @if (creating) { <span class="spinner spinner-sm spinner-white"></span> }
+          Criar Utilizador
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- MODAL PASSWORD GERADA -->
+@if (showPasswordModal) {
+  <div class="modal-backdrop" (click)="fecharPasswordModal()">
+    <div class="modal-box" (click)="$event.stopPropagation()">
+      <div class="modal-header modal-header-success">
+        <h3>{{ modalTitle }}</h3>
+        <button class="modal-close" (click)="fecharPasswordModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <p class="pw-info">A password temporária para <strong>{{ modalEmail }}</strong> é:</p>
+        <div class="pw-box">{{ modalPassword }}</div>
+        @if (modalEmailSent) {
+          <p class="pw-sent">✓ Password enviada por email para {{ modalEmail }}</p>
+        } @else {
+          <p class="pw-warn">⚠ Não foi possível enviar email. Comunique esta password ao utilizador.</p>
+        }
+      </div>
+      <div class="modal-footer">
+        <button class="btn-primary" (click)="fecharPasswordModal()">Fechar</button>
+      </div>
+    </div>
+  </div>
+}

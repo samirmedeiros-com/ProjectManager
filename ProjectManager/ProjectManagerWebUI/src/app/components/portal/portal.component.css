@@ -1,0 +1,118 @@
+.portal-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+  padding: 40px 20px;
+}
+
+.portal-header {
+  text-align: center;
+  margin-bottom: 50px;
+}
+
+.logo {
+  width: 160px;
+  height: 74px;
+  object-fit: contain;
+  margin-bottom: 24px;
+}
+
+.portal-header h1 {
+  color: #424143;
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  margin: 0 0 8px;
+}
+
+.portal-header p {
+  color: #999;
+  font-size: 15px;
+  font-weight: 500;
+  margin: 0;
+}
+
+.cards-container {
+  display: flex;
+  gap: 28px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.app-card {
+  background: white;
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  padding: 40px 36px;
+  width: 260px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  border: 2px solid transparent;
+}
+
+.app-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.12);
+  border-color: #DC0032;
+}
+
+.card-icon {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: rgba(220, 0, 50, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+  color: #DC0032;
+}
+
+.card-icon svg {
+  width: 34px;
+  height: 34px;
+}
+
+.card-icon--seur {
+  background: rgba(220, 0, 50, 0.08);
+  color: #DC0032;
+}
+
+.app-card h2 {
+  color: #424143;
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0 0 10px;
+  letter-spacing: -0.3px;
+}
+
+.app-card p {
+  color: #999;
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 0 0 28px;
+}
+
+.card-action {
+  display: inline-block;
+  background: #DC0032;
+  color: white;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 9px 28px;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+
+.app-card:hover .card-action {
+  background: #bb0028;
+}

@@ -1,0 +1,536 @@
+<div class="seur-app">
+  <!-- TOPBAR -->
+  <nav class="topbar">
+    <div class="topbar-left">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="79.5 293.5 448.931 206" class="logo">
+        <g>
+          <path fill="#414042" d="M372.345,441.876c-8.398,2.223-19.338,3.323-28.849,3.323c-24.413,0-40.579-12.992-40.579-36.771 c0-22.505,15.057-37.083,37.094-37.083c4.912,0,10.14,0.625,13.313,2.216v-32.668h19.021V441.876z M353.324,390.36 c-3.013-1.426-6.974-2.219-11.737-2.219c-11.563,0-19.333,7.136-19.333,19.656c0,13.476,8.399,21.087,21.874,21.087 c2.379,0,6.023-0.163,9.196-0.793V390.36z M528.431,441.876c-8.406,2.223-19.343,3.323-28.854,3.323 c-24.409,0-40.584-12.992-40.584-36.771c0-22.505,15.064-37.083,37.101-37.083c4.913,0,10.144,0.625,13.315,2.216v-32.668h19.021 V441.876z M509.409,390.36c-3.016-1.426-6.979-2.219-11.733-2.219c-11.57,0-19.336,7.136-19.336,19.656 c0,13.476,8.399,21.087,21.874,21.087c2.375,0,6.023-0.163,9.195-0.793V390.36z M402.258,390.204 c3.168-1.271,7.6-1.742,11.404-1.742c11.733,0,19.818,6.814,19.818,19.015c0,14.393-8.955,20.902-20.929,21.07v16.642 c0.314,0,0.634,0.011,0.957,0.011c24.565,0,39.312-13.785,39.312-38.354c0-22.35-15.691-35.501-38.836-35.501 c-11.727,0-23.304,2.695-30.91,5.862v94.953h19.184V390.204z"/>
+          <linearGradient id="SVGID_seur_" gradientUnits="userSpaceOnUse" x1="366.751" y1="-291.9131" x2="736.271" y2="18.1508" gradientTransform="matrix(0.229 0 0 -0.229 0.3856 397.0497)">
+            <stop offset="0" style="stop-color:#A90034"/>
+            <stop offset="0.2717" style="stop-color:#BB0033"/>
+            <stop offset="0.7226" style="stop-color:#D30032"/>
+            <stop offset="1" style="stop-color:#DC0032"/>
+          </linearGradient>
+          <path fill="url(#SVGID_seur_)" d="M199.681,385.541c-0.787,0.459-2.021,0.423-2.789-0.052l-4.522-2.688 c-0.368-0.228-0.706-0.593-0.961-1.032c-0.015-0.025-0.03-0.051-0.045-0.077c-0.289-0.471-0.453-0.968-0.47-1.424l-0.115-5.272 c-0.034-0.888,0.552-1.971,1.342-2.432l54.362-31.67l-76.285-41.577c-0.84-0.466-1.948-0.691-3.057-0.693 c-1.11-0.002-2.22,0.229-3.061,0.693l-76.286,41.578l85.46,49.75c0.792,0.433,1.394,1.461,1.394,2.389v72.576 c0,0.911-0.652,1.958-1.45,2.384l-4.599,2.554c-0.382,0.203-0.868,0.312-1.376,0.312c-0.029,0-0.059,0-0.088,0 c-0.552,0.013-1.065-0.096-1.467-0.312l-4.614-2.555c-0.784-0.417-1.425-1.469-1.425-2.383l0.001-64.698 c-0.041-0.474-0.388-1.052-0.768-1.27l-75.292-43.829v85.848c-0.001,1.921,1.354,4.291,3.014,5.262l77.543,45.732 c0.829,0.486,1.921,0.728,3.012,0.724c1.092-0.003,2.184-0.231,3.011-0.723l77.555-45.733c1.654-0.981,3.005-3.338,3.003-5.262 v-85.847L199.681,385.541z"/>
+        </g>
+      </svg>
+      <span class="app-title">Gestão SEUR</span>
+    </div>
+    <div class="topbar-right">
+      <span class="topbar-user">{{ currentUser?.email }}</span>
+      <button class="btn-logout" (click)="logout()">Sair</button>
+    </div>
+  </nav>
+
+  <div class="seur-layout">
+
+    <!-- ========== SIDEBAR ========== -->
+    <aside class="seur-sidebar">
+      <button class="sb-btn" [class.active]="seurView==='home'" (click)="setView('home')">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+        </svg>
+        <span>Início</span>
+      </button>
+      <button class="sb-btn" [class.active]="seurView==='gestao'" (click)="setView('gestao')">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="9" x2="9" y2="21"/>
+        </svg>
+        <span>Gestão</span>
+      </button>
+      <button class="sb-btn" [class.active]="seurView==='tabelas'" (click)="setView('tabelas')">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
+        </svg>
+        <span>Tabelas</span>
+      </button>
+      <div class="sb-spacer"></div>
+      @if (isAdmin) {
+        <button class="sb-btn" [class.active]="seurView==='usuarios'" (click)="setView('usuarios')">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/>
+          </svg>
+          <span>Utilizadores</span>
+        </button>
+      }
+      <button class="sb-btn" (click)="changePasswordModal.open()">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/>
+        </svg>
+        <span>Password</span>
+      </button>
+    </aside>
+
+    <!-- ========== CONTENT ========== -->
+    <div class="seur-content">
+
+      <!-- ===== HOME VIEW ===== -->
+      @if (seurView === 'home') {
+        <div class="home-view">
+          <!-- Navegação de data -->
+          <div class="home-header">
+            <div class="date-nav">
+              <button class="date-btn" (click)="mudarDataDashboard(-1)">‹</button>
+              <input type="date" class="date-input" [(ngModel)]="dataDashboard" (change)="carregarTotais()">
+              <button class="date-btn" (click)="mudarDataDashboard(1)">›</button>
+            </div>
+            @if (loadingTotais) { <span class="spinner spinner-sm" style="margin-left:12px"></span> }
+            @if (erroTotais) { <span class="home-err">{{ erroTotais }}</span> }
+          </div>
+
+          @if (totais) {
+            <!-- KPI Cards -->
+            <div class="kpi-grid">
+              <div class="kpi-card kpi-total">
+                <div class="kpi-label">Total do Dia</div>
+                <div class="kpi-value">{{ totais.total }}</div>
+                <div class="kpi-sub">guias criadas</div>
+              </div>
+              <div class="kpi-card kpi-sent" (click)="irParaGestaoComFiltro('Y')">
+                <div class="kpi-label">Enviado</div>
+                <div class="kpi-value">{{ totais.enviado }}</div>
+                <div class="kpi-pct">{{ pct(totais.enviado) }}%</div>
+                <div class="kpi-action">Ver guias ›</div>
+              </div>
+              <div class="kpi-card kpi-none" (click)="irParaGestaoComFiltro('N')">
+                <div class="kpi-label">Não Enviado</div>
+                <div class="kpi-value">{{ totais.naoEnviado }}</div>
+                <div class="kpi-pct">{{ pct(totais.naoEnviado) }}%</div>
+                <div class="kpi-action">Ver guias ›</div>
+              </div>
+              <div class="kpi-card kpi-err" (click)="irParaGestaoComFiltro('E')">
+                <div class="kpi-label">Erro</div>
+                <div class="kpi-value">{{ totais.erro }}</div>
+                <div class="kpi-pct">{{ pct(totais.erro) }}%</div>
+                <div class="kpi-action">Ver guias ›</div>
+              </div>
+              <div class="kpi-card kpi-other" (click)="irParaGestaoComFiltro('X')">
+                <div class="kpi-label">Outros</div>
+                <div class="kpi-value">{{ totais.outros }}</div>
+                <div class="kpi-pct">{{ pct(totais.outros) }}%</div>
+                <div class="kpi-action">Ver guias ›</div>
+              </div>
+            </div>
+
+            <!-- Barra de distribuição -->
+            @if (totais.total > 0) {
+              <div class="dist-section">
+                <div class="dist-label">Distribuição por estado</div>
+                <div class="dist-bar">
+                  <div class="dist-seg seg-sent"  [style.width.%]="pct(totais.enviado)"    [title]="'Enviado: ' + totais.enviado"></div>
+                  <div class="dist-seg seg-none"  [style.width.%]="pct(totais.naoEnviado)" [title]="'Não Enviado: ' + totais.naoEnviado"></div>
+                  <div class="dist-seg seg-err"   [style.width.%]="pct(totais.erro)"       [title]="'Erro: ' + totais.erro"></div>
+                  <div class="dist-seg seg-other" [style.width.%]="pct(totais.outros)"     [title]="'Outros: ' + totais.outros"></div>
+                </div>
+                <div class="dist-legend">
+                  <span class="dl-item dl-sent">■ Enviado {{ pct(totais.enviado) }}%</span>
+                  <span class="dl-item dl-none">■ Não Enviado {{ pct(totais.naoEnviado) }}%</span>
+                  <span class="dl-item dl-err">■ Erro {{ pct(totais.erro) }}%</span>
+                  <span class="dl-item dl-other">■ Outros {{ pct(totais.outros) }}%</span>
+                </div>
+              </div>
+            } @else if (!loadingTotais) {
+              <div class="home-empty">Sem guias criadas neste dia.</div>
+            }
+          }
+        </div>
+      }
+
+      <!-- ===== UTILIZADORES VIEW ===== -->
+      @if (seurView === 'usuarios') {
+        <app-seur-users style="flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column"></app-seur-users>
+      }
+
+      <!-- ===== TABELAS VIEW ===== -->
+      @if (seurView === 'tabelas') {
+        <app-seur-tabelas style="flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column"></app-seur-tabelas>
+      }
+
+      <!-- ===== GESTÃO VIEW ===== -->
+      @if (seurView === 'gestao') {
+      <div class="main-layout">
+    <!-- ========== PAINEL ESQUERDO ========== -->
+    <div class="left-panel">
+      <div class="filter-panel">
+        <div class="filter-header">Pesquisa</div>
+        <div class="filter-body">
+          <div class="filter-row">
+            <label class="checkbox-label"><input type="checkbox" [(ngModel)]="usarFiltroGuia"> ECB</label>
+            <input type="text" class="filter-input" [(ngModel)]="filtroGuia" [disabled]="!usarFiltroGuia" placeholder="Nº Guia" (keyup.enter)="pesquisar()">
+          </div>
+          <div class="filter-row">
+            <label class="checkbox-label"><input type="checkbox" [(ngModel)]="usarFiltroReferencia"> Referência</label>
+            <input type="text" class="filter-input" [(ngModel)]="filtroReferencia" [disabled]="!usarFiltroReferencia" placeholder="Referência" (keyup.enter)="pesquisar()">
+          </div>
+          <div class="filter-row">
+            <label class="checkbox-label"><input type="checkbox" [(ngModel)]="usarFiltroData"> Data</label>
+            <input type="date" class="filter-input" [(ngModel)]="filtroData" [disabled]="!usarFiltroData">
+          </div>
+          <div class="filter-row">
+            <label class="checkbox-label"><input type="checkbox" [(ngModel)]="usarFiltroStatus"> Estado</label>
+            <select class="filter-input" [(ngModel)]="filtroFlagAtlas" [disabled]="!usarFiltroStatus">
+              <option value="">Todos</option>
+              @for (f of flagAtlasOptions; track f.value) { <option [value]="f.value">{{ f.label }}</option> }
+            </select>
+          </div>
+          <div class="filter-actions">
+            <button class="btn-primary" (click)="pesquisar()" [disabled]="loadingLista" style="display:flex;align-items:center;gap:6px">
+              @if (loadingLista) { <span class="spinner spinner-sm spinner-white"></span> }
+              {{ loadingLista ? 'A carregar...' : 'Pesquisar' }}
+            </button>
+            <button class="btn-secondary" (click)="limparFiltros()">Limpar</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="list-panel">
+        <div class="list-header">
+          Guias: {{ guias.length }}
+          @if (loadingLista) { <span class="spinner spinner-sm" style="margin-left:6px"></span> }
+        </div>
+        <div class="list-body">
+          @if (loadingLista) {
+            <div class="spinner-wrap"><span class="spinner spinner-lg"></span></div>
+          } @else if (erroLista) {
+            <div class="list-message error">{{ erroLista }}</div>
+          } @else if (guias.length === 0) {
+            <div class="list-message">Sem registos. Use os filtros e clique Pesquisar.</div>
+          } @else {
+            <table class="guias-table">
+              <thead><tr><th>ECB</th><th>Referência</th><th>Destino</th><th>Data</th><th>Estado</th></tr></thead>
+              <tbody>
+                @for (g of guias; track g.idt) {
+                  <tr [class.selected]="guiaSelecionada?.idt === g.idt" (click)="selecionarGuia(g)">
+                    <td class="col-ecb">{{ g.guia }}</td>
+                    <td class="col-ref">{{ g.referencia }}</td>
+                    <td class="col-dest">
+                      <div>{{ g.destinoNome }}</div>
+                      <small class="text-muted">{{ g.destinoLocalidade }} {{ g.destinoPais }}</small>
+                    </td>
+                    <td class="col-date">{{ g.dtCriacao | date:'dd/MM/yy' }}</td>
+                    <td class="col-flag"><span [class]="flagAtlasClass(g.flagAtlas)">{{ g.flagAtlasDescricao }}</span></td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== PAINEL DIREITO ========== -->
+    <div class="right-panel">
+      @if (!guiaSelecionada && !loadingDetalhe && !erroDetalhe) {
+        <div class="detail-placeholder"><p>Seleccione uma guia para ver o detalhe.</p></div>
+      }
+      @if (loadingDetalhe) {
+        <div class="detail-placeholder"><span class="spinner spinner-lg"></span></div>
+      }
+      @if (erroDetalhe && !loadingDetalhe) {
+        <div class="detail-placeholder" style="color:#DC0032">{{ erroDetalhe }}</div>
+      }
+
+      @if (guiaSelecionada && !loadingDetalhe) {
+        @let d = editMode ? guiaEdit! : guiaSelecionada;
+
+        <!-- CABEÇALHO FIXO -->
+        <div class="detail-header" [class.editing]="editMode">
+          <div class="dh-identity">
+            <span class="dh-ecb">ECB: {{ d.guia || guiaSelecionada.guia }}</span>
+            <span class="dh-sep">·</span>
+            <span class="dh-ref">{{ d.referencia || guiaSelecionada.referencia }}</span>
+            <span [class]="flagAtlasClass(d.flagAtlas)">{{ flagAtlasDescricao(d.flagAtlas) }}</span>
+          </div>
+          <div class="dh-actions">
+            @if (editMode) {
+              <span class="edit-badge">Modo Edição</span>
+              @if (erroGuardar) { <span class="save-err">{{ erroGuardar }}</span> }
+              <button class="btn-primary btn-sm" (click)="guardarGuia()" [disabled]="guardandoGuia" style="display:flex;align-items:center;gap:5px">
+                @if (guardandoGuia) { <span class="spinner spinner-sm spinner-white"></span> }
+                {{ guardandoGuia ? 'A guardar...' : 'Guardar' }}
+              </button>
+              <button class="btn-secondary btn-sm" (click)="cancelarEdicao()" [disabled]="guardandoGuia">Cancelar</button>
+            } @else {
+              <button class="btn-edit" (click)="iniciarEdicao()">Editar</button>
+            }
+          </div>
+        </div>
+
+        <!-- ===== ABAS DE DADOS (editáveis) ===== -->
+        <div class="tabs-wrapper tabs-dados">
+          <div class="tabs-bar">
+            <button [class.active]="tabDados==='geral'"   (click)="mudarTabDados('geral')">Geral</button>
+            <button [class.active]="tabDados==='origem'"  (click)="mudarTabDados('origem')">Origem</button>
+            <button [class.active]="tabDados==='destino'" (click)="mudarTabDados('destino')">Destino</button>
+            <button [class.active]="tabDados==='estado'"  (click)="mudarTabDados('estado')">Estado</button>
+          </div>
+
+          <div class="tab-body">
+
+            <!-- GERAL -->
+            @if (tabDados === 'geral') {
+              <div class="fg">
+                <div class="fg-group">
+                  <div class="fg-title">Identificação</div>
+                  <div class="fg-grid">
+                    <div class="ff"><label>ECB / Guia</label><input [readOnly]="!editMode" [(ngModel)]="d.guia" class="fi" [class.fi-e]="editMode"></div>
+                    <div class="ff"><label>Referência</label><input [readOnly]="!editMode" [(ngModel)]="d.referencia" class="fi" [class.fi-e]="editMode"></div>
+                    <div class="ff"><label>Conta DPD</label><input [readOnly]="!editMode" [(ngModel)]="d.contaDpd" class="fi" [class.fi-e]="editMode"></div>
+                    <div class="ff"><label>Qtd. Volumes</label><input [readOnly]="!editMode" [(ngModel)]="d.qtdVolumes" type="number" class="fi" [class.fi-e]="editMode"></div>
+                    <div class="ff"><label>Peso</label><input [readOnly]="!editMode" [(ngModel)]="d.peso" type="number" class="fi" [class.fi-e]="editMode"></div>
+                    <div class="ff"><label>Valor COD</label><input [readOnly]="!editMode" [(ngModel)]="d.valorCod" type="number" class="fi" [class.fi-e]="editMode"></div>
+                  </div>
+                </div>
+                <div class="fg-group">
+                  <div class="fg-title">Produto / Serviço / Transporte</div>
+                  <div class="fg-grid">
+                    <div class="ff"><label>Produto (código)</label><input [readOnly]="!editMode" [(ngModel)]="d.produtoCodigo" class="fi" [class.fi-e]="editMode"></div>
+                    <div class="ff"><label>Serviço (código)</label><input [readOnly]="!editMode" [(ngModel)]="d.servicoCodigo" class="fi" [class.fi-e]="editMode"></div>
+                    <div class="ff"><label>Product</label><input [readOnly]="!editMode" [(ngModel)]="d.product" class="fi" [class.fi-e]="editMode"></div>
+                    <div class="ff"><label>Service</label><input [readOnly]="!editMode" [(ngModel)]="d.service" class="fi" [class.fi-e]="editMode"></div>
+                    <div class="ff"><label>CCCC</label><input [readOnly]="!editMode" [(ngModel)]="d.cccc" class="fi" [class.fi-e]="editMode"></div>
+                    <div class="ff"><label>Cod. Centro</label><input [readOnly]="!editMode" [(ngModel)]="d.codCentro" class="fi" [class.fi-e]="editMode"></div>
+                    <div class="ff"><label>Transport Line</label><input [readOnly]="!editMode" [(ngModel)]="d.transportLine" class="fi" [class.fi-e]="editMode"></div>
+                    <div class="ff"><label>Dígito</label><input [readOnly]="!editMode" [(ngModel)]="d.digito" class="fi" [class.fi-e]="editMode"></div>
+                    <div class="ff"><label>ID Range</label><input [readOnly]="!editMode" [(ngModel)]="d.idRange" type="number" class="fi" [class.fi-e]="editMode"></div>
+                    <div class="ff"><label>Range</label><input [readOnly]="!editMode" [(ngModel)]="d.range" class="fi" [class.fi-e]="editMode"></div>
+                    <div class="ff"><label>Parcel Number</label><input [readOnly]="!editMode" [(ngModel)]="d.parcelNumber" class="fi" [class.fi-e]="editMode"></div>
+                    <div class="ff"><label>Guia DPD</label><input [readOnly]="!editMode" [(ngModel)]="d.guiaDpd" class="fi" [class.fi-e]="editMode"></div>
+                    <div class="ff"><label>Shipment Code</label><input [readOnly]="!editMode" [(ngModel)]="d.shipmentCode" class="fi" [class.fi-e]="editMode"></div>
+                    <div class="ff"><label>User ID</label><input [readOnly]="!editMode" [(ngModel)]="d.userId" type="number" class="fi" [class.fi-e]="editMode"></div>
+                  </div>
+                </div>
+                <div class="fg-group">
+                  <div class="fg-title">Observações</div>
+                  <div class="fg-grid fg-grid-1">
+                    <div class="ff"><label>Obs</label><textarea [readOnly]="!editMode" [(ngModel)]="d.obs" class="fi fi-ta" [class.fi-e]="editMode" rows="2"></textarea></div>
+                    <div class="ff"><label>Obs. Adicional</label><textarea [readOnly]="!editMode" [(ngModel)]="d.obsAdd" class="fi fi-ta" [class.fi-e]="editMode" rows="2"></textarea></div>
+                  </div>
+                </div>
+              </div>
+            }
+
+            <!-- ORIGEM -->
+            @if (tabDados === 'origem') {
+              <div class="fg">
+                <div class="fg-group">
+                  <div class="fg-title">Endereço</div>
+                  <div class="fg-grid">
+                    <div class="ff ff-full"><label>Nome</label><input [readOnly]="!editMode" [(ngModel)]="d.origemNome" class="fi" [class.fi-e]="editMode"></div>
+                    <div class="ff ff-2"><label>Morada</label><input [readOnly]="!editMode" [(ngModel)]="d.origemMorada" class="fi" [class.fi-e]="editMode"></div>
+                    <div class="ff"><label>Morada Compl.</label><input [readOnly]="!editMode" [(ngModel)]="d.origemMoradaComplemento" class="fi" [class.fi-e]="editMode"></div>
+                    <div class="ff"><label>Código Postal</label><input [readOnly]="!editMode" [(ngModel)]="d.origemCodigoPostal" class="fi" [class.fi-e]="editMode"></div>
+                    <div class="ff"><label>Localidade</label><input [readOnly]="!editMode" [(ngModel)]="d.origemLocalidade" class="fi" [class.fi-e]="editMode"></div>
+                    <div class="ff"><label>País</label><input [readOnly]="!editMode" [(ngModel)]="d.origemPais" class="fi" [class.fi-e]="editMode"></div>
+                    <div class="ff"><label>Praça</label><input [readOnly]="!editMode" [(ngModel)]="d.origemPraca" class="fi" [class.fi-e]="editMode"></div>
+                  </div>
+                </div>
+                <div class="fg-group">
+                  <div class="fg-title">Contactos</div>
+                  <div class="fg-grid">
+                    <div class="ff"><label>Telefone</label><input [readOnly]="!editMode" [(ngModel)]="d.origemTelefone" class="fi" [class.fi-e]="editMode"></div>
+                    <div class="ff"><label>Telemovel</label><input [readOnly]="!editMode" [(ngModel)]="d.origemTelemovel" class="fi" [class.fi-e]="editMode"></div>
+                    <div class="ff"><label>Fax</label><input [readOnly]="!editMode" [(ngModel)]="d.origemFax" class="fi" [class.fi-e]="editMode"></div>
+                    <div class="ff ff-2"><label>Email</label><input [readOnly]="!editMode" [(ngModel)]="d.origemEmail" class="fi" [class.fi-e]="editMode"></div>
+                  </div>
+                </div>
+                <div class="fg-group">
+                  <div class="fg-title">Contacto Responsável</div>
+                  <div class="fg-grid">
+                    <div class="ff ff-full"><label>Nome</label><input [readOnly]="!editMode" [(ngModel)]="d.origemContatoNome" class="fi" [class.fi-e]="editMode"></div>
+                    <div class="ff"><label>Telefone</label><input [readOnly]="!editMode" [(ngModel)]="d.origemContatoTelefone" class="fi" [class.fi-e]="editMode"></div>
+                    <div class="ff"><label>Telemovel</label><input [readOnly]="!editMode" [(ngModel)]="d.origemContatoTelemovel" class="fi" [class.fi-e]="editMode"></div>
+                    <div class="ff ff-2"><label>Email</label><input [readOnly]="!editMode" [(ngModel)]="d.origemContatoEmail" class="fi" [class.fi-e]="editMode"></div>
+                  </div>
+                </div>
+              </div>
+            }
+
+            <!-- DESTINO -->
+            @if (tabDados === 'destino') {
+              <div class="fg">
+                <div class="fg-group">
+                  <div class="fg-title">Endereço</div>
+                  <div class="fg-grid">
+                    <div class="ff ff-full"><label>Nome</label><input [readOnly]="!editMode" [(ngModel)]="d.destinoNome" class="fi" [class.fi-e]="editMode"></div>
+                    <div class="ff ff-2"><label>Morada</label><input [readOnly]="!editMode" [(ngModel)]="d.destinoMorada" class="fi" [class.fi-e]="editMode"></div>
+                    <div class="ff"><label>Morada Compl.</label><input [readOnly]="!editMode" [(ngModel)]="d.destinoMoradaComplemento" class="fi" [class.fi-e]="editMode"></div>
+                    <div class="ff"><label>Código Postal</label><input [readOnly]="!editMode" [(ngModel)]="d.destinoCodigoPostal" class="fi" [class.fi-e]="editMode"></div>
+                    <div class="ff"><label>Localidade</label><input [readOnly]="!editMode" [(ngModel)]="d.destinoLocalidade" class="fi" [class.fi-e]="editMode"></div>
+                    <div class="ff"><label>País</label><input [readOnly]="!editMode" [(ngModel)]="d.destinoPais" class="fi" [class.fi-e]="editMode"></div>
+                    <div class="ff"><label>Praça</label><input [readOnly]="!editMode" [(ngModel)]="d.destinoPraca" class="fi" [class.fi-e]="editMode"></div>
+                    <div class="ff"><label>Destino (ref.)</label><input [readOnly]="!editMode" [(ngModel)]="d.destino" class="fi" [class.fi-e]="editMode"></div>
+                  </div>
+                </div>
+                <div class="fg-group">
+                  <div class="fg-title">Contactos</div>
+                  <div class="fg-grid">
+                    <div class="ff"><label>Telefone</label><input [readOnly]="!editMode" [(ngModel)]="d.destinoTelefone" class="fi" [class.fi-e]="editMode"></div>
+                    <div class="ff"><label>Telemovel</label><input [readOnly]="!editMode" [(ngModel)]="d.destinoTelemovel" class="fi" [class.fi-e]="editMode"></div>
+                    <div class="ff"><label>Fax</label><input [readOnly]="!editMode" [(ngModel)]="d.destinoFax" class="fi" [class.fi-e]="editMode"></div>
+                    <div class="ff ff-2"><label>Email</label><input [readOnly]="!editMode" [(ngModel)]="d.destinoEmail" class="fi" [class.fi-e]="editMode"></div>
+                  </div>
+                </div>
+                <div class="fg-group">
+                  <div class="fg-title">Contacto Responsável</div>
+                  <div class="fg-grid">
+                    <div class="ff ff-full"><label>Nome</label><input [readOnly]="!editMode" [(ngModel)]="d.destinoContatoNome" class="fi" [class.fi-e]="editMode"></div>
+                    <div class="ff"><label>Telefone</label><input [readOnly]="!editMode" [(ngModel)]="d.destinoContatoTelefone" class="fi" [class.fi-e]="editMode"></div>
+                    <div class="ff"><label>Telemovel</label><input [readOnly]="!editMode" [(ngModel)]="d.destinoContatoTelemovel" class="fi" [class.fi-e]="editMode"></div>
+                    <div class="ff ff-2"><label>Email</label><input [readOnly]="!editMode" [(ngModel)]="d.destinoContatoEmail" class="fi" [class.fi-e]="editMode"></div>
+                  </div>
+                </div>
+              </div>
+            }
+
+            <!-- ESTADO -->
+            @if (tabDados === 'estado') {
+              <div class="fg">
+                <div class="fg-group">
+                  <div class="fg-title">Atlas / SEUR</div>
+                  <div class="fg-grid">
+                    <div class="ff">
+                      <label>Flag Atlas</label>
+                      @if (!editMode) { <span class="fi">{{ flagAtlasDescricao(d.flagAtlas) }}</span> }
+                      @else { <select [(ngModel)]="d.flagAtlas" class="fi fi-e fi-sel"><option value="">-</option>@for(f of flagAtlasOptions;track f.value){<option [value]="f.value">{{f.label}}</option>}</select> }
+                    </div>
+                    <div class="ff"><label>Cod. Status Atlas</label><input [readOnly]="!editMode" [(ngModel)]="d.codeStatusAtlas" class="fi" [class.fi-e]="editMode"></div>
+                    <div class="ff"><label>Data Atlas</label><input [readOnly]="!editMode" [(ngModel)]="d.dtAtlas" type="datetime-local" class="fi" [class.fi-e]="editMode"></div>
+                  </div>
+                </div>
+                <div class="fg-group">
+                  <div class="fg-title">Flags Sistema</div>
+                  <div class="fg-grid">
+                    <div class="ff">
+                      <label>Flag AS400</label>
+                      @if (!editMode) { <span class="fi">{{ d.flagAs400 || '-' }}</span> }
+                      @else { <select [(ngModel)]="d.flagAs400" class="fi fi-e fi-sel"><option value="">-</option>@for(f of flagAs400Options;track f.value){<option [value]="f.value">{{f.label}}</option>}</select> }
+                    </div>
+                    <div class="ff">
+                      <label>Apagado</label>
+                      @if (!editMode) { <span class="fi">{{ d.apagado || '-' }}</span> }
+                      @else { <select [(ngModel)]="d.apagado" class="fi fi-e fi-sel"><option value="">-</option>@for(f of apagadoOptions;track f.value){<option [value]="f.value">{{f.label}}</option>}</select> }
+                    </div>
+                    <div class="ff"><label>Data Criação</label><span class="fi readonly-val">{{ guiaSelecionada.dtCriacao | date:'dd/MM/yyyy HH:mm' }}</span></div>
+                    <div class="ff"><label>Data Alteração</label><span class="fi readonly-val">{{ guiaSelecionada.dtAlteracao | date:'dd/MM/yyyy HH:mm' }}</span></div>
+                  </div>
+                </div>
+                <div class="fg-group">
+                  <div class="fg-title">CIT</div>
+                  <div class="fg-grid">
+                    <div class="ff">
+                      <label>Flag CIT</label>
+                      @if (!editMode) { <span class="fi">{{ d.flagCit || '-' }}</span> }
+                      @else { <select [(ngModel)]="d.flagCit" class="fi fi-e fi-sel"><option value="">-</option>@for(f of flagCitOptions;track f.value){<option [value]="f.value">{{f.label}}</option>}</select> }
+                    </div>
+                    <div class="ff"><label>Data CIT</label><input [readOnly]="!editMode" [(ngModel)]="d.dtCit" type="datetime-local" class="fi" [class.fi-e]="editMode"></div>
+                    <div class="ff"><label>Resp CIT</label><input [readOnly]="!editMode" [(ngModel)]="d.respCit" class="fi" [class.fi-e]="editMode"></div>
+                  </div>
+                </div>
+                <div class="fg-group">
+                  <div class="fg-title">Verify</div>
+                  <div class="fg-grid">
+                    <div class="ff">
+                      <label>Verify Flag</label>
+                      @if (!editMode) { <span class="fi">{{ d.verifyFlag || '-' }}</span> }
+                      @else { <select [(ngModel)]="d.verifyFlag" class="fi fi-e fi-sel"><option value="">-</option>@for(f of verifyFlagOptions;track f.value){<option [value]="f.value">{{f.label}}</option>}</select> }
+                    </div>
+                    <div class="ff"><label>Verify Resp</label><input [readOnly]="!editMode" [(ngModel)]="d.verifyResp" class="fi" [class.fi-e]="editMode"></div>
+                    <div class="ff"><label>Verify INC</label><input [readOnly]="!editMode" [(ngModel)]="d.verifyInc" class="fi" [class.fi-e]="editMode"></div>
+                    <div class="ff"><label>Verify Datahora Inc</label><input [readOnly]="!editMode" [(ngModel)]="d.verifyDatahoraInc" class="fi" [class.fi-e]="editMode"></div>
+                    <div class="ff"><label>Verify Datahora Upd</label><input [readOnly]="!editMode" [(ngModel)]="d.verifyDatahoraUpd" type="datetime-local" class="fi" [class.fi-e]="editMode"></div>
+                    <div class="ff"><label>Data Verify Trace</label><input [readOnly]="!editMode" [(ngModel)]="d.dataVerifyTrace" type="datetime-local" class="fi" [class.fi-e]="editMode"></div>
+                    <div class="ff ff-full"><label>Verify Trace</label><textarea [readOnly]="!editMode" [(ngModel)]="d.verifyTrace" class="fi fi-ta" [class.fi-e]="editMode" rows="2"></textarea></div>
+                  </div>
+                </div>
+              </div>
+            }
+
+          </div><!-- tab-body -->
+        </div><!-- tabs-dados -->
+
+        <!-- ===== ABAS DE INFORMAÇÃO (leitura) ===== -->
+        <div class="tabs-wrapper tabs-info">
+          <div class="tabs-bar">
+            <button [class.active]="tabInfo==='request'"  (click)="mudarTabInfo('request')">Request</button>
+            <button [class.active]="tabInfo==='response'" (click)="mudarTabInfo('response')">Response</button>
+            <button [class.active]="tabInfo==='erros'"    (click)="mudarTabInfo('erros')">
+              Erros @if (erros.length > 0) { <span class="tab-badge">{{ erros.length }}</span> }
+            </button>
+            <button [class.active]="tabInfo==='ecb'"      (click)="mudarTabInfo('ecb')">ECB</button>
+            <button [class.active]="tabInfo==='verify'"   (click)="mudarTabInfo('verify')">Verify</button>
+          </div>
+
+          <div class="tab-body">
+            @if (tabInfo === 'request') {
+              @if (guiaSelecionada.requestAtlas) { <pre class="xml-content">{{ guiaSelecionada.requestAtlas }}</pre> }
+              @else { <div class="tab-empty">Sem dados de request.</div> }
+            }
+            @if (tabInfo === 'response') {
+              @if (guiaSelecionada.respAtlas) { <pre class="xml-content">{{ guiaSelecionada.respAtlas }}</pre> }
+              @else { <div class="tab-empty">Sem dados de response.</div> }
+            }
+            @if (tabInfo === 'erros') {
+              @if (loadingTab) { <div class="spinner-wrap"><span class="spinner spinner-lg"></span></div> }
+              @else if (erros.length === 0) { <div class="tab-empty">Sem erros registados.</div> }
+              @else {
+                <table class="tab-table">
+                  <thead><tr><th>ECB</th><th>Referência</th><th>Título</th><th>Status</th><th>Detalhe</th><th>Data/Hora</th></tr></thead>
+                  <tbody>
+                    @for (e of erros; track e.idt) {
+                      <tr><td>{{ e.ecb }}</td><td>{{ e.referencia }}</td><td>{{ e.title }}</td><td>{{ e.status }}</td><td>{{ e.detail }}</td><td>{{ e.datahoraInsert | date:'dd/MM/yy HH:mm' }}</td></tr>
+                    }
+                  </tbody>
+                </table>
+              }
+            }
+            @if (tabInfo === 'ecb') {
+              @if (loadingTab) { <div class="spinner-wrap"><span class="spinner spinner-lg"></span></div> }
+              @else if (parcels.length === 0) { <div class="tab-empty">Sem parcels registados.</div> }
+              @else {
+                <table class="tab-table">
+                  <thead><tr><th>ECBs</th><th>Parcel Numbers</th><th>Shipment Code</th><th>Flag</th><th>Data/Hora</th></tr></thead>
+                  <tbody>
+                    @for (p of parcels; track p.idt) {
+                      <tr><td>{{ p.ecbs }}</td><td>{{ p.parcelNumbers }}</td><td>{{ p.shipmentCode }}</td><td>{{ p.flag }}</td><td>{{ p.datahoraInsert | date:'dd/MM/yy HH:mm' }}</td></tr>
+                    }
+                  </tbody>
+                </table>
+              }
+            }
+            @if (tabInfo === 'verify') {
+              @if (loadingTab) { <div class="spinner-wrap"><span class="spinner spinner-lg"></span></div> }
+              @else if (verifies.length === 0) { <div class="tab-empty">Sem registos de verificação.</div> }
+              @else {
+                <table class="tab-table">
+                  <thead><tr><th>Guia</th><th>INC</th><th>Data</th><th>Hora</th><th>Estado</th><th>Resposta</th><th>Data Verify</th></tr></thead>
+                  <tbody>
+                    @for (v of verifies; track v.idt) {
+                      <tr>
+                        <td>{{ v.guia }}</td><td>{{ v.inc }}</td><td>{{ v.dat }}</td><td>{{ v.hor }}</td>
+                        <td>
+                          <select [(ngModel)]="v.verifyFlag" (change)="guardarVerifyFlag(v)" class="verify-flag-select">
+                            @for (f of verifyFlagOptions; track f.value) { <option [value]="f.value">{{ f.label }}</option> }
+                          </select>
+                        </td>
+                        <td>{{ v.verifyResposta }}</td>
+                        <td>{{ v.verifyData | date:'dd/MM/yy' }}</td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              }
+            }
+          </div><!-- tab-body -->
+        </div><!-- tabs-info -->
+
+      }
+    </div><!-- right-panel -->
+      </div><!-- main-layout -->
+      }<!-- gestao view -->
+
+    </div><!-- seur-content -->
+  </div><!-- seur-layout -->
+
+  <app-seur-change-password></app-seur-change-password>
+</div><!-- seur-app -->

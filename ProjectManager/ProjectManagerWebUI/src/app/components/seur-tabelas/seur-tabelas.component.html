@@ -1,0 +1,563 @@
+<div class="tabelas-container">
+
+  <!-- Tabs -->
+  <div class="tabs-bar">
+    <button class="tab-btn" [class.active]="activeTab==='cpostal'" (click)="setTab('cpostal')">Códigos Postais</button>
+    <button class="tab-btn" [class.active]="activeTab==='destinos'" (click)="setTab('destinos')">Destinos</button>
+    <button class="tab-btn" [class.active]="activeTab==='products'" (click)="setTab('products')">Produtos</button>
+    <button class="tab-btn" [class.active]="activeTab==='services'" (click)="setTab('services')">Serviços</button>
+    <button class="tab-btn" [class.active]="activeTab==='cwent'" (click)="setTab('cwent')">Contas</button>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <div class="search-wrap">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8">
+        <circle cx="9" cy="9" r="6"/><path d="M15 15l-3-3"/>
+      </svg>
+      <input type="text" [(ngModel)]="search" (keyup.enter)="carregar()" placeholder="Pesquisar..." class="search-input" />
+      <button class="btn-search" (click)="carregar()">Pesquisar</button>
+    </div>
+    <button class="btn-new" (click)="abrirCriar()">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 4v12M4 10h12"/></svg>
+      Novo
+    </button>
+  </div>
+
+  <!-- Messages -->
+  @if (successMsg) {
+    <div class="alert-success">{{ successMsg }}</div>
+  }
+  @if (erro) {
+    <div class="alert-error">{{ erro }}</div>
+  }
+
+  <!-- Loading -->
+  @if (loading) {
+    <div class="loading-wrap"><span class="spinner spinner-lg"></span></div>
+  }
+
+  <!-- CPOSTAL TABLE -->
+  @if (!loading && activeTab === 'cpostal') {
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Código Postal</th>
+            <th>Localidade</th>
+            <th>País</th>
+            <th>Franquia Destino</th>
+            <th>Plataforma</th>
+            <th>Dt. Alteração</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of cpostais; track row.idt) {
+            <tr>
+              <td><span class="code-badge">{{ row.postcode }}</span></td>
+              <td>{{ row.population || '—' }}</td>
+              <td>{{ row.country || '—' }}</td>
+              <td>{{ row.destFranchise || '—' }}</td>
+              <td>{{ row.plataform || '—' }}</td>
+              <td class="date-cell">{{ fmtDate(row.dtAlteracao) }}</td>
+              <td class="actions-cell">
+                <button class="btn-icon" title="Editar" (click)="abrirEditar(row)">
+                  <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 3l3 3-9 9H5v-3L14 3z"/></svg>
+                </button>
+                <button class="btn-icon btn-danger" title="Eliminar" (click)="pedirDelete(row.idt)">
+                  <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h12M9 7V4h2v3M6 7l1 9h6l1-9"/></svg>
+                </button>
+              </td>
+            </tr>
+          }
+          @empty {
+            <tr><td colspan="7" class="empty-cell">Sem registos</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <div class="pagination-bar">
+      <span class="pg-info">{{ cpostalTotal | number }} registos — pág. {{ cpostalPage }} / {{ cpostalTotalPages }}</span>
+      <div class="pg-btns">
+        <button class="pg-btn" [disabled]="cpostalPage <= 1" (click)="irParaPagina(1)">«</button>
+        <button class="pg-btn" [disabled]="cpostalPage <= 1" (click)="irParaPagina(cpostalPage - 1)">‹</button>
+        <button class="pg-btn" [disabled]="cpostalPage >= cpostalTotalPages" (click)="irParaPagina(cpostalPage + 1)">›</button>
+        <button class="pg-btn" [disabled]="cpostalPage >= cpostalTotalPages" (click)="irParaPagina(cpostalTotalPages)">»</button>
+      </div>
+    </div>
+  }
+
+  <!-- DESTINOS TABLE -->
+  @if (!loading && activeTab === 'destinos') {
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Código Destino</th>
+            <th>Plataforma</th>
+            <th>Produto</th>
+            <th>Serviço</th>
+            <th>Destino</th>
+            <th>Load Line</th>
+            <th>Transport Line</th>
+            <th>Dt. Alteração</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of destinos; track row.idt) {
+            <tr>
+              <td><span class="code-badge">{{ row.destinoCode }}</span></td>
+              <td>{{ row.plataformCode || '—' }}</td>
+              <td>{{ row.productCode || '—' }}</td>
+              <td>{{ row.serviceCode || '—' }}</td>
+              <td>{{ row.destination || '—' }}</td>
+              <td>{{ row.loadLine || '—' }}</td>
+              <td>{{ row.transportLine || '—' }}</td>
+              <td class="date-cell">{{ fmtDate(row.dtAlteracao) }}</td>
+              <td class="actions-cell">
+                <button class="btn-icon" title="Editar" (click)="abrirEditar(row)">
+                  <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 3l3 3-9 9H5v-3L14 3z"/></svg>
+                </button>
+                <button class="btn-icon btn-danger" title="Eliminar" (click)="pedirDelete(row.idt)">
+                  <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h12M9 7V4h2v3M6 7l1 9h6l1-9"/></svg>
+                </button>
+              </td>
+            </tr>
+          }
+          @empty {
+            <tr><td colspan="9" class="empty-cell">Sem registos</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <div class="pagination-bar">
+      <span class="pg-info">{{ destinosTotal | number }} registos — pág. {{ destinosPage }} / {{ destinosTotalPages }}</span>
+      <div class="pg-btns">
+        <button class="pg-btn" [disabled]="destinosPage <= 1" (click)="irParaPagina(1)">«</button>
+        <button class="pg-btn" [disabled]="destinosPage <= 1" (click)="irParaPagina(destinosPage - 1)">‹</button>
+        <button class="pg-btn" [disabled]="destinosPage >= destinosTotalPages" (click)="irParaPagina(destinosPage + 1)">›</button>
+        <button class="pg-btn" [disabled]="destinosPage >= destinosTotalPages" (click)="irParaPagina(destinosTotalPages)">»</button>
+      </div>
+    </div>
+  }
+
+  <!-- PRODUCTS TABLE -->
+  @if (!loading && activeTab === 'products') {
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Produto</th>
+            <th>Nome Curto</th>
+            <th>Dt. Alteração</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of products; track row.idt) {
+            <tr>
+              <td><span class="code-badge">{{ row.productCode }}</span></td>
+              <td>{{ row.product || '—' }}</td>
+              <td>{{ row.shortName || '—' }}</td>
+              <td class="date-cell">{{ fmtDate(row.dtAlteracao) }}</td>
+              <td class="actions-cell">
+                <button class="btn-icon" title="Editar" (click)="abrirEditar(row)">
+                  <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 3l3 3-9 9H5v-3L14 3z"/></svg>
+                </button>
+                <button class="btn-icon btn-danger" title="Eliminar" (click)="pedirDelete(row.idt)">
+                  <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h12M9 7V4h2v3M6 7l1 9h6l1-9"/></svg>
+                </button>
+              </td>
+            </tr>
+          }
+          @empty {
+            <tr><td colspan="5" class="empty-cell">Sem registos</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+
+  <!-- CWENT TABLE -->
+  @if (!loading && activeTab === 'cwent') {
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Conta</th>
+            <th>BIC Number</th>
+            <th>Utilizador BICS</th>
+            <th>NIF</th>
+            <th>Serviço</th>
+            <th>Produto</th>
+            <th>Praça</th>
+            <th>Email Dest.</th>
+            <th>Frio</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of cwents; track row.account) {
+            <tr>
+              <td><span class="code-badge">{{ row.account }}</span></td>
+              <td>{{ row.bicNumber }}</td>
+              <td>{{ row.bicsUser || '—' }}</td>
+              <td>{{ row.bicsNif || '—' }}</td>
+              <td>{{ row.bicsServ || '—' }}</td>
+              <td>{{ row.bicsProd || '—' }}</td>
+              <td>{{ row.bicsPraca || '—' }}</td>
+              <td>{{ row.shEmail2Dest || '—' }}</td>
+              <td>{{ row.servFrio || '—' }}</td>
+              <td class="actions-cell">
+                <button class="btn-icon" title="Editar" (click)="abrirEditar(row)">
+                  <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 3l3 3-9 9H5v-3L14 3z"/></svg>
+                </button>
+                <button class="btn-icon btn-danger" title="Eliminar" (click)="pedirDelete(row.account)">
+                  <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h12M9 7V4h2v3M6 7l1 9h6l1-9"/></svg>
+                </button>
+              </td>
+            </tr>
+          }
+          @empty {
+            <tr><td colspan="10" class="empty-cell">Sem registos</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <div class="pagination-bar">
+      <span class="pg-info">{{ cwentTotal | number }} contas — pág. {{ cwentPage }} / {{ cwentTotalPages }}</span>
+      <div class="pg-btns">
+        <button class="pg-btn" [disabled]="cwentPage <= 1" (click)="irParaPagina(1)">«</button>
+        <button class="pg-btn" [disabled]="cwentPage <= 1" (click)="irParaPagina(cwentPage - 1)">‹</button>
+        <button class="pg-btn" [disabled]="cwentPage >= cwentTotalPages" (click)="irParaPagina(cwentPage + 1)">›</button>
+        <button class="pg-btn" [disabled]="cwentPage >= cwentTotalPages" (click)="irParaPagina(cwentTotalPages)">»</button>
+      </div>
+    </div>
+  }
+
+  <!-- SERVICES TABLE -->
+  @if (!loading && activeTab === 'services') {
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Serviço</th>
+            <th>Nome Curto</th>
+            <th>Dt. Alteração</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of services; track row.idt) {
+            <tr>
+              <td><span class="code-badge">{{ row.serviceCode }}</span></td>
+              <td>{{ row.service || '—' }}</td>
+              <td>{{ row.shortName || '—' }}</td>
+              <td class="date-cell">{{ fmtDate(row.dtAlteracao) }}</td>
+              <td class="actions-cell">
+                <button class="btn-icon" title="Editar" (click)="abrirEditar(row)">
+                  <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 3l3 3-9 9H5v-3L14 3z"/></svg>
+                </button>
+                <button class="btn-icon btn-danger" title="Eliminar" (click)="pedirDelete(row.idt)">
+                  <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h12M9 7V4h2v3M6 7l1 9h6l1-9"/></svg>
+                </button>
+              </td>
+            </tr>
+          }
+          @empty {
+            <tr><td colspan="5" class="empty-cell">Sem registos</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>
+
+<!-- ===================== MODAL ===================== -->
+@if (showModal) {
+  <div class="modal-backdrop" (click)="fecharModal()">
+    <div class="modal-box" (click)="$event.stopPropagation()">
+
+      <div class="modal-header">
+        <span>{{ modalMode === 'create' ? 'Novo Registo' : 'Editar Registo' }}</span>
+        <button class="modal-close" (click)="fecharModal()">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 5l10 10M15 5L5 15"/></svg>
+        </button>
+      </div>
+
+      <div class="modal-body">
+
+        @if (modalErro) {
+          <div class="alert-error" style="margin-bottom:12px">{{ modalErro }}</div>
+        }
+
+        <!-- CPOSTAL form -->
+        @if (activeTab === 'cpostal') {
+          <div class="form-row">
+            <label>Código Postal <span class="req">*</span></label>
+            <input type="text" [(ngModel)]="editCpostal.postcode" maxlength="7" class="form-input" />
+          </div>
+          <div class="form-row">
+            <label>Localidade</label>
+            <input type="text" [(ngModel)]="editCpostal.population" maxlength="25" class="form-input" />
+          </div>
+          <div class="form-row">
+            <label>País</label>
+            <input type="text" [(ngModel)]="editCpostal.country" maxlength="2" class="form-input" placeholder="PT, ES..." />
+          </div>
+          <div class="form-row">
+            <label>Franquia Destino</label>
+            <input type="text" [(ngModel)]="editCpostal.destFranchise" maxlength="3" class="form-input" />
+          </div>
+          <div class="form-row">
+            <label>Plataforma</label>
+            <input type="text" [(ngModel)]="editCpostal.plataform" maxlength="1" class="form-input" />
+          </div>
+        }
+
+        <!-- DESTINOS form -->
+        @if (activeTab === 'destinos') {
+          <div class="form-row">
+            <label>Código Destino <span class="req">*</span></label>
+            <input type="text" [(ngModel)]="editDestino.destinoCode" maxlength="3" class="form-input" />
+          </div>
+          <div class="form-row-2">
+            <div class="form-row">
+              <label>Cód. Plataforma</label>
+              <input type="text" [(ngModel)]="editDestino.plataformCode" maxlength="1" class="form-input" />
+            </div>
+            <div class="form-row">
+              <label>Cód. Produto</label>
+              <input type="text" [(ngModel)]="editDestino.productCode" maxlength="3" class="form-input" />
+            </div>
+          </div>
+          <div class="form-row-2">
+            <div class="form-row">
+              <label>Cód. Serviço</label>
+              <input type="text" [(ngModel)]="editDestino.serviceCode" maxlength="3" class="form-input" />
+            </div>
+            <div class="form-row">
+              <label>Destino</label>
+              <input type="text" [(ngModel)]="editDestino.destination" maxlength="15" class="form-input" />
+            </div>
+          </div>
+          <div class="form-row-2">
+            <div class="form-row">
+              <label>Load Line</label>
+              <input type="text" [(ngModel)]="editDestino.loadLine" maxlength="3" class="form-input" />
+            </div>
+            <div class="form-row">
+              <label>Transport Line</label>
+              <input type="text" [(ngModel)]="editDestino.transportLine" maxlength="3" class="form-input" />
+            </div>
+          </div>
+        }
+
+        <!-- PRODUCTS form -->
+        @if (activeTab === 'products') {
+          <div class="form-row">
+            <label>Código <span class="req">*</span></label>
+            <input type="text" [(ngModel)]="editProduct.productCode" maxlength="3" class="form-input" />
+          </div>
+          <div class="form-row">
+            <label>Produto</label>
+            <input type="text" [(ngModel)]="editProduct.product" maxlength="30" class="form-input" />
+          </div>
+          <div class="form-row">
+            <label>Nome Curto</label>
+            <input type="text" [(ngModel)]="editProduct.shortName" maxlength="15" class="form-input" />
+          </div>
+        }
+
+        <!-- SERVICES form -->
+        @if (activeTab === 'services') {
+          <div class="form-row">
+            <label>Código <span class="req">*</span></label>
+            <input type="text" [(ngModel)]="editService.serviceCode" maxlength="3" class="form-input" />
+          </div>
+          <div class="form-row">
+            <label>Serviço</label>
+            <input type="text" [(ngModel)]="editService.service" maxlength="30" class="form-input" />
+          </div>
+          <div class="form-row">
+            <label>Nome Curto</label>
+            <input type="text" [(ngModel)]="editService.shortName" maxlength="15" class="form-input" />
+          </div>
+        }
+
+        <!-- CWENT form -->
+        @if (activeTab === 'cwent') {
+          @if (modalMode === 'create') {
+            <div class="form-row">
+              <label>Conta <span class="req">*</span></label>
+              <input type="text" [(ngModel)]="newCwentAccount" maxlength="8" class="form-input" placeholder="ex: DPD00001" />
+            </div>
+          } @else {
+            <div class="form-row">
+              <label>Conta</label>
+              <span class="readonly-val code-badge-lg">{{ editAccountCwent }}</span>
+            </div>
+          }
+          <div class="form-row">
+            <label>BIC Number <span class="req">*</span></label>
+            <input type="number" [(ngModel)]="editCwent.bicNumber" class="form-input" />
+          </div>
+          <div class="form-section-title">BICS</div>
+          <div class="form-row-2">
+            <div class="form-row">
+              <label>Utilizador</label>
+              <input type="text" [(ngModel)]="editCwent.bicsUser" maxlength="15" class="form-input" />
+            </div>
+            <div class="form-row">
+              <label>Password</label>
+              <input type="text" [(ngModel)]="editCwent.bicsPwd" maxlength="15" class="form-input" />
+            </div>
+          </div>
+          <div class="form-row-2">
+            <div class="form-row">
+              <label>CI</label>
+              <input type="text" [(ngModel)]="editCwent.bicsCi" maxlength="9" class="form-input" />
+            </div>
+            <div class="form-row">
+              <label>NIF</label>
+              <input type="text" [(ngModel)]="editCwent.bicsNif" maxlength="9" class="form-input" />
+            </div>
+          </div>
+          <div class="form-row-2">
+            <div class="form-row">
+              <label>CCC</label>
+              <input type="text" [(ngModel)]="editCwent.bicsCcc" maxlength="11" class="form-input" />
+            </div>
+            <div class="form-row">
+              <label>CCC 2</label>
+              <input type="text" [(ngModel)]="editCwent.bicsCcc2" maxlength="11" class="form-input" />
+            </div>
+          </div>
+          <div class="form-row-2">
+            <div class="form-row">
+              <label>Praça</label>
+              <input type="text" [(ngModel)]="editCwent.bicsPraca" maxlength="2" class="form-input" />
+            </div>
+            <div class="form-row">
+              <label>Utilizador 2</label>
+              <input type="text" [(ngModel)]="editCwent.bicsUsr2" maxlength="15" class="form-input" />
+            </div>
+          </div>
+          <div class="form-row-2">
+            <div class="form-row">
+              <label>Serviço</label>
+              <input type="text" [(ngModel)]="editCwent.bicsServ" maxlength="3" class="form-input" />
+            </div>
+            <div class="form-row">
+              <label>Produto</label>
+              <input type="text" [(ngModel)]="editCwent.bicsProd" maxlength="3" class="form-input" />
+            </div>
+          </div>
+          <div class="form-row">
+            <label>Portal</label>
+            <input type="text" [(ngModel)]="editCwent.bicvPortal" maxlength="8" class="form-input" />
+          </div>
+          <div class="form-section-title">Configurações</div>
+          <div class="form-row-3">
+            <div class="form-row">
+              <label>Email Dest.</label>
+              <input type="text" [(ngModel)]="editCwent.shEmail2Dest" maxlength="1" class="form-input" placeholder="S/N" />
+            </div>
+            <div class="form-row">
+              <label>Ready2Collect</label>
+              <input type="text" [(ngModel)]="editCwent.shReady2Collect" maxlength="1" class="form-input" placeholder="S/N" />
+            </div>
+            <div class="form-row">
+              <label>CP4 Allow</label>
+              <input type="text" [(ngModel)]="editCwent.cp4Allow" maxlength="1" class="form-input" placeholder="S/N" />
+            </div>
+          </div>
+          <div class="form-row-3">
+            <div class="form-row">
+              <label>Billing Agr.</label>
+              <input type="text" [(ngModel)]="editCwent.agregateBilling" maxlength="1" class="form-input" placeholder="S/N" />
+            </div>
+            <div class="form-row">
+              <label>GR Assinada</label>
+              <input type="text" [(ngModel)]="editCwent.grAssinada" maxlength="1" class="form-input" placeholder="S/N" />
+            </div>
+            <div class="form-row">
+              <label>Peso 0 Allow</label>
+              <input type="text" [(ngModel)]="editCwent.weigth0Allow" maxlength="1" class="form-input" placeholder="S/N" />
+            </div>
+          </div>
+          <div class="form-row-3">
+            <div class="form-row">
+              <label>Label Type</label>
+              <input type="text" [(ngModel)]="editCwent.labelType" maxlength="1" class="form-input" />
+            </div>
+            <div class="form-row">
+              <label>Service B2C</label>
+              <input type="text" [(ngModel)]="editCwent.serviceB2c" maxlength="1" class="form-input" placeholder="S/N" />
+            </div>
+            <div class="form-row">
+              <label>Serv. Frio</label>
+              <input type="text" [(ngModel)]="editCwent.servFrio" maxlength="1" class="form-input" placeholder="S/N" />
+            </div>
+          </div>
+          <div class="form-row-2">
+            <div class="form-row">
+              <label>Serv. Aux</label>
+              <input type="text" [(ngModel)]="editCwent.servAux" maxlength="1" class="form-input" />
+            </div>
+            <div class="form-row">
+              <label>Seq. RC</label>
+              <input type="text" [(ngModel)]="editCwent.serviceRcSeqNumber" maxlength="3" class="form-input" />
+            </div>
+          </div>
+          <div class="form-row">
+            <label>Desc. Aux</label>
+            <input type="text" [(ngModel)]="editCwent.descAux" maxlength="50" class="form-input" />
+          </div>
+          <div class="form-section-title">Auxiliares</div>
+          <div class="form-row-2">
+            <div class="form-row"><label>Aux 1</label><input type="text" [(ngModel)]="editCwent.bicAux1" maxlength="1" class="form-input" /></div>
+            <div class="form-row"><label>Aux 2</label><input type="text" [(ngModel)]="editCwent.bicAux2" maxlength="1" class="form-input" /></div>
+          </div>
+          <div class="form-row"><label>Aux 3</label><input type="text" [(ngModel)]="editCwent.bicAux3" maxlength="20" class="form-input" /></div>
+          <div class="form-row"><label>Aux 4</label><input type="text" [(ngModel)]="editCwent.bicAux4" maxlength="100" class="form-input" /></div>
+        }
+
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-cancel" (click)="fecharModal()" [disabled]="modalLoading">Cancelar</button>
+        <button class="btn-save" (click)="guardar()" [disabled]="modalLoading">
+          @if (modalLoading) { <span class="spinner spinner-sm spinner-white"></span> }
+          {{ modalMode === 'create' ? 'Criar' : 'Guardar' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- ===================== DELETE CONFIRM ===================== -->
+@if (showDeleteConfirm) {
+  <div class="modal-backdrop" (click)="cancelarDelete()">
+    <div class="modal-box modal-sm" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <span>Confirmar Eliminação</span>
+        <button class="modal-close" (click)="cancelarDelete()">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 5l10 10M15 5L5 15"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>Tem a certeza que pretende eliminar este registo?</p>
+        <p class="delete-note">O registo será marcado como apagado e não aparecerá na listagem.</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" (click)="cancelarDelete()">Cancelar</button>
+        <button class="btn-delete" (click)="confirmarDelete()">Eliminar</button>
+      </div>
+    </div>
+  </div>
+}

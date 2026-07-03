@@ -9,6 +9,10 @@ export class AuthInterceptor implements HttpInterceptor {
   constructor(private router: Router) {}
 
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+    if (request.url.includes('/api/seur/')) {
+      return next.handle(request);
+    }
+
     const token = localStorage.getItem('token');
 
     if (token) {
