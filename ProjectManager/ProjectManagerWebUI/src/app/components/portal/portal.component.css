@@ -85,6 +85,23 @@
   color: #DC0032;
 }
 
+.card-icon--oraconsole {
+  background: rgba(47, 111, 78, 0.1);
+  color: #2f6f4e;
+}
+
+.card-action--oraconsole {
+  background: #2f6f4e;
+}
+
+.app-card:has(.card-icon--oraconsole):hover {
+  border-color: #2f6f4e;
+}
+
+.app-card:has(.card-icon--oraconsole):hover .card-action--oraconsole {
+  background: #245b3f;
+}
+
 .app-card h2 {
   color: #424143;
   font-size: 20px;

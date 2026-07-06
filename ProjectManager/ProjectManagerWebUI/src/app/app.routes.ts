@@ -8,9 +8,12 @@ import { ProjectDetailComponent } from './components/project-detail/project-deta
 import { SetorListComponent } from './components/setor-list/setor-list.component';
 import { UserListComponent } from './components/user-list/user-list.component';
 import { DebugComponent } from './components/debug/debug.component';
+import { LoginOraConsoleComponent } from './components/login-oraconsole/login-oraconsole.component';
+import { OraConsoleWorkbenchComponent } from './components/oraconsole-workbench/oraconsole-workbench.component';
 import { AuthGuard } from './guards/auth.guard';
 import { GestorGuard } from './guards/gestor.guard';
 import { SeurAuthGuard } from './guards/seur-auth.guard';
+import { OraConsoleAuthGuard } from './guards/oraconsole-auth.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/portal', pathMatch: 'full' },
@@ -27,6 +30,10 @@ export const routes: Routes = [
   // Gestão SEUR
   { path: 'login-seur', component: LoginSeurComponent },
   { path: 'seur/dashboard', component: SeurDashboardComponent, canActivate: [SeurAuthGuard] },
+
+  // OraConsole
+  { path: 'login-oraconsole', component: LoginOraConsoleComponent },
+  { path: 'oraconsole/workbench', component: OraConsoleWorkbenchComponent, canActivate: [OraConsoleAuthGuard] },
 
   { path: '**', redirectTo: '/portal' }
 ];

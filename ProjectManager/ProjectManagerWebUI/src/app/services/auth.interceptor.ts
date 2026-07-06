@@ -9,7 +9,7 @@ export class AuthInterceptor implements HttpInterceptor {
   constructor(private router: Router) {}
 
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    if (request.url.includes('/api/seur/')) {
+    if (request.url.includes('/api/seur/') || request.url.includes('/api/oraconsole/')) {
       return next.handle(request);
     }
 

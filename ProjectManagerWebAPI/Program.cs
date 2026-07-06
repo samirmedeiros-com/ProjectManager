@@ -10,6 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
+builder.Services.AddMemoryCache();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAngular", policy =>
@@ -63,6 +64,11 @@ builder.Services.AddScoped<IUserPermissionService, UserPermissionService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IPasswordService, PasswordService>();
+builder.Services.AddSingleton<IOraConsoleSessionStore, OraConsoleSessionStore>();
+builder.Services.AddScoped<IOraConsoleAuthService, OraConsoleAuthService>();
+builder.Services.AddScoped<IOraConsoleSchemaService, OraConsoleSchemaService>();
+builder.Services.AddScoped<IOraConsoleQueryService, OraConsoleQueryService>();
+builder.Services.AddScoped<IOraConsoleAuditLogService, OraConsoleAuditLogService>();
 
 // Configurar SmtpSettings
 builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("SmtpSettings"));
@@ -85,6 +91,15 @@ using (var scope = app.Services.CreateScope())
     {
         Console.WriteLine($"Erro ao aplicar migrações: {ex.Message}");
     }
+}
+
+try
+{
+    OraConsoleLogSchemaInitializer.EnsureLogTable(builder.Configuration);
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"Erro ao criar tabela de log OraConsole: {ex.Message}");
 }
 
 if (app.Environment.IsDevelopment())

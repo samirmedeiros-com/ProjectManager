@@ -1,0 +1,61 @@
+<div class="login-container">
+  <div class="login-box">
+    <div class="icon-container">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="icon">
+        <ellipse cx="12" cy="5" rx="8" ry="3"/>
+        <path d="M4 5v14c0 1.657 3.582 3 8 3s8-1.343 8-3V5"/>
+        <path d="M4 12c0 1.657 3.582 3 8 3s8-1.343 8-3"/>
+      </svg>
+    </div>
+    <h1>OraConsole</h1>
+    <p>Autentique-se com o seu utilizador Oracle</p>
+
+    <form (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label>Utilizador Oracle</label>
+        <input
+          type="text"
+          name="username"
+          class="form-control"
+          autocomplete="username"
+          [(ngModel)]="form.username"
+          [class.is-invalid]="submitted && !form.username"
+        />
+        @if (submitted && !form.username) {
+          <div class="invalid-feedback">Utilizador é obrigatório</div>
+        }
+      </div>
+
+      <div class="form-group">
+        <label>Password</label>
+        <input
+          type="password"
+          name="password"
+          class="form-control"
+          autocomplete="current-password"
+          [(ngModel)]="form.password"
+          [class.is-invalid]="submitted && !form.password"
+          (keyup.enter)="onSubmit()"
+        />
+        @if (submitted && !form.password) {
+          <div class="invalid-feedback">Password é obrigatória</div>
+        }
+      </div>
+
+      @if (error) {
+        <div class="alert alert-danger">{{ error }}</div>
+      }
+
+      <button type="submit" class="btn btn-primary" [disabled]="loading">
+        @if (loading) {
+          <span class="spinner-border spinner-border-sm mr-2"></span>
+        }
+        Entrar
+      </button>
+    </form>
+
+    <div class="back-link">
+      <a href="javascript:void(0)" (click)="goBack()">← Voltar ao Portal</a>
+    </div>
+  </div>
+</div>

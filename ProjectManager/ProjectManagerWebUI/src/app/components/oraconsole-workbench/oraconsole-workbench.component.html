@@ -1,0 +1,164 @@
+<div class="workbench">
+  <header class="topbar">
+    <div class="topbar-left">
+      <a href="javascript:void(0)" (click)="goBack()" class="back-link">← Portal</a>
+      <h1>OraConsole</h1>
+    </div>
+    <div class="topbar-right">
+      @if (username) {
+        <span class="username">{{ username }}</span>
+      }
+      <button class="btn btn-outline" (click)="logout()">Sair</button>
+    </div>
+  </header>
+
+  <div class="body">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <span>Schemas</span>
+        <button class="icon-btn" title="Recarregar" (click)="loadSchemas()">⟳</button>
+      </div>
+
+      @if (loadingSchemas) {
+        <div class="sidebar-message">A carregar schemas...</div>
+      }
+      @if (schemaError) {
+        <div class="sidebar-message error">{{ schemaError }}</div>
+      }
+
+      <ul class="tree">
+        @for (schema of schemas; track schema.owner) {
+          <li>
+            <div class="tree-node" (click)="toggleSchema(schema.owner)">
+              <span class="caret">{{ expandedSchemas.has(schema.owner) ? '▾' : '▸' }}</span>
+              <span class="node-icon">🗄</span>
+              <span class="node-label">{{ schema.owner }}</span>
+            </div>
+
+            @if (expandedSchemas.has(schema.owner)) {
+              @if (loadingTablesFor === schema.owner) {
+                <div class="sidebar-message indent">A carregar tabelas...</div>
+              }
+              <ul class="tree-children">
+                @for (table of tablesBySchema[schema.owner]; track table.tableName) {
+                  <li>
+                    <div class="tree-node" (click)="toggleTable(schema.owner, table.tableName)">
+                      <span class="caret">{{ expandedTables.has(schema.owner + '.' + table.tableName) ? '▾' : '▸' }}</span>
+                      <span class="node-icon">▦</span>
+                      <span class="node-label">{{ table.tableName }}</span>
+                      <button class="icon-btn small" title="SELECT * FROM tabela" (click)="$event.stopPropagation(); insertSelect(schema.owner, table.tableName)">▶</button>
+                    </div>
+
+                    @if (expandedTables.has(schema.owner + '.' + table.tableName)) {
+                      @if (loadingColumnsFor === schema.owner + '.' + table.tableName) {
+                        <div class="sidebar-message indent-2">A carregar colunas...</div>
+                      }
+                      <ul class="tree-children columns">
+                        @for (col of columnsByTable[schema.owner + '.' + table.tableName]; track col.columnName) {
+                          <li class="column-item">
+                            <span class="node-icon">▪</span>
+                            <span class="col-name">{{ col.columnName }}</span>
+                            <span class="col-type">{{ col.dataType }}</span>
+                          </li>
+                        }
+                      </ul>
+                    }
+                  </li>
+                }
+              </ul>
+            }
+          </li>
+        }
+      </ul>
+    </aside>
+
+    <main class="main">
+      <div class="editor-toolbar">
+        <button class="btn btn-primary" [disabled]="executing || !sql.trim()" (click)="execute(1)">
+          @if (executing) {
+            <span class="spinner-border spinner-border-sm"></span>
+          }
+          ▶ Executar (Ctrl+Enter)
+        </button>
+        <label class="page-size-label">
+          Linhas por página:
+          <select [(ngModel)]="pageSize">
+            <option [value]="50">50</option>
+            <option [value]="100">100</option>
+            <option [value]="250">250</option>
+            <option [value]="500">500</option>
+          </select>
+        </label>
+      </div>
+
+      <textarea
+        class="sql-editor"
+        spellcheck="false"
+        placeholder="SELECT * FROM SEUR.SEUR_GUIA WHERE ROWNUM <= 10"
+        [(ngModel)]="sql"
+        (keydown.control.enter)="execute(1)"
+        (keydown.meta.enter)="execute(1)"
+      ></textarea>
+
+      @if (queryError) {
+        <div class="alert alert-danger">{{ queryError }}</div>
+      }
+
+      @if (result) {
+        <div class="result-panel">
+          <div class="result-status">
+            @if (result.isResultSet) {
+              <span>{{ resultColumns.length }} colunas · página {{ result.page }} · {{ result.rows.length }} linhas · {{ result.elapsedMs }} ms{{ editableTarget ? ' · editável (duplo clique numa célula)' : '' }}</span>
+              <div class="pagination">
+                <button class="btn btn-outline small" [disabled]="result.page <= 1" (click)="prevPage()">‹ Anterior</button>
+                <button class="btn btn-outline small" [disabled]="!result.hasMore" (click)="nextPage()">Seguinte ›</button>
+              </div>
+            } @else {
+              <span class="success">{{ result.affectedRows }} linha(s) afetada(s) · {{ result.elapsedMs }} ms</span>
+            }
+          </div>
+
+          @if (result.isResultSet) {
+            <div class="grid-wrapper">
+              <table class="result-grid">
+                <thead>
+                  <tr>
+                    @for (col of resultColumns; track col) {
+                      <th>{{ col }}</th>
+                    }
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (row of result.rows; track $index; let rowIndex = $index) {
+                    <tr>
+                      @for (col of resultColumns; track col) {
+                        <td
+                          [class.null-value]="row[col] === null"
+                          [class.editable]="!!editableTarget"
+                          (dblclick)="startCellEdit(rowIndex, col, row[col])"
+                        >
+                          @if (isEditingCell(rowIndex, col)) {
+                            <input
+                              class="cell-input"
+                              autofocus
+                              [(ngModel)]="editingValue"
+                              (blur)="saveCellEdit()"
+                              (keydown.enter)="saveCellEdit()"
+                              (keydown.escape)="cancelCellEdit()"
+                            />
+                          } @else {
+                            {{ formatCell(row[col]) }}
+                          }
+                        </td>
+                      }
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        </div>
+      }
+    </main>
+  </div>
+</div>

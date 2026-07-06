@@ -4,13 +4,14 @@ import { provideHttpClient, withInterceptors, withInterceptorsFromDi, HTTP_INTER
 import { routes } from './app.routes';
 import { AuthInterceptor } from './services/auth.interceptor';
 import { seurInterceptor } from './services/seur.interceptor';
+import { oraConsoleInterceptor } from './services/oraconsole.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
     provideHttpClient(
-      withInterceptors([seurInterceptor]),
+      withInterceptors([seurInterceptor, oraConsoleInterceptor]),
       withInterceptorsFromDi()
     ),
     {
