@@ -37,7 +37,28 @@ public sealed class RequerSetorAttribute : Attribute, IAsyncAuthorizationFilter
 
         var acesso = context.HttpContext.RequestServices.GetRequiredService<ISetorAccessService>();
 
-        if (!await acesso.PertenceAoSetorAsync(userId, _setor))
+        bool pertence;
+        try
+        {
+            pertence = await acesso.PertenceAoSetorAsync(userId, _setor);
+        }
+        catch (Exception ex)
+        {
+            // Sem isto, uma falha na base de dados sai daqui como 500 cru: o try/catch do
+            // controlador não cobre os filtros de autorização, que correm antes dele.
+            context.HttpContext.RequestServices
+                .GetRequiredService<ILoggerFactory>()
+                .CreateLogger<RequerSetorAttribute>()
+                .LogError(ex, "Falha ao verificar a pertença ao setor {Setor}.", _setor);
+
+            context.Result = new ObjectResult("Não foi possível verificar as suas permissões.")
+            {
+                StatusCode = StatusCodes.Status503ServiceUnavailable
+            };
+            return;
+        }
+
+        if (!pertence)
         {
             context.Result = new ObjectResult($"Acesso reservado aos utilizadores do setor {_setor}.")
             {

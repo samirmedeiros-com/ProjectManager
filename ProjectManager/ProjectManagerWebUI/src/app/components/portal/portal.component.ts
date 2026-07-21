@@ -16,6 +16,17 @@ export class PortalComponent implements OnInit {
   constructor(private router: Router, private route: ActivatedRoute) {}
 
   ngOnInit(): void {
+    this.lerAviso();
+
+    // Limpar os parâmetros depois de ler: se ficassem no URL, uma segunda tentativa
+    // falhada navegaria para o mesmo endereço e o router trataria isso como no-op —
+    // o cartão parecia não responder ao clique.
+    if (this.avisoAcesso) {
+      this.router.navigate([], { relativeTo: this.route, queryParams: {}, replaceUrl: true });
+    }
+  }
+
+  private lerAviso(): void {
     if (this.route.snapshot.queryParams['sessao'] === 'expirada') {
       this.avisoAcesso = 'A sua sessão expirou. Entre novamente para continuar.';
       return;
