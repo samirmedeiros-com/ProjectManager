@@ -69,6 +69,39 @@ builder.Services.AddScoped<IOraConsoleAuthService, OraConsoleAuthService>();
 builder.Services.AddScoped<IOraConsoleSchemaService, OraConsoleSchemaService>();
 builder.Services.AddScoped<IOraConsoleQueryService, OraConsoleQueryService>();
 builder.Services.AddScoped<IOraConsoleAuditLogService, OraConsoleAuditLogService>();
+builder.Services.AddScoped<ISetorAccessService, SetorAccessService>();
+
+// Portal de consulta ao OpenSearch (restrito ao setor IT)
+builder.Services.Configure<OpenSearchOptions>(builder.Configuration.GetSection(OpenSearchOptions.Seccao));
+
+builder.Services.AddHttpClient<OpenSearchGateway>((sp, http) =>
+{
+    var opcoes = sp.GetRequiredService<Microsoft.Extensions.Options.IOptions<OpenSearchOptions>>().Value;
+
+    if (!string.IsNullOrWhiteSpace(opcoes.BaseUrl))
+        http.BaseAddress = new Uri(opcoes.BaseUrl.TrimEnd('/') + "/");
+
+    http.Timeout = TimeSpan.FromSeconds(opcoes.TimeoutSegundos);
+
+    if (!string.IsNullOrWhiteSpace(opcoes.Utilizador))
+    {
+        var credenciais = Convert.ToBase64String(
+            Encoding.UTF8.GetBytes($"{opcoes.Utilizador}:{opcoes.Password}"));
+        http.DefaultRequestHeaders.Authorization =
+            new System.Net.Http.Headers.AuthenticationHeaderValue("Basic", credenciais);
+    }
+})
+.ConfigurePrimaryHttpMessageHandler(sp =>
+{
+    var opcoes = sp.GetRequiredService<Microsoft.Extensions.Options.IOptions<OpenSearchOptions>>().Value;
+    var handler = new HttpClientHandler();
+
+    // O cluster gerido da OCI usa certificado auto-assinado e é acedido por IP privado.
+    if (opcoes.IgnorarCertificado)
+        handler.ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
+
+    return handler;
+});
 
 // Configurar SmtpSettings
 builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("SmtpSettings"));
