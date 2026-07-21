@@ -1,0 +1,567 @@
+<div class="app">
+  <!-- ───────────── Barra lateral ───────────── -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon"><i class="ti ti-search"></i></div>
+      <div class="logo-info">
+        <span class="logo-name">Portal de Consulta</span>
+        <span class="logo-sub">Pesquisa em OpenSearch</span>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section">
+        <div class="nav-section-label">Consulta</div>
+        <button
+          type="button"
+          class="nav-item"
+          [class.active]="vista() === 'pesquisa'"
+          (click)="vista.set('pesquisa')"
+        >
+          <i class="ti ti-search"></i> Pesquisa
+        </button>
+        <button
+          type="button"
+          class="nav-item"
+          [class.active]="vista() === 'indices'"
+          (click)="vista.set('indices')"
+        >
+          <i class="ti ti-database"></i> Índices
+          @if (indices().length) {
+            <span class="nav-badge">{{ indices().length }}</span>
+          }
+        </button>
+      </div>
+
+      <div class="nav-section">
+        <div class="nav-section-label">Project Manager</div>
+        <button type="button" class="nav-item" (click)="voltarAoPortal()">
+          <i class="ti ti-arrow-left"></i> Voltar ao portal
+        </button>
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-card">
+        <div class="avatar-circle"><i class="ti ti-user"></i></div>
+        <div class="user-info">
+          <div class="user-name">{{ utilizador?.fullName || 'Utilizador' }}</div>
+          <div class="user-role">
+            @if (estado(); as e) {
+              Setor IT &middot; OpenSearch {{ e.versao }}
+            } @else {
+              Setor IT
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ───────────── Área principal ───────────── -->
+  <main class="main">
+    <div class="topbar">
+      <span class="topbar-title">
+        {{ vista() === 'pesquisa' ? 'Pesquisa' : 'Índices' }}
+      </span>
+
+      @if (estado(); as e) {
+        <span [class]="classeSaude(e.saude)">
+          <i class="ti ti-point-filled"></i> {{ saudeLegivel(e.saude) }}
+        </span>
+      }
+
+      <button
+        type="button"
+        class="btn btn-icon"
+        aria-label="Atualizar"
+        (click)="carregarEstado(); carregarIndices()"
+      >
+        <i class="ti ti-refresh"></i>
+      </button>
+    </div>
+
+    <div class="content">
+      @if (erroLigacao(); as msg) {
+        <div class="banner banner-error">
+          <i class="ti ti-alert-triangle"></i>
+          <div>
+            <strong>Sem ligação ao cluster.</strong>
+            {{ msg }}
+          </div>
+        </div>
+      }
+
+      <!-- ═════════ Vista: Pesquisa ═════════ -->
+      @if (vista() === 'pesquisa') {
+        <div>
+          <div class="greeting">Consultar dados</div>
+          <div class="greeting-sub">
+            Escolha um índice, filtre e percorra os resultados.
+          </div>
+        </div>
+
+        <!-- Métricas do cluster -->
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-label">Índices disponíveis</div>
+            <div class="metric-value">{{ numero(estado()?.totalIndices) }}</div>
+            <div class="metric-delta delta-neu">consultáveis neste portal</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-label">Documentos indexados</div>
+            <div class="metric-value">{{ numero(estado()?.totalDocumentos) }}</div>
+            <div class="metric-delta delta-neu">no total do cluster</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-label">Volume armazenado</div>
+            <div class="metric-value">{{ tamanhoLegivel(estado()?.tamanhoBytes) }}</div>
+            <div class="metric-delta delta-neu">tamanho em disco</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-label">Resultados da pesquisa</div>
+            <div class="metric-value">
+              {{ resultado() ? numero(resultado()!.total) : '—' }}
+            </div>
+            @if (resultado(); as r) {
+              <div class="metric-delta" [class]="r.total ? 'delta-pos' : 'delta-neu'">
+                <i class="ti ti-clock"></i>
+                {{ r.duracaoMs }} ms{{ r.totalExato ? '' : ' · estimativa' }}
+              </div>
+            } @else {
+              <div class="metric-delta delta-neu">nenhuma pesquisa feita</div>
+            }
+          </div>
+        </div>
+
+        <!-- Formulário de pesquisa -->
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">
+              <i class="ti ti-filter"></i>
+              Critérios
+            </div>
+            @if (aCarregarIndices()) {
+              <span class="spinner" aria-label="A carregar índices"></span>
+            }
+          </div>
+
+          @if (padroes().length) {
+            <div class="padroes">
+              <span class="padroes-etiqueta">Padrões:</span>
+              @for (p of padroes().slice(0, 6); track p.padrao) {
+                <button
+                  type="button"
+                  class="padrao-chip"
+                  [class.ativo]="indice() === p.padrao"
+                  [title]="p.indices + ' índices · ' + numero(p.documentos) + ' documentos'"
+                  (click)="consultarIndice(p.padrao)"
+                >
+                  {{ p.padrao }}
+                  <span class="padrao-contagem">{{ p.indices }}</span>
+                </button>
+              }
+            </div>
+          }
+
+          <form class="form-grid" (ngSubmit)="pesquisar(0)">
+            <div class="field field-indice">
+              <label class="field-label" for="indice">Índice ou padrão</label>
+              <input
+                id="indice"
+                class="input input-mono"
+                list="lista-indices"
+                placeholder="logs-app-* ou escolher…"
+                [ngModel]="indice()"
+                (ngModelChange)="indice.set($event)"
+                (change)="aoMudarIndice(indice())"
+                name="indice"
+              />
+              <datalist id="lista-indices">
+                <option value="*">Todos os índices</option>
+                @for (p of padroes(); track p.padrao) {
+                  <option [value]="p.padrao">
+                    {{ p.indices }} índices · {{ numero(p.documentos) }} documentos
+                  </option>
+                }
+                @for (i of indices(); track i.nome) {
+                  <option [value]="i.nome">{{ numero(i.documentos) }} documentos</option>
+                }
+              </datalist>
+              @if (ehPadrao()) {
+                <span class="field-hint">Abrange vários índices. Aceita <code>*</code> e vírgulas.</span>
+              }
+            </div>
+
+            <div class="field field-consulta">
+              <label class="field-label" for="consulta">Pesquisa</label>
+              <input
+                id="consulta"
+                class="input input-mono"
+                type="text"
+                placeholder="ex.: estado:ERRO AND cliente:*"
+                [ngModel]="consulta()"
+                (ngModelChange)="consulta.set($event)"
+                name="consulta"
+              />
+              <span class="field-hint">Vazio devolve tudo. Aceita sintaxe Lucene.</span>
+            </div>
+
+            <div class="field">
+              <label class="field-label" for="campoData">Campo de data</label>
+              <select
+                id="campoData"
+                class="select"
+                [ngModel]="campoData()"
+                (ngModelChange)="campoData.set($event)"
+                name="campoData"
+                [disabled]="!camposTemporais().length"
+              >
+                <option value="">Nenhum</option>
+                @for (c of camposTemporais(); track c.nome) {
+                  <option [value]="c.nome">{{ c.nome }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="field">
+              <label class="field-label" for="de">De</label>
+              <input
+                id="de"
+                class="input"
+                type="datetime-local"
+                [ngModel]="de()"
+                (ngModelChange)="de.set($event)"
+                name="de"
+                [disabled]="!campoData()"
+              />
+            </div>
+
+            <div class="field">
+              <label class="field-label" for="ate">Até</label>
+              <input
+                id="ate"
+                class="input"
+                type="datetime-local"
+                [ngModel]="ate()"
+                (ngModelChange)="ate.set($event)"
+                name="ate"
+                [disabled]="!campoData()"
+              />
+            </div>
+
+            <div class="field">
+              <label class="field-label" for="ordenarPor">Ordenar por</label>
+              <select
+                id="ordenarPor"
+                class="select"
+                [ngModel]="ordenarPor()"
+                (ngModelChange)="ordenarPor.set($event)"
+                name="ordenarPor"
+              >
+                <option value="">Relevância</option>
+                @for (c of camposOrdenaveis(); track c.nome) {
+                  <option [value]="c.nome">{{ c.nome }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="field">
+              <label class="field-label" for="ordem">Ordem</label>
+              <select
+                id="ordem"
+                class="select"
+                [ngModel]="ordemDescendente()"
+                (ngModelChange)="ordemDescendente.set($event)"
+                name="ordem"
+                [disabled]="!ordenarPor()"
+              >
+                <option [ngValue]="true">Descendente</option>
+                <option [ngValue]="false">Ascendente</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label class="field-label" for="tamanho">Por página</label>
+              <select
+                id="tamanho"
+                class="select"
+                [ngModel]="tamanho()"
+                (ngModelChange)="tamanho.set($event)"
+                name="tamanho"
+              >
+                @for (n of [10, 25, 50, 100]; track n) {
+                  <option [ngValue]="n">{{ n }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="field field-acao">
+              <button
+                class="btn"
+                type="button"
+                (click)="limpar()"
+                [disabled]="!haQueLimpar() || aPesquisar()"
+              >
+                <i class="ti ti-eraser"></i> Limpar
+              </button>
+              <button class="btn btn-primary" type="submit" [disabled]="!indice() || aPesquisar()">
+                @if (aPesquisar()) {
+                  <span class="spinner spinner-claro"></span> A pesquisar…
+                } @else {
+                  <i class="ti ti-search"></i> Pesquisar
+                }
+              </button>
+            </div>
+          </form>
+        </div>
+
+        @if (erro(); as msg) {
+          <div class="banner banner-error">
+            <i class="ti ti-alert-circle"></i>
+            <div>{{ msg }}</div>
+          </div>
+        }
+
+        <!-- Resultados -->
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">
+              <i class="ti ti-list-search"></i>
+              Resultados
+            </div>
+
+            @if (resultado(); as r) {
+              @if (r.documentos.length) {
+                <span class="resultado-info">
+                  {{ numero(primeiroResultado()) }}–{{ numero(ultimoResultado()) }}
+                  de {{ r.totalExato ? '' : 'cerca de ' }}{{ numero(r.total) }}
+                </span>
+              }
+            }
+          </div>
+
+          @if (resultado(); as r) {
+            @if (r.documentos.length) {
+              <!-- Seletor de colunas: um índice arbitrário traz campos a mais para uma tabela -->
+              <details class="colunas">
+                <summary>
+                  <i class="ti ti-columns-3"></i>
+                  Colunas ({{ colunasVisiveis().length }} de {{ r.colunas.length }})
+                </summary>
+                <div class="colunas-lista">
+                  @for (coluna of r.colunas; track coluna) {
+                    <label class="coluna-opcao">
+                      <input
+                        type="checkbox"
+                        [checked]="colunasVisiveis().includes(coluna)"
+                        (change)="alternarColuna(coluna)"
+                      />
+                      {{ coluna }}
+                    </label>
+                  }
+                </div>
+              </details>
+
+              <div class="tabela-scroll">
+                <table class="tabela">
+                  <thead>
+                    <tr>
+                      @for (coluna of colunasVisiveis(); track coluna) {
+                        <th (click)="ordenarPorColuna(coluna)" [title]="'Ordenar por ' + coluna">
+                          {{ coluna }}
+                          @if (ordenarPor() === coluna || ordenarPor() === coluna + '.keyword') {
+                            <i
+                              class="ti"
+                              [class.ti-arrow-narrow-down]="ordemDescendente()"
+                              [class.ti-arrow-narrow-up]="!ordemDescendente()"
+                            ></i>
+                          }
+                        </th>
+                      }
+                      <th class="col-acao"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (documento of r.documentos; track documento.id) {
+                      <tr (click)="documentoAberto.set(documento)">
+                        @for (coluna of colunasVisiveis(); track coluna) {
+                          <td [title]="valor(documento, coluna)">{{ valor(documento, coluna) }}</td>
+                        }
+                        <td class="col-acao"><i class="ti ti-chevron-right"></i></td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="paginacao">
+                <button
+                  type="button"
+                  class="btn btn-sm"
+                  (click)="paginaAnterior()"
+                  [disabled]="pagina() === 0 || aPesquisar()"
+                >
+                  <i class="ti ti-chevron-left"></i> Anterior
+                </button>
+                <span class="paginacao-pagina">Página {{ pagina() + 1 }}</span>
+                <button
+                  type="button"
+                  class="btn btn-sm"
+                  (click)="paginaSeguinte()"
+                  [disabled]="!haPaginaSeguinte() || aPesquisar()"
+                >
+                  Seguinte <i class="ti ti-chevron-right"></i>
+                </button>
+              </div>
+            } @else {
+              <div class="empty-state">
+                <i class="ti ti-mood-empty"></i>
+                <div class="empty-title">Sem resultados</div>
+                <div class="empty-sub">Nenhum documento corresponde a estes critérios.</div>
+              </div>
+            }
+          } @else {
+            <div class="empty-state">
+              <i class="ti ti-search"></i>
+              <div class="empty-title">Ainda não pesquisou</div>
+              <div class="empty-sub">Escolha um índice e carregue em Pesquisar.</div>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- ═════════ Vista: Índices ═════════ -->
+      @if (vista() === 'indices') {
+        <div>
+          <div class="greeting">Índices do cluster</div>
+          <div class="greeting-sub">
+            {{ numero(indices().length) }} índices disponíveis para consulta.
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">
+              <i class="ti ti-database"></i>
+              Todos os índices
+            </div>
+            @if (aCarregarIndices()) {
+              <span class="spinner"></span>
+            }
+          </div>
+
+          @if (indices().length) {
+            <div class="tabela-scroll">
+              <table class="tabela">
+                <thead>
+                  <tr>
+                    <th>Índice</th>
+                    <th>Estado</th>
+                    <th class="col-num">Documentos</th>
+                    <th class="col-num">Tamanho</th>
+                    <th class="col-acao"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (i of indices(); track i.nome) {
+                    <tr (click)="consultarIndice(i.nome)">
+                      <td class="celula-mono">{{ i.nome }}</td>
+                      <td><span [class]="classeSaude(i.saude)">{{ saudeLegivel(i.saude) }}</span></td>
+                      <td class="col-num">{{ numero(i.documentos) }}</td>
+                      <td class="col-num">{{ tamanhoLegivel(i.tamanhoBytes) }}</td>
+                      <td class="col-acao"><i class="ti ti-chevron-right"></i></td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          } @else if (!aCarregarIndices()) {
+            <div class="empty-state">
+              <i class="ti ti-database-off"></i>
+              <div class="empty-title">Nenhum índice</div>
+              <div class="empty-sub">O cluster não devolveu índices consultáveis.</div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </main>
+</div>
+
+<!-- ───────────── Detalhe do documento ───────────── -->
+@if (documentoAberto(); as documento) {
+  <div class="modal-fundo" (click)="documentoAberto.set(null)"></div>
+  <div class="modal" role="dialog" aria-modal="true" aria-label="Detalhe do documento">
+    <div class="modal-topo">
+      <div class="card-title">
+        <i class="ti ti-file-text"></i>
+        Documento
+      </div>
+      <button
+        type="button"
+        class="btn btn-icon"
+        aria-label="Fechar"
+        (click)="documentoAberto.set(null)"
+      >
+        <i class="ti ti-x"></i>
+      </button>
+    </div>
+
+    <div class="modal-meta">
+      <span class="tag tag-purple">{{ documento.indice }}</span>
+      <span class="tag tag-grey">{{ documento.id }}</span>
+    </div>
+
+    <!-- Atalho de rastreio: seguir o pedido inteiro a partir desta linha -->
+    @if (camposCorrelacao(documento).length) {
+      <div class="correlacao">
+        <div class="correlacao-titulo">
+          <i class="ti ti-route"></i>
+          Seguir o pedido
+        </div>
+        @for (c of camposCorrelacao(documento); track c.chave) {
+          <button
+            type="button"
+            class="correlacao-item"
+            (click)="pesquisarPorCampo(c.chave, c.valor)"
+            [title]="'Pesquisar todos os registos com ' + c.chave + ' = ' + c.valor"
+          >
+            <span class="correlacao-chave">{{ c.chave }}</span>
+            <span class="correlacao-valor">{{ c.valor }}</span>
+            <i class="ti ti-search"></i>
+          </button>
+        }
+      </div>
+    }
+
+    <div class="modal-corpo">
+      <table class="tabela tabela-detalhe">
+        <tbody>
+          @for (entrada of entradasDe(documento); track entrada.chave) {
+            <tr>
+              <th>{{ entrada.chave }}</th>
+              <td>
+                <span class="detalhe-valor">{{ entrada.valor }}</span>
+                @if (pesquisavel(entrada.valor)) {
+                  <button
+                    type="button"
+                    class="detalhe-acao"
+                    (click)="pesquisarPorCampo(entrada.chave, entrada.valor)"
+                    [title]="'Pesquisar por ' + entrada.chave"
+                    aria-label="Pesquisar por este valor"
+                  >
+                    <i class="ti ti-search"></i>
+                  </button>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+}

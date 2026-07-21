@@ -102,6 +102,23 @@
   background: #245b3f;
 }
 
+.card-icon--opensearch {
+  background: rgba(83, 74, 183, 0.1);
+  color: #534ab7;
+}
+
+.card-action--opensearch {
+  background: #534ab7;
+}
+
+.app-card:has(.card-icon--opensearch):hover {
+  border-color: #534ab7;
+}
+
+.app-card:has(.card-icon--opensearch):hover .card-action--opensearch {
+  background: #453da0;
+}
+
 .app-card h2 {
   color: #424143;
   font-size: 20px;
