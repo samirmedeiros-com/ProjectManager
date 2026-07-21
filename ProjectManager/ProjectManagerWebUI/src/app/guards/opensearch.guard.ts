@@ -27,10 +27,22 @@ export class OpenSearchGuard implements CanActivate {
     return this.openSearch.acesso().pipe(
       map(() => true),
       catchError((err) => {
-        // Distinguir "não pertence ao setor" de "a API não respondeu": tratar tudo como 403
-        // mostraria "reservado ao setor IT" a quem, na verdade, apanhou um 404 ou o backend em baixo.
-        const motivo = err?.status === 403 ? 'semSetor' : 'indisponivel';
-        this.router.navigate(['/portal'], { queryParams: { opensearch: motivo } });
+        // 401 é sessão expirada, não indisponibilidade: quem trata disso (e limpa o
+        // localStorage) é o auth.interceptor. Navegar aqui competiria com ele e mostraria
+        // "o serviço não respondeu" a quem apenas precisa de entrar outra vez.
+        if (err?.status === 401) {
+          return of(false);
+        }
+
+        if (err?.status === 403) {
+          this.router.navigate(['/portal'], { queryParams: { opensearch: 'semSetor' } });
+          return of(false);
+        }
+
+        // Qualquer outra falha fica registada na consola: a mensagem ao utilizador é
+        // deliberadamente simples, mas sem isto não há como diagnosticar.
+        console.error('Falha ao verificar o acesso ao portal de OpenSearch:', err);
+        this.router.navigate(['/portal'], { queryParams: { opensearch: 'indisponivel' } });
         return of(false);
       }),
     );
