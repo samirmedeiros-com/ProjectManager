@@ -410,7 +410,7 @@ export class UserListComponent implements OnInit {
 
   logout() {
     this.authService.logout();
-    this.router.navigate(['/login']);
+    this.router.navigate(['/portal']);
   }
 
   getRoleLabel(role: string): string {

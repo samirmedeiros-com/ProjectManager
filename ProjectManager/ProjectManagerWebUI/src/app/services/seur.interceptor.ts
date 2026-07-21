@@ -15,7 +15,7 @@ export const seurInterceptor: HttpInterceptorFn = (req, next) => {
       if (error.status === 401) {
         localStorage.removeItem('seur_token');
         localStorage.removeItem('seur_user');
-        router.navigate(['/portal']);
+        router.navigate(['/portal'], { queryParams: { sessao: 'expirada' } });
       }
       return throwError(() => error);
     })

@@ -16,6 +16,16 @@
     <p>Selecione a aplicação que pretende aceder</p>
   </div>
 
+  @if (avisoAcesso) {
+    <div class="aviso-acesso">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <circle cx="12" cy="12" r="9"/>
+        <path d="M12 8v5M12 16h.01"/>
+      </svg>
+      <span>{{ avisoAcesso }}</span>
+    </div>
+  }
+
   <div class="cards-container">
     <div class="app-card" (click)="navigateTo('/login')">
       <div class="card-icon">

@@ -15,7 +15,7 @@ export const oraConsoleInterceptor: HttpInterceptorFn = (req, next) => {
       if (error.status === 401) {
         localStorage.removeItem('oraconsole_token');
         localStorage.removeItem('oraconsole_username');
-        router.navigate(['/login-oraconsole']);
+        router.navigate(['/portal'], { queryParams: { sessao: 'expirada' } });
       }
       return throwError(() => error);
     })

@@ -26,8 +26,11 @@ export class OpenSearchGuard implements CanActivate {
 
     return this.openSearch.acesso().pipe(
       map(() => true),
-      catchError(() => {
-        this.router.navigate(['/portal'], { queryParams: { semAcesso: 'opensearch' } });
+      catchError((err) => {
+        // Distinguir "não pertence ao setor" de "a API não respondeu": tratar tudo como 403
+        // mostraria "reservado ao setor IT" a quem, na verdade, apanhou um 404 ou o backend em baixo.
+        const motivo = err?.status === 403 ? 'semSetor' : 'indisponivel';
+        this.router.navigate(['/portal'], { queryParams: { opensearch: motivo } });
         return of(false);
       }),
     );

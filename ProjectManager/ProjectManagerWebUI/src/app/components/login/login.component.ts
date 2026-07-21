@@ -1,5 +1,5 @@
 import { Component, ChangeDetectorRef } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -31,8 +31,24 @@ export class LoginComponent {
   constructor(
     private authService: AuthService,
     private router: Router,
+    private route: ActivatedRoute,
     private changeDetectorRef: ChangeDetectorRef
   ) { }
+
+  /**
+   * Destino a seguir ao login. O AuthGuard guarda em returnUrl a rota que o utilizador
+   * tentou abrir; sem isto, quem entra pelo cartão do OpenSearch acaba no dashboard.
+   * Só se aceitam caminhos internos, para o returnUrl não servir de redirect aberto.
+   */
+  private destinoAposLogin(): string {
+    const returnUrl = this.route.snapshot.queryParams['returnUrl'];
+
+    if (typeof returnUrl === 'string' && returnUrl.startsWith('/') && !returnUrl.startsWith('//')) {
+      return returnUrl;
+    }
+
+    return '/dashboard';
+  }
 
   onSubmit() {
     this.submitted = true;
@@ -46,7 +62,7 @@ export class LoginComponent {
     this.authService.login(this.form).subscribe(
       (response) => {
         if (response.success) {
-          this.router.navigate(['/dashboard']);
+          this.router.navigateByUrl(this.destinoAposLogin());
         } else {
           this.error = response.message || 'Falha no login';
         }

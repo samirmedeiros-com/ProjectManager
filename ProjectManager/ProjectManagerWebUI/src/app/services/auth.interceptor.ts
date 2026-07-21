@@ -31,11 +31,9 @@ export class AuthInterceptor implements HttpInterceptor {
           localStorage.removeItem('token');
           localStorage.removeItem('user');
 
-          // Redirect to login page
-          this.router.navigate(['/login']);
-
-          // Show a message (optional - can be improved with a toast service)
-          console.warn('Token expirado. Redirecionando para login...');
+          // Sessão expirada volta ao portal, não ao login: é o ponto de entrada comum
+          // das três aplicações. O parâmetro evita que o salto pareça inexplicado.
+          this.router.navigate(['/portal'], { queryParams: { sessao: 'expirada' } });
         }
 
         return throwError(() => error);

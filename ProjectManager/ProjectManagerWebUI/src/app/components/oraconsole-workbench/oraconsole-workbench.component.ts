@@ -226,7 +226,7 @@ export class OraConsoleWorkbenchComponent implements OnInit {
 
   logout() {
     this.oraAuthService.logout();
-    this.router.navigate(['/login-oraconsole']);
+    this.router.navigate(['/portal']);
   }
 
   goBack() {
