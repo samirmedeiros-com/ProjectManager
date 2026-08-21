@@ -9,7 +9,11 @@ export class AuthInterceptor implements HttpInterceptor {
   constructor(private router: Router) {}
 
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    if (request.url.includes('/api/seur/') || request.url.includes('/api/oraconsole/')) {
+    // O mural de TV não tem sessão: não leva Bearer nem pode cair no redirect
+    // do 401 abaixo, que o mandaria para o portal a meio de um turno.
+    if (request.url.includes('/api/seur/')
+        || request.url.includes('/api/oraconsole/')
+        || request.url.includes('/api/tv/')) {
       return next.handle(request);
     }
 

@@ -1,0 +1,217 @@
+<div class="mural">
+
+  <header class="topo">
+    <div class="marca">
+      <span class="ponto"></span>
+      <span class="titulo">Dashboard IT</span>
+    </div>
+
+    <div class="estado">
+      @if (erro) {
+        <span class="aviso">{{ erro }}</span>
+      }
+      @for (f of fontesEmFalha; track f) {
+        <span class="aviso">{{ f }} indisponível</span>
+      }
+      @if (dados) {
+        <span class="carimbo">dados de {{ atualizadoEm }}</span>
+      }
+      <span class="relogio">{{ relogio }}</span>
+    </div>
+  </header>
+
+  @if (aCarregar) {
+    <div class="ecra-mensagem">A carregar…</div>
+  } @else if (!dados) {
+    <div class="ecra-mensagem erro">{{ erro }}</div>
+  } @else {
+
+    <main class="faixas">
+      @for (seccao of seccoesVisiveis; track seccao.id) {
+        <section class="faixa" [style.--seccao-linhas]="seccao.linhas">
+
+          <h2 class="faixa-titulo">
+            <span class="faixa-nome">{{ seccao.titulo }}</span>
+            <span class="faixa-risco"></span>
+          </h2>
+
+          <div class="grelha" [style.--seccao-linhas]="seccao.linhas">
+            @for (card of cardsDe(seccao); track card.id) {
+            <!-- As dimensões vão em custom properties, não em grid-column/grid-row
+                 diretos: o estilo inline ganharia sempre às media queries, e é
+                 delas que depende o layout deixar de ser rígido em ecrãs pequenos. -->
+            <section class="card"
+                     [attr.data-linhas]="card.linhas"
+                     [attr.data-colunas]="card.colunas"
+                     [style.--card-colunas]="card.colunas"
+                     [style.--card-linhas]="card.linhas">
+
+          <h3 class="card-titulo">{{ card.titulo }}</h3>
+
+          @if (vazio(card)) {
+            <p class="card-vazio">{{ card.vazio || 'Sem dados.' }}</p>
+          } @else {
+
+            @switch (card.tipo) {
+
+              @case ('kpi') {
+                <div class="kpi" [attr.data-tom]="kpi(card).tom || 'neutro'">
+                  <div class="kpi-valor">
+                    {{ kpi(card).valor }}<span class="kpi-sufixo">{{ kpi(card).sufixo }}</span>
+                  </div>
+                  @if (kpi(card).detalhe) {
+                    <div class="kpi-detalhe">{{ kpi(card).detalhe }}</div>
+                  }
+                </div>
+              }
+
+              @case ('kpis') {
+                <div class="kpis" [attr.data-itens]="kpis(card).length">
+                  @for (k of kpis(card); track k.rotulo) {
+                    <div class="kpis-item" [attr.data-tom]="k.tom || 'neutro'">
+                      <span class="kpis-rotulo">{{ k.rotulo }}</span>
+                      <span class="kpis-valor">
+                        {{ k.valor | number:'1.0-0' }}<span class="kpi-sufixo">{{ k.sufixo }}</span>
+                      </span>
+                      @if (k.detalhe) {
+                        <span class="kpis-detalhe">{{ k.detalhe }}</span>
+                      }
+                    </div>
+                  }
+                </div>
+              }
+
+              @case ('colunas') {
+                <div class="colunas">
+                  @for (f of fatias(card); track f.rotulo) {
+                    <div class="coluna" [title]="f.rotulo + ': ' + f.total">
+                      <span class="coluna-valor" [class.alerta]="f.alerta">{{ f.total }}</span>
+                      <span class="coluna-barra"
+                            [class.alerta]="f.alerta"
+                            [style.height.%]="alturaColuna(f, fatias(card))"></span>
+                      <span class="coluna-rotulo">{{ f.rotulo }}</span>
+                    </div>
+                  }
+                </div>
+              }
+
+              @case ('comparativo') {
+                <div class="comparativo">
+                  @for (g of comparativo(card).grupos; track g.titulo) {
+                    <div class="grupo">
+                      <h3 class="grupo-titulo">{{ g.titulo }}</h3>
+                      <table class="grupo-tabela">
+                        <thead>
+                          <tr>
+                            <th></th>
+                            @for (c of comparativo(card).colunas; track c) {
+                              <th class="col-valor">{{ c }}</th>
+                            }
+                          </tr>
+                        </thead>
+                        <tbody>
+                          @for (l of g.linhas; track l.rotulo) {
+                            <tr>
+                              <td class="col-metrica">{{ l.rotulo }}</td>
+                              @for (v of l.valores; track $index) {
+                                <td class="col-valor" [attr.data-tom]="v > 0 ? (l.tom || 'neutro') : 'neutro'">
+                                  {{ v | number:'1.0-0' }}
+                                </td>
+                              }
+                            </tr>
+                          }
+                        </tbody>
+                      </table>
+                    </div>
+                  }
+                </div>
+              }
+
+              @case ('erros') {
+                <table class="tabela">
+                  <tbody>
+                    @for (e of erros(card); track e.referencia + e.titulo) {
+                      <tr class="linha-alerta">
+                        <td class="col-nome">
+                          <span class="nome">{{ e.detalhe || e.titulo }}</span>
+                          <span class="meta">{{ e.referencia }}</span>
+                        </td>
+                        <td class="col-estado"><span class="etiqueta">{{ e.titulo }}</span></td>
+                        <td class="col-prazo">{{ hora(e.quando) }}</td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              }
+
+              @case ('barras') {
+                <ul class="barras">
+                  @for (f of fatias(card); track f.rotulo) {
+                    <li class="barra-linha">
+                      <span class="barra-rotulo">{{ f.rotulo }}</span>
+                      <span class="barra-trilho">
+                        <span class="barra-preenchida" [style.width.%]="larguraBarra(f, fatias(card))"></span>
+                      </span>
+                      <span class="barra-valor">{{ f.total }}</span>
+                    </li>
+                  }
+                </ul>
+              }
+
+              @case ('projetos') {
+                <table class="tabela">
+                  <tbody>
+                    @for (p of projetos(card); track p.nome) {
+                      <tr [class.linha-alerta]="p.atrasado">
+                        <td class="col-nome">
+                          <span class="nome">{{ p.nome }}</span>
+                          <span class="meta">{{ p.setor }} · {{ p.responsavel }}</span>
+                        </td>
+                        <td class="col-estado"><span class="etiqueta">{{ p.estado }}</span></td>
+                        <td class="col-progresso">
+                          <span class="barra-trilho">
+                            <span class="barra-preenchida" [style.width.%]="p.progresso"></span>
+                          </span>
+                          <span class="pct">{{ p.progresso }}%</span>
+                        </td>
+                        <td class="col-prazo">
+                          @if (p.diasRestantes !== null) {
+                            <span [class.alerta]="p.atrasado">{{ prazoLegivel(p.diasRestantes) }}</span>
+                          } @else {
+                            <span class="fraco">sem data</span>
+                          }
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              }
+
+              @case ('tarefas') {
+                <table class="tabela">
+                  <tbody>
+                    @for (t of tarefas(card); track t.titulo + t.projeto) {
+                      <tr [class.linha-alerta]="t.diasParaPrazo < 0">
+                        <td class="col-nome">
+                          <span class="nome">{{ t.titulo }}</span>
+                          <span class="meta">{{ t.projeto }} · {{ t.responsavel }}</span>
+                        </td>
+                        <td class="col-estado"><span class="etiqueta">{{ t.prioridade }}</span></td>
+                        <td class="col-prazo">
+                          <span [class.alerta]="t.diasParaPrazo < 0">{{ prazoLegivel(t.diasParaPrazo) }}</span>
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              }
+            }
+          }
+            </section>
+          }
+          </div>
+        </section>
+      }
+    </main>
+  }
+</div>

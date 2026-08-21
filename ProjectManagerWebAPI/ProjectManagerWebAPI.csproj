@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="IKVM" Version="8.15.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.8" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.8">
@@ -15,6 +16,18 @@
     </PackageReference>
     <PackageReference Include="Oracle.EntityFrameworkCore" Version="10.11.0" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.0.1" />
+  </ItemGroup>
+
+
+  <!-- Driver JDBC oficial da IBM para o AS400 (jt400), compilado para .NET pelo
+       IKVM. Evita depender do IBM i Access ODBC Driver e do unixODBC instalados
+       na máquina: assim a comparação AS400 vs Oracle funciona tal e qual em
+       desenvolvimento e em produção, sem passos de instalação no servidor. -->
+  <ItemGroup>
+    <IkvmReference Include="lib/jt400.jar"
+                   AssemblyName="jt400"
+                   AssemblyVersion="20.0.7.0"
+                   AssemblyFileVersion="20.0.7.0" />
   </ItemGroup>
 
 </Project>
