@@ -102,24 +102,31 @@ export class TvComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Só os cards cuja fonte respondeu neste ciclo. Um card sem dados por trás
-   * mostraria zeros — e um zero falso num mural é pior do que um card ausente,
-   * porque ninguém desconfia dele.
-   */
-  /**
-   * As faixas que têm mesmo alguma coisa para mostrar. Uma secção cuja fonte
-   * falhou desaparece inteira, cabeçalho incluído — meio cabeçalho sozinho no
-   * ecrã leria-se como um card que não carregou.
+   * Todas as faixas que têm cards declarados. O mural mantém a sua forma mesmo
+   * com fontes em baixo: um ecrã que muda de disposição a cada falha obriga a
+   * reprocurar tudo de cada vez que se olha para ele.
    */
   get seccoesVisiveis(): TvSeccao[] {
     return SECCOES.filter((s) => this.cardsDe(s).length > 0);
   }
 
+  /** Todos os cards da secção, respondesse a fonte ou não. */
   cardsDe(seccao: TvSeccao): TvCard[] {
     if (!this.dados) return [];
-    return CARDS.filter(
-      (c) => c.seccao === seccao.id && this.dados!.fontes[c.fonte] !== undefined
-    );
+    return CARDS.filter((c) => c.seccao === seccao.id);
+  }
+
+  /**
+   * A fonte deste card não respondeu neste ciclo.
+   *
+   * O card fica no ecrã a dizer que está sem ligação, em vez de desaparecer.
+   * O que **não** pode acontecer é mostrar zeros: um zero falso num mural é pior
+   * do que um card ausente, porque ninguém desconfia dele. Daí o template ter de
+   * consultar isto **antes** de chamar `card.dados()` — sem a fonte, a função do
+   * card rebentaria a ler propriedades de undefined.
+   */
+  semLigacao(card: TvCard): boolean {
+    return !this.dados || this.dados.fontes[card.fonte] === undefined;
   }
 
   get fontesEmFalha(): string[] {

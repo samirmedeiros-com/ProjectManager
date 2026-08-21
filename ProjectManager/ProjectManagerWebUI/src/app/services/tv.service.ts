@@ -111,6 +111,8 @@ export interface TvShpnotDia {
 
 export interface TvShpnot {
   dias: TvShpnotDia[];
+  /** Envios com sucesso hoje, pela hora a que saíram. */
+  enviadosPorHora: TvFatia[];
 }
 
 // --- fonte: tteventos (DPDIT.GEODT01TT) ---

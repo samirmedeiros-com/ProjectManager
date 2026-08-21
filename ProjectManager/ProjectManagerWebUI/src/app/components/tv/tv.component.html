@@ -48,7 +48,15 @@
 
           <h3 class="card-titulo">{{ card.titulo }}</h3>
 
-          @if (vazio(card)) {
+          <!-- semLigacao tem de ser testado primeiro: sem a fonte, tanto vazio()
+               como as funções de leitura rebentariam a ler undefined. -->
+          @if (semLigacao(card)) {
+            <p class="card-sem-ligacao">
+              <span class="ico" aria-hidden="true">&#9888;</span>
+              <span>Sem ligação</span>
+              <span class="detalhe">dados indisponíveis neste ciclo</span>
+            </p>
+          } @else if (vazio(card)) {
             <p class="card-vazio">{{ card.vazio || 'Sem dados.' }}</p>
           } @else {
 

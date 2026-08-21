@@ -319,8 +319,13 @@ export const CARDS: TvCard[] = [
   },
 
   // ========== Secção SHPNOT (5 linhas) ==========
-  // Fila 1 (2 linhas): total do dia e repartição por destino
-  // Fila 2 (4 linhas): o comparativo hoje/ontem, à largura toda
+  // Fila 1 (2 linhas): 2 + 2 + 3 + 5 = 12 — o total do dia, os duplicados, a
+  //   repartição por destino e o ritmo de envio ao lado.
+  // Fila 2 (3 linhas): o comparativo hoje/ontem, à largura toda
+  //
+  // O card do ritmo entrou estreitando os outros três, e não alargando a secção:
+  // as linhas de cada secção são o seu peso na altura do ecrã, e subir esta a 7
+  // roubava altura às restantes até cortar a última linha dos comparativos.
 
   {
     id: 'shpnot-total',
@@ -328,7 +333,7 @@ export const CARDS: TvCard[] = [
     titulo: 'Envios hoje',
     tipo: 'kpi',
     fonte: 'shpnot',
-    colunas: 4,
+    colunas: 2,
     linhas: 2,
     dados: (d): TvKpi => ({
       valor: hoje(d)?.total ?? 0,
@@ -341,7 +346,7 @@ export const CARDS: TvCard[] = [
     titulo: 'Duplicados MPSIDX',
     tipo: 'kpi',
     fonte: 'shpnot',
-    colunas: 4,
+    colunas: 2,
     linhas: 2,
     dados: (d): TvKpi => {
       const h = hoje(d);
@@ -358,7 +363,7 @@ export const CARDS: TvCard[] = [
     titulo: 'Destino (hoje)',
     tipo: 'barras',
     fonte: 'shpnot',
-    colunas: 4,
+    colunas: 3,
     linhas: 2,
     dados: (d): TvFatia[] => {
       const h = hoje(d);
@@ -369,6 +374,20 @@ export const CARDS: TvCard[] = [
       ];
     },
     vazio: 'Sem envios hoje.'
+  },
+  {
+    id: 'shpnot-ritmo',
+    seccao: 'shpnot',
+    titulo: 'Enviados por hora',
+    tipo: 'colunas',
+    fonte: 'shpnot',
+    colunas: 5,
+    linhas: 2,
+    // Pela hora a que o envio saiu, não pela hora a que a linha entrou: a
+    // pergunta é o ritmo de saída. Só conta o que saiu com sucesso (FLAGENV = Y),
+    // portanto o somatório bate com o "Sucesso (Y)" do comparativo em baixo.
+    dados: (d) => shpnot(d).enviadosPorHora ?? [],
+    vazio: 'Nada enviado hoje.'
   },
   {
     id: 'shpnot-comparativo',

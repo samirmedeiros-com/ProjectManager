@@ -324,6 +324,33 @@ que falam com ele carregam todos a mesma `nodeAffinity`, e nenhum outro. Já est
 `As400Disponivel = false` e o ecrã diz que a comparação está cega —, mas o card
 nunca mostra dados.
 
+### Quando uma fonte falha
+
+O card **fica no ecrã** a dizer «Sem ligação», em vez de desaparecer. Um mural que
+muda de disposição a cada falha obriga a reprocurar tudo de cada vez que se olha
+para ele. O que nunca acontece é mostrar zeros: um zero falso é pior do que um
+card ausente, porque ninguém desconfia dele.
+
+No template, `semLigacao(card)` tem de ser testado **antes** de `vazio(card)` e de
+qualquer função de leitura — sem a fonte, `card.dados()` rebentaria a ler `undefined`.
+
+«Sem ligação» é diferente de «Sem dados»: o segundo é uma resposta («hoje não houve
+envios»), o primeiro é a ausência de resposta. Fica em tom de aviso apagado, porque
+é uma falha do mural e não um alarme da operação — para isso já há as etiquetas
+vermelhas no topo com as fontes em falta.
+
+### Enviados por hora (SHPNOT) — porque o filtro não é pela hora de envio
+
+A pergunta é o ritmo de saída, mas a query **filtra por `DATAHORA_INSERT`** e só
+depois agrupa pela hora de `DATAHORAENV`. A razão: `DATAHORAENV` **não está
+indexada**, e uma query filtrada por ela varre os 50 GB da tabela — foi cancelada
+aos 300 s. Pela janela indexada custa ~114 ms, medido.
+
+A troca só é legítima porque **nenhuma linha é enviada num dia diferente daquele em
+que entra**: o card «Envio / Noutro dia» do próprio mural mostra zero. É esse o
+número a vigiar se um dia o somatório das horas deixar de bater certo com o
+«Sucesso (Y)» do dia.
+
 ### Configuração embutida no código
 
 A chave do mural e a ligação ao AS400 têm **valores de origem no próprio código**

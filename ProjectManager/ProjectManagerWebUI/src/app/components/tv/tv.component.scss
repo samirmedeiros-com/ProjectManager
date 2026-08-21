@@ -227,6 +227,39 @@
   color: var(--text-3);
 }
 
+/* Fonte em baixo. Distingue-se de propósito do card vazio: "sem dados" é uma
+   resposta ("hoje não houve envios"), isto é a ausência de resposta. Leva ícone
+   e cor de aviso para não se confundirem de longe, mas fica em tom apagado — não
+   é um alarme da operação, é uma falha do mural. */
+.card-sem-ligacao {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3vh;
+  color: var(--aviso);
+  font-size: clamp(12px, calc(1.05 * var(--u) * var(--escala)), 19px);
+  font-weight: 600;
+  text-align: center;
+}
+
+.card-sem-ligacao .ico {
+  font-size: 1.3em;
+  line-height: 1;
+}
+
+.card-sem-ligacao .detalhe {
+  color: var(--text-3);
+  font-weight: 400;
+  font-size: 0.78em;
+}
+
+/* Num card de duas linhas não há altura para as três linhas de texto. */
+.card[data-linhas='2'] .card-sem-ligacao .detalhe {
+  display: none;
+}
+
 /* --- kpi --- */
 
 .kpi {

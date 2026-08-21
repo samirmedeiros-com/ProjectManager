@@ -124,7 +124,61 @@ public class TvShpnotFonte : ITvFonte
             });
         }
 
-        return new TvShpnotDto { Dias = dias };
+        leitor.Close();
+
+        return new TvShpnotDto
+        {
+            Dias = dias,
+            EnviadosPorHora = await ContarEnviadosPorHoraAsync(ligacao, ct)
+        };
+    }
+
+    /// <summary>
+    /// Envios com sucesso de hoje, pela hora a que saíram (DATAHORAENV).
+    ///
+    /// **O filtro tem de ser por DATAHORA_INSERT e não por DATAHORAENV**, ainda que
+    /// a pergunta seja sobre a hora de envio. A DATAHORAENV não está indexada: uma
+    /// query filtrada por ela varre os 50 GB da tabela e foi cancelada aos 300s.
+    /// Pela janela indexada custa ~114ms — medido.
+    ///
+    /// A troca é legítima porque nenhuma linha é enviada num dia diferente daquele
+    /// em que entra: o card "Envio / Noutro dia" do próprio mural mostra zero, e é
+    /// esse o número a vigiar se um dia estes totais deixarem de bater certo com o
+    /// "Sucesso (Y)" do dia.
+    /// </summary>
+    private static async Task<List<TvFatiaDto>> ContarEnviadosPorHoraAsync(
+        System.Data.Common.DbConnection ligacao, CancellationToken ct)
+    {
+        using var cmd = ligacao.CreateCommand();
+        cmd.CommandText = """
+            SELECT TO_CHAR(DATAHORAENV, 'HH24'), COUNT(*)
+            FROM GROUPSHPNOT.GEODT01SPN
+            WHERE DATAHORA_INSERT >= TRUNC(SYSDATE) AND DATAHORA_INSERT < TRUNC(SYSDATE) + 1
+              AND FLAGENV = 'Y' AND DATAHORAENV IS NOT NULL
+            GROUP BY TO_CHAR(DATAHORAENV, 'HH24')
+            """;
+        cmd.CommandTimeout = 120;
+
+        var porHora = new Dictionary<int, int>();
+        using (var leitor = await cmd.ExecuteReaderAsync(ct))
+        {
+            while (await leitor.ReadAsync(ct))
+                porHora[int.Parse(leitor.GetString(0))] = Num(leitor, 1);
+        }
+
+        // Horas sem envios aparecem a zero: uma paragem a meio da manhã é
+        // informação, e sem a hora vazia o gráfico esconde-a. O limite é a hora
+        // mais tarde entre a atual e a última com envios — o relógio da API pode
+        // estar atrás do da base de dados, que é quem carimba as linhas.
+        var ultima = Math.Max(DateTime.Now.Hour, porHora.Count == 0 ? 0 : porHora.Keys.Max());
+
+        return Enumerable.Range(0, ultima + 1)
+            .Select(h => new TvFatiaDto
+            {
+                Rotulo = h.ToString("00") + "h",
+                Total = porHora.TryGetValue(h, out var n) ? n : 0
+            })
+            .ToList();
     }
 
     /// <summary>O Oracle devolve NUMBER como decimal; as contagens são sempre inteiras.</summary>

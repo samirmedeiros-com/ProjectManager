@@ -110,6 +110,9 @@ public class TvShpnotDto
 {
     /// <summary>Hoje e ontem, por esta ordem.</summary>
     public List<TvShpnotDiaDto> Dias { get; set; } = [];
+
+    /// <summary>Envios com sucesso hoje, pela hora a que saíram.</summary>
+    public List<TvFatiaDto> EnviadosPorHora { get; set; } = [];
 }
 
 public class TvShpnotDiaDto
