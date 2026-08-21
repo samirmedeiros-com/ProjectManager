@@ -87,6 +87,18 @@ spec:
         emptyDir: {}
 
       affinity:
+        # O AS400 (192.168.239.26) so e alcancavel a partir do pool `poolGateway`.
+        # Todos os deployments do DeployDPDOracleOCI que falam com ele carregam
+        # esta afinidade; sem ela a fonte 'as400' do mural fica cega — nao
+        # rebenta, mas o ecra passa a dizer que a comparacao nao esta disponivel.
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: name
+                operator: In
+                values:
+                - poolGateway
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
           - weight: 100

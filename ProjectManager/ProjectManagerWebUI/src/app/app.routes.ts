@@ -11,6 +11,7 @@ import { DebugComponent } from './components/debug/debug.component';
 import { LoginOraConsoleComponent } from './components/login-oraconsole/login-oraconsole.component';
 import { OraConsoleWorkbenchComponent } from './components/oraconsole-workbench/oraconsole-workbench.component';
 import { OpenSearchComponent } from './components/opensearch/opensearch.component';
+import { TvComponent } from './components/tv/tv.component';
 import { AuthGuard } from './guards/auth.guard';
 import { GestorGuard } from './guards/gestor.guard';
 import { SeurAuthGuard } from './guards/seur-auth.guard';
@@ -39,6 +40,10 @@ export const routes: Routes = [
 
   // Portal de consulta ao OpenSearch — login do Project Manager, restrito ao setor IT
   { path: 'opensearch', component: OpenSearchComponent, canActivate: [AuthGuard, OpenSearchGuard] },
+
+  // Mural de TV — sem guard de propósito: não há sessão, o acesso é a chave em ?k=
+  // que o backend valida em cada pedido. Sem chave o próprio componente avisa.
+  { path: 'tv', component: TvComponent },
 
   { path: '**', redirectTo: '/portal' }
 ];

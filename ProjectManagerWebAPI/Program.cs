@@ -5,6 +5,7 @@ using System.Text;
 using ProjectManagerWebAPI;
 using ProjectManagerWebAPI.Data;
 using ProjectManagerWebAPI.Services;
+using ProjectManagerWebAPI.Services.Tv;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -70,6 +71,21 @@ builder.Services.AddScoped<IOraConsoleSchemaService, OraConsoleSchemaService>();
 builder.Services.AddScoped<IOraConsoleQueryService, OraConsoleQueryService>();
 builder.Services.AddScoped<IOraConsoleAuditLogService, OraConsoleAuditLogService>();
 builder.Services.AddScoped<ISetorAccessService, SetorAccessService>();
+
+// Mural de TV (sem login, acesso por chave no URL)
+builder.Services.Configure<TvDashboardOptions>(builder.Configuration.GetSection(TvDashboardOptions.Seccao));
+builder.Services.AddScoped<ITvDashboardService, TvDashboardService>();
+
+// Cada fonte contribui um bloco do mural, de forma independente das outras.
+// Acrescentar uma origem de dados nova é escrever um ITvFonte e registá-lo aqui.
+// A fonte de projetos (TvProjetosFonte) fica de fora de propósito: o mural não tem
+// nenhum card dela e o registo custava ~1s de queries por ciclo. A classe fica no
+// código — para a repor basta acrescentar aqui a linha e declarar os cards.
+builder.Services.AddScoped<ITvFonte, TvSeurFonte>();
+builder.Services.AddScoped<ITvFonte, TvShpnotFonte>();
+builder.Services.AddScoped<ITvFonte, TvTteventosFonte>();
+builder.Services.AddScoped<ITvFonte, TvTracingFonte>();
+builder.Services.AddScoped<ITvFonte, TvAs400Fonte>();
 
 // Portal de consulta ao OpenSearch (restrito ao setor IT)
 builder.Services.Configure<OpenSearchOptions>(builder.Configuration.GetSection(OpenSearchOptions.Seccao));
