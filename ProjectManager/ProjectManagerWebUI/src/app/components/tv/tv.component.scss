@@ -69,10 +69,23 @@
 
 /* Modo overlay: fundo do ecrã transparente, para sobrepor a outra fonte
    (ex.: captura de janela num video wall). Só a base fica transparente — os
-   cartões guardam o seu --surface opaco, senão o texto ficava ilegível por
-   cima de qualquer conteúdo com contraste variável. */
+   cartões guardam um fundo opaco, senão o texto ficava ilegível por cima de
+   qualquer conteúdo com contraste variável. Aqui os cartões são brancos com
+   sombra (em vez do escuro com contorno dos outros temas) porque uma sombra
+   lê-se sobre qualquer fundo, ao contrário de um contorno subtil. */
 :host(.tema-transparente) {
   --bg: transparent;
+  --surface: #ffffff;
+  --surface-2: #f4f5f7;
+  --border: transparent;
+
+  --text: #1a1f29;
+  --text-2: #4b5563;
+  --text-3: #6b7280;
+}
+
+:host(.tema-transparente) .card {
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.22);
 }
 
 /* O mural tem dois modos.
