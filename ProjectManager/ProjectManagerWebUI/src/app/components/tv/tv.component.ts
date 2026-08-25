@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, HostBinding, OnDestroy, OnInit, ChangeDetectorRef } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 
 import { ActivatedRoute } from '@angular/router';
@@ -24,6 +24,10 @@ export class TvComponent implements OnInit, OnDestroy {
   aCarregar = true;
   relogio = '';
 
+  // Tema claro por pedido pontual (ex.: parede muito iluminada); o mural
+  // continua escuro por omissão — ver a nota em :host no SCSS.
+  @HostBinding('class.tema-claro') temaClaro = false;
+
   private chave = '';
   private subscricoes = new Subscription();
   private ciclo?: Subscription;
@@ -37,6 +41,7 @@ export class TvComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.chave = this.rota.snapshot.queryParamMap.get('k') ?? '';
+    this.temaClaro = this.rota.snapshot.queryParamMap.get('tema') === 'claro';
 
     if (!this.chave) {
       this.erro = 'Falta a chave de acesso no endereço.';

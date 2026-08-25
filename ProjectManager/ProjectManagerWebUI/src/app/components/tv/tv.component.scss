@@ -1,9 +1,11 @@
 /* Mural de TV. Os tokens vivem em :host (e não em :root) porque o Angular
    encapsula o CSS do componente — mesma razão que no portal de OpenSearch.
 
-   O mural é sempre escuro, ao contrário do resto da aplicação: fica ligado
-   horas seguidas numa parede e o fundo claro cansa e reflete. Não segue
-   prefers-color-scheme de propósito — a TV não tem quem escolha o tema. */
+   O mural é escuro por omissão: fica ligado horas seguidas numa parede e o
+   fundo claro cansa e reflete. Não segue prefers-color-scheme de propósito —
+   a TV não tem quem escolha o tema no sistema operativo. Para as paredes
+   muito iluminadas onde o escuro rebate, ?tema=claro no URL troca a paleta
+   (ver TvComponent.temaClaro e o bloco :host(.tema-claro) mais abaixo). */
 
 *,
 *::before,
@@ -49,6 +51,20 @@
   color: var(--text);
   font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
   font-variant-numeric: tabular-nums;
+}
+
+/* Paleta clara: mesmos papéis de token, valores invertidos. Os acentos
+   (--acento, --bom, --aviso, --mau) mantêm-se — são cores de estado, lêem-se
+   igual em qualquer fundo — só a base muda. */
+:host(.tema-claro) {
+  --bg: #eef0f3;
+  --surface: #ffffff;
+  --surface-2: #f4f5f7;
+  --border: rgba(15, 23, 42, 0.1);
+
+  --text: #1a1f29;
+  --text-2: #4b5563;
+  --text-3: #6b7280;
 }
 
 /* O mural tem dois modos.

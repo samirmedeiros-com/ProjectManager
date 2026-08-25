@@ -12,6 +12,14 @@ http://<servidor>/tv?k=<chave>
 A chave está em `TvDashboard:Chave` no `appsettings.json`. Sem chave, ou com a chave
 errada, a API responde 401 e o ecrã diz apenas que o acesso é inválido.
 
+Opcionalmente, `&tema=claro` troca a paleta do mural de escura (omissão) para
+clara — útil em paredes muito iluminadas onde o fundo escuro rebate luz. Qualquer
+outro valor, ou a ausência do parâmetro, mantém o escuro:
+
+```
+http://<servidor>/tv?k=<chave>&tema=claro
+```
+
 ## Configuração
 
 ```json
