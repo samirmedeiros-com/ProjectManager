@@ -12,12 +12,19 @@ http://<servidor>/tv?k=<chave>
 A chave está em `TvDashboard:Chave` no `appsettings.json`. Sem chave, ou com a chave
 errada, a API responde 401 e o ecrã diz apenas que o acesso é inválido.
 
-Opcionalmente, `&tema=claro` troca a paleta do mural de escura (omissão) para
-clara — útil em paredes muito iluminadas onde o fundo escuro rebate luz. Qualquer
-outro valor, ou a ausência do parâmetro, mantém o escuro:
+Opcionalmente, `&tema=` muda o mural. Qualquer outro valor, ou a ausência do
+parâmetro, mantém o escuro por omissão:
+
+- `&tema=claro` — paleta clara, para paredes muito iluminadas onde o fundo
+  escuro rebate luz.
+- `&tema=transparente` — fundo do ecrã (e do `<body>`) transparente e sem o
+  nome "Dashboard IT" no cabeçalho; pensado para sobrepor a outra fonte (ex.:
+  captura de janela num video wall, browser source do OBS). Os cartões
+  mantêm o seu próprio fundo opaco, só a base do ecrã fica transparente.
 
 ```
 http://<servidor>/tv?k=<chave>&tema=claro
+http://<servidor>/tv?k=<chave>&tema=transparente
 ```
 
 ## Configuração

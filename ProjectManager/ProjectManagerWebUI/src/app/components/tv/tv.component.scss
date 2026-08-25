@@ -67,6 +67,14 @@
   --text-3: #6b7280;
 }
 
+/* Modo overlay: fundo do ecrã transparente, para sobrepor a outra fonte
+   (ex.: captura de janela num video wall). Só a base fica transparente — os
+   cartões guardam o seu --surface opaco, senão o texto ficava ilegível por
+   cima de qualquer conteúdo com contraste variável. */
+:host(.tema-transparente) {
+  --bg: transparent;
+}
+
 /* O mural tem dois modos.
    
    MODO FLUIDO (base, aqui): a página cresce com o conteúdo e faz scroll. É o que

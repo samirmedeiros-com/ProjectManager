@@ -28,6 +28,11 @@ export class TvComponent implements OnInit, OnDestroy {
   // continua escuro por omissão — ver a nota em :host no SCSS.
   @HostBinding('class.tema-claro') temaClaro = false;
 
+  // Modo overlay: fundo transparente e sem o nome do mural, para sobrepor a
+  // outra fonte (ex.: captura de janela/OBS num video wall). Os cartões
+  // mantêm o seu próprio fundo opaco — só a base do ecrã fica transparente.
+  @HostBinding('class.tema-transparente') fundoTransparente = false;
+
   private chave = '';
   private subscricoes = new Subscription();
   private ciclo?: Subscription;
@@ -41,7 +46,17 @@ export class TvComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.chave = this.rota.snapshot.queryParamMap.get('k') ?? '';
-    this.temaClaro = this.rota.snapshot.queryParamMap.get('tema') === 'claro';
+    const tema = this.rota.snapshot.queryParamMap.get('tema');
+    this.temaClaro = tema === 'claro';
+    this.fundoTransparente = tema === 'transparente';
+
+    // O :host não alcança o <body>: sem isto o branco da página por trás do
+    // componente continuava opaco, e "transparente" não era transparente de
+    // verdade para quem embute isto (OBS, video wall).
+    if (this.fundoTransparente) {
+      document.documentElement.style.background = 'transparent';
+      document.body.style.background = 'transparent';
+    }
 
     if (!this.chave) {
       this.erro = 'Falta a chave de acesso no endereço.';

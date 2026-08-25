@@ -1,10 +1,12 @@
 <div class="mural">
 
   <header class="topo">
-    <div class="marca">
-      <span class="ponto"></span>
-      <span class="titulo">Dashboard IT</span>
-    </div>
+    @if (!fundoTransparente) {
+      <div class="marca">
+        <span class="ponto"></span>
+        <span class="titulo">Dashboard IT</span>
+      </div>
+    }
 
     <div class="estado">
       @if (erro) {
@@ -13,10 +15,12 @@
       @for (f of fontesEmFalha; track f) {
         <span class="aviso">{{ f }} indisponível</span>
       }
-      @if (dados) {
+      @if (dados && !fundoTransparente) {
         <span class="carimbo">dados de {{ atualizadoEm }}</span>
       }
-      <span class="relogio">{{ relogio }}</span>
+      @if (!fundoTransparente) {
+        <span class="relogio">{{ relogio }}</span>
+      }
     </div>
   </header>
 
