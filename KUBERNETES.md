@@ -135,6 +135,33 @@ Configuração, em `appsettings.json`:
 - `PermitirComandos: false` deixa a aplicação em leitura, sem mexer no RBAC.
 - O namespace chama-se **`georouting`**, não `geo`.
 
+### Em produção
+
+A imagem leva o `appsettings.json` do repositório, com o token **vazio**. Quem o injeta é o
+manifesto do `DeployDPDOracleOCI` (`api_project_backend/project_backend.yaml`), a partir de um
+Secret — assim o token não fica em texto em nenhum ficheiro versionado:
+
+```yaml
+        env:
+          - name: Kubernetes__Token
+            valueFrom:
+              secretKeyRef:
+                name: projectmanager-k8s-token
+                key: token
+```
+
+O Secret tem de existir na namespace **`webapi`** (a do pod), não só na `deploys` (a da
+ServiceAccount) — Secrets não atravessam namespaces:
+
+```bash
+kubectl -n webapi create secret generic projectmanager-k8s-token \
+  --from-literal=token="$(kubectl -n deploys get secret projectmanager-k8s-token -o jsonpath='{.data.token}' | base64 -d)"
+```
+
+Sem isto a aplicação arranca e autentica na mesma, mas mostra **todos os namespaces a zero** —
+o resumo engole a falha de cada namespace para que um inacessível não derrube a página toda.
+O erro verdadeiro só aparece ao entrar num deles.
+
 ## O que os três comandos fazem
 
 O Kubernetes não tem "pausa" de um deployment no sentido de suspender um serviço
