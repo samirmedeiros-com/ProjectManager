@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Oracle.EntityFrameworkCore.Metadata;
 using ProjectManagerWebAPI.Data;
@@ -11,9 +12,11 @@ using ProjectManagerWebAPI.Data;
 namespace ProjectManagerWebAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260831215401_AddKubernetesNotas")]
+    partial class AddKubernetesNotas
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -217,10 +220,10 @@ namespace ProjectManagerWebAPI.Migrations
                         .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("ValorAnterior")
-                        .HasColumnType("NCLOB");
+                        .HasColumnType("CLOB");
 
                     b.Property<string>("ValorNovo")
-                        .HasColumnType("NCLOB");
+                        .HasColumnType("CLOB");
 
                     b.HasKey("Id");
 
@@ -253,7 +256,7 @@ namespace ProjectManagerWebAPI.Migrations
                         .HasColumnType("NVARCHAR2(450)");
 
                     b.Property<string>("Memo")
-                        .HasColumnType("NCLOB");
+                        .HasColumnType("CLOB");
 
                     b.Property<string>("Namespace")
                         .IsRequired()

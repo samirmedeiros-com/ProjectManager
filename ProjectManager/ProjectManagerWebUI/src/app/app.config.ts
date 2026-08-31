@@ -5,13 +5,14 @@ import { routes } from './app.routes';
 import { AuthInterceptor } from './services/auth.interceptor';
 import { seurInterceptor } from './services/seur.interceptor';
 import { oraConsoleInterceptor } from './services/oraconsole.interceptor';
+import { kubernetesInterceptor } from './services/kubernetes.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
     provideHttpClient(
-      withInterceptors([seurInterceptor, oraConsoleInterceptor]),
+      withInterceptors([seurInterceptor, oraConsoleInterceptor, kubernetesInterceptor]),
       withInterceptorsFromDi()
     ),
     {

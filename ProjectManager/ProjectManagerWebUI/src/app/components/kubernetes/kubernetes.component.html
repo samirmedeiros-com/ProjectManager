@@ -1,0 +1,329 @@
+<div class="k8s">
+  <app-kubernetes-menu />
+
+  <nav class="namespaces">
+    @for (ns of namespaces; track ns.nome) {
+      <button type="button" class="aba" [class.ativa]="ns.nome === namespaceAtivo"
+              (click)="escolherNamespace(ns.nome)">
+        <span class="aba-nome">{{ ns.nome }}</span>
+        <span class="aba-contagem">{{ ns.deploymentsProntos }}/{{ ns.totalDeployments }}</span>
+        @if (ns.deploymentsParados > 0) {
+          <span class="aba-parados">{{ ns.deploymentsParados }} parado(s)</span>
+        }
+      </button>
+    }
+  </nav>
+
+  <div class="ferramentas">
+    <input type="search" class="pesquisa" placeholder="Filtrar por nome ou imagem…"
+           [(ngModel)]="filtro" name="filtro" />
+
+    <label class="auto">
+      <input type="checkbox" [checked]="atualizacaoAutomatica" (change)="alternarAtualizacao()" />
+      Atualizar a cada 15s
+    </label>
+
+    <button type="button" class="btn btn-secundario" (click)="carregarDeployments()">Atualizar agora</button>
+  </div>
+
+  @if (!podeExecutarComandos) {
+    <div class="nota">
+      O seu perfil permite consultar o cluster, mas não executar comandos.
+    </div>
+  }
+
+  @if (mensagem) {
+    <div class="alerta alerta-ok">{{ mensagem }}</div>
+  }
+
+  @if (erro) {
+    <div class="alerta alerta-erro">{{ erro }}</div>
+  }
+
+  @if (aCarregar) {
+    <div class="vazio">A carregar…</div>
+  } @else if (deploymentsFiltrados.length === 0) {
+    <div class="vazio">
+      @if (filtro) { Nenhum deployment corresponde ao filtro. }
+      @else { Não há deployments neste namespace. }
+    </div>
+  } @else {
+    <table class="tabela">
+      <thead>
+        <tr>
+          <th class="col-expandir"></th>
+          <th>Deployment</th>
+          <th>Imagem</th>
+          <th>Estado</th>
+          <th class="col-replicas">Réplicas</th>
+          <th class="col-acoes">Comandos</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        @for (d of deploymentsFiltrados; track d.nome) {
+          <tr class="linha" [class.linha-parada]="d.estado === 'parado'">
+            <td class="col-expandir">
+              <button type="button" class="btn-expandir" (click)="alternarPods(d)"
+                      [attr.aria-expanded]="estaExpandido(d.nome)"
+                      [attr.aria-label]="estaExpandido(d.nome) ? 'Esconder os pods de ' + d.nome : 'Ver os pods de ' + d.nome">
+                {{ estaExpandido(d.nome) ? '−' : '+' }}
+              </button>
+            </td>
+
+            <td class="col-nome">
+              <span class="linha-nome">
+                <span class="nome">{{ d.nome }}</span>
+
+                <button type="button" class="btn-info" [class.tem-nota]="d.titulo"
+                        (click)="abrirNota(d)"
+                        [title]="d.titulo ? 'Ver a informação deste deployment' : 'Escrever informação sobre este deployment'"
+                        [attr.aria-label]="'Informação sobre ' + d.nome">i</button>
+              </span>
+
+              @if (d.titulo) {
+                <span class="titulo-nota">{{ d.titulo }}</span>
+              }
+
+              @if (d.ultimoReinicio) {
+                <span class="detalhe">reiniciado em {{ d.ultimoReinicio | date: 'dd/MM/yyyy HH:mm' }}</span>
+              }
+            </td>
+
+            <td class="col-imagem" [title]="d.imagem">{{ imagemCurta(d.imagem) }}</td>
+
+            <td>
+              <span class="estado" [class]="'estado-' + d.estado">{{ rotuloEstado(d.estado) }}</span>
+            </td>
+
+            <td class="col-replicas">
+              {{ d.replicasProntas }}/{{ d.replicasDesejadas }}
+              @if (d.estado === 'parado' && d.replicasAntesDeParar) {
+                <span class="detalhe">antes: {{ d.replicasAntesDeParar }}</span>
+              }
+            </td>
+
+            <td class="col-acoes">
+              @if (estaEmComando(d.nome)) {
+                <span class="detalhe">a executar…</span>
+              } @else {
+                <button type="button" class="btn-acao" [disabled]="!podeExecutarComandos || d.estado === 'parado'"
+                        (click)="pedirParar(d)">Parar</button>
+
+                <button type="button" class="btn-acao btn-acao--arrancar"
+                        [disabled]="!podeExecutarComandos || d.estado !== 'parado'"
+                        (click)="pedirArrancar(d)">Arrancar</button>
+
+                <button type="button" class="btn-acao" [disabled]="!podeExecutarComandos || d.estado === 'parado'"
+                        (click)="pedirReiniciar(d)">Reiniciar</button>
+              }
+
+              <button type="button" class="btn-acao btn-acao--registo" (click)="abrirRegisto(d)"
+                      [attr.aria-label]="'Ver o registo de ações de ' + d.nome">Logs</button>
+            </td>
+          </tr>
+
+          @if (estaExpandido(d.nome)) {
+            <tr class="linha-pods">
+              <td colspan="6">
+                @if (podsACarregar.has(d.nome)) {
+                  <div class="detalhe">A carregar os pods…</div>
+                } @else if (podsErro[d.nome]) {
+                  <div class="alerta alerta-erro">{{ podsErro[d.nome] }}</div>
+                } @else if ((pods[d.nome] || []).length === 0) {
+                  <div class="detalhe">Sem pods a correr.</div>
+                } @else {
+                  <table class="tabela-pods">
+                    <thead>
+                      <tr>
+                        <th>Pod</th>
+                        <th>Estado</th>
+                        <th>Contentores</th>
+                        <th>Reinícios</th>
+                        <th>Nó</th>
+                        <th>IP</th>
+                        <th>Criado</th>
+                        <th class="col-ver"></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (p of pods[d.nome]; track p.nome) {
+                        <tr>
+                          <td class="col-nome">{{ p.nome }}</td>
+                          <td>
+                            <span class="ponto" [class.ponto-ok]="p.pronto" [class.ponto-mau]="!p.pronto"></span>
+                            {{ p.motivo || p.estado }}
+                          </td>
+                          <td>{{ p.contentoresProntos }}/{{ p.totalContentores }}</td>
+                          <td [class.destaque]="p.reinicios > 0">{{ p.reinicios }}</td>
+                          <td>{{ p.no }}</td>
+                          <td>{{ p.ip || '—' }}</td>
+                          <td>{{ p.criado | date: 'dd/MM/yyyy HH:mm' }}</td>
+                          <td class="col-ver">
+                            <button type="button" class="btn-acao" (click)="abrirLog(p)"
+                                    [attr.aria-label]="'Ver o log de ' + p.nome">Ver</button>
+                          </td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                }
+              </td>
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+  }
+</div>
+
+@if (confirmacao) {
+  <div class="modal-fundo" (click)="cancelarConfirmacao()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <h2>{{ confirmacao.titulo }}</h2>
+      <p>{{ confirmacao.texto }}</p>
+      <div class="modal-botoes">
+        <button type="button" class="btn btn-secundario" (click)="cancelarConfirmacao()">Cancelar</button>
+        <button type="button" class="btn btn-primario" (click)="confirmar()">Confirmar</button>
+      </div>
+    </div>
+  </div>
+}
+
+@if (podLog) {
+  <div class="modal-fundo" (click)="fecharLog()">
+    <div class="modal modal-log" (click)="$event.stopPropagation()">
+      <header class="log-cabecalho">
+        <div>
+          <h2>{{ podLog.nome }}</h2>
+          <span class="log-sub">{{ namespaceAtivo }}</span>
+        </div>
+
+        <div class="log-controlos">
+          @if (podLog.contentores.length > 1) {
+            <select class="log-select" [value]="contentorLog"
+                    (change)="escolherContentor($any($event.target).value)">
+              @for (c of podLog.contentores; track c) {
+                <option [value]="c">{{ c }}</option>
+              }
+            </select>
+          }
+
+          <button type="button" class="btn-autoscroll" [class.ligado]="autoscroll"
+                  (click)="alternarAutoscroll()"
+                  [attr.aria-pressed]="autoscroll">
+            <span class="ponto-live" [class.ativo]="autoscroll"></span>
+            {{ autoscroll ? 'Autoscroll ligado' : 'Autoscroll desligado' }}
+          </button>
+
+          <button type="button" class="btn-texto" (click)="fecharLog()">Fechar</button>
+        </div>
+      </header>
+
+      @if (logErro) {
+        <div class="alerta alerta-erro">{{ logErro }}</div>
+      }
+
+      <div class="log-caixa" #caixaLog>
+        @if (logACarregar && linhasLog.length === 0) {
+          <div class="log-vazio">A ler a consola…</div>
+        } @else if (linhasLog.length === 0) {
+          <div class="log-vazio">Este pod ainda não escreveu nada.</div>
+        } @else {
+          @for (l of linhasLog; track $index) {
+            <div class="log-linha">
+              @if (l.tempo) {
+                <span class="log-hora">{{ l.tempo | date: 'HH:mm:ss' }}</span>
+              }
+              <span class="log-texto">{{ l.texto }}</span>
+            </div>
+          }
+        }
+      </div>
+
+      <footer class="log-rodape">
+        @if (autoscroll) {
+          Em tempo real &middot; a atualizar de 2 em 2 segundos
+        } @else {
+          Visualização parada &middot; clique em Autoscroll para retomar
+        }
+        <span class="log-contagem">{{ linhasLog.length }} linha(s)</span>
+      </footer>
+    </div>
+  </div>
+}
+
+@if (registoDe) {
+  <div class="modal-fundo" (click)="fecharRegisto()">
+    <div class="modal modal-registo" (click)="$event.stopPropagation()">
+      <header class="log-cabecalho">
+        <div>
+          <h2>{{ registoDe.nome }}</h2>
+          <span class="log-sub">Quem executou o quê, e quando</span>
+        </div>
+        <button type="button" class="btn-texto" (click)="fecharRegisto()">Fechar</button>
+      </header>
+
+      <div class="registo-corpo">
+        <app-auditoria-tabela [namespace]="namespaceAtivo" [deployment]="registoDe.nome" [tamanho]="10" />
+      </div>
+    </div>
+  </div>
+}
+
+@if (notaDe) {
+  <div class="modal-fundo" (click)="fecharNota()">
+    <div class="modal modal-nota" (click)="$event.stopPropagation()">
+      <h2>Informação sobre {{ notaDe.nome }}</h2>
+
+      @if (notaACarregar) {
+        <p class="detalhe">A carregar…</p>
+      } @else {
+        @if (notaErro) {
+          <div class="alerta alerta-erro">{{ notaErro }}</div>
+        }
+
+        <div class="campo-grupo">
+          <label for="nota-titulo">
+            Título
+            <span class="contador" [class.no-limite]="caracteresRestantes <= 0">
+              {{ caracteresRestantes }} caracteres
+            </span>
+          </label>
+          <input id="nota-titulo" type="text" class="campo" [maxlength]="tituloMaximo"
+                 [(ngModel)]="nota.titulo" name="notaTitulo" [readOnly]="!podeExecutarComandos"
+                 placeholder="Uma linha que diga o essencial — aparece na lista" />
+        </div>
+
+        <div class="campo-grupo">
+          <label for="nota-memo">Informação</label>
+          <textarea id="nota-memo" class="campo campo-memo" rows="9"
+                    [(ngModel)]="nota.memo" name="notaMemo" [readOnly]="!podeExecutarComandos"
+                    placeholder="Para que serve, cuidados a ter, quem é o dono…"></textarea>
+        </div>
+
+        @if (notaOriginal?.atualizadoEm) {
+          <p class="detalhe">
+            Última alteração por {{ notaOriginal?.atualizadoPorNome || notaOriginal?.atualizadoPor }},
+            {{ notaOriginal?.atualizadoEm | date: 'dd/MM/yyyy HH:mm' }}
+          </p>
+        }
+
+        <div class="modal-botoes">
+          <button type="button" class="btn btn-secundario" (click)="fecharNota()">
+            {{ podeExecutarComandos ? 'Cancelar' : 'Fechar' }}
+          </button>
+
+          <!-- O Leitor lê a informação mas não a escreve, como nos comandos. O servidor
+               recusa-lhe o PUT na mesma; isto evita-lhe o caminho até ao 403. -->
+          @if (podeExecutarComandos) {
+            <button type="button" class="btn btn-primario"
+                    [disabled]="notaAGravar || !notaAlterada" (click)="gravarNota()">
+              {{ notaAGravar ? 'A gravar…' : 'Gravar' }}
+            </button>
+          }
+        </div>
+      }
+    </div>
+  </div>
+}

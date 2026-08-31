@@ -1,0 +1,26 @@
+<header class="barra">
+  <div class="marca">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-width="1.4" stroke-linejoin="round">
+      <path d="M12 2.2l8.4 4v7.6L12 21.8 3.6 13.8V6.2z"/>
+      <circle cx="12" cy="12" r="3"/>
+      <path d="M12 5.4V9M12 15v3.6M6.6 8.6L9.6 10.6M14.4 13.4l3 2M6.6 15.4l3-2M14.4 10.6l3-2"/>
+    </svg>
+    <h1>Gestão Kubernetes</h1>
+  </div>
+
+  <nav class="menu">
+    <a routerLink="/kubernetes" routerLinkActive="ativo" [routerLinkActiveOptions]="{ exact: true }">Cluster</a>
+
+    @if (isAdmin) {
+      <a routerLink="/kubernetes/registo" routerLinkActive="ativo">Registo de ações</a>
+      <a routerLink="/kubernetes/utilizadores" routerLinkActive="ativo">Utilizadores</a>
+    }
+  </nav>
+
+  <div class="sessao">
+    <span class="utilizador">{{ nome }}</span>
+    <span class="papel">{{ papel }}</span>
+    <button type="button" class="btn-texto" (click)="sair()">Sair</button>
+  </div>
+</header>

@@ -9,6 +9,9 @@ public class ApplicationDbContext : DbContext
 
     public DbSet<User> Users { get; set; }
     public DbSet<SeurUser> SeurUsers { get; set; }
+    public DbSet<KubernetesUser> KubernetesUsers { get; set; }
+    public DbSet<KubernetesAuditLog> KubernetesAuditLogs { get; set; }
+    public DbSet<KubernetesDeploymentNota> KubernetesDeploymentNotas { get; set; }
 
     // Tabelas Oracle existentes (read/update, não geridas por migrations)
     public DbSet<SeurGuia> SeurGuias { get; set; }
@@ -68,6 +71,50 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<SeurUser>()
             .HasIndex(u => u.Email)
             .IsUnique();
+
+        // Mesmo tratamento do SeurUser: o bool tem de ir para NUMBER(1) no Oracle.
+        modelBuilder.Entity<KubernetesUser>()
+            .Property(u => u.IsActive)
+            .HasColumnType("NUMBER(1)")
+            .HasConversion<int>();
+
+        modelBuilder.Entity<KubernetesUser>()
+            .HasIndex(u => u.Email)
+            .IsUnique();
+
+        modelBuilder.Entity<KubernetesAuditLog>()
+            .Property(l => l.Sucesso)
+            .HasColumnType("NUMBER(1)")
+            .HasConversion<int>();
+
+        // A consulta é sempre "os mais recentes primeiro", com filtro opcional por deployment.
+        modelBuilder.Entity<KubernetesAuditLog>()
+            .HasIndex(l => l.CriadoEm);
+
+        modelBuilder.Entity<KubernetesAuditLog>()
+            .HasIndex(l => new { l.Namespace, l.Deployment, l.CriadoEm });
+
+        modelBuilder.Entity<KubernetesDeploymentNota>(e =>
+        {
+            // O limite não é só do ecrã: garante-se aqui, para nada o contornar pela API.
+            e.Property(n => n.Titulo).HasMaxLength(100);
+
+            // NCLOB e não CLOB: um memo pode ser longo (o NVARCHAR2(2000) por omissão ficaria
+            // curto), mas o CLOB guarda no charset da base, que aqui não é Unicode — um
+            // travessão "—" chegava a ficar "¿". O NCLOB usa o charset nacional, como o
+            // NVARCHAR2 que o resto do esquema já usa.
+            e.Property(n => n.Memo).HasColumnType("NCLOB");
+
+            // Uma nota por deployment: sem isto, dois gravares em simultâneo criavam duas.
+            e.HasIndex(n => new { n.Namespace, n.Deployment }).IsUnique();
+        });
+
+        modelBuilder.Entity<KubernetesAuditLog>(e =>
+        {
+            // NCLOB pela mesma razão do memo: é texto escrito por pessoas.
+            e.Property(l => l.ValorAnterior).HasColumnType("NCLOB");
+            e.Property(l => l.ValorNovo).HasColumnType("NCLOB");
+        });
 
         modelBuilder.Entity<ProjectMember>()
             .HasOne(pm => pm.Project)

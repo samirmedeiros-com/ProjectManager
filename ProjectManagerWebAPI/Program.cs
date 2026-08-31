@@ -119,6 +119,38 @@ builder.Services.AddHttpClient<OpenSearchGateway>((sp, http) =>
     return handler;
 });
 
+// Gestão de Kubernetes (restrito ao setor IT) — sub-app dentro do monólito, como o OpenSearch
+builder.Services.AddScoped<IKubernetesAuditService, KubernetesAuditService>();
+builder.Services.AddScoped<IKubernetesNotaService, KubernetesNotaService>();
+builder.Services.AddScoped<IKubernetesAuthService, KubernetesAuthService>();
+builder.Services.Configure<KubernetesOptions>(builder.Configuration.GetSection(KubernetesOptions.Seccao));
+
+builder.Services.AddHttpClient<KubernetesGateway>((sp, http) =>
+{
+    var opcoes = sp.GetRequiredService<Microsoft.Extensions.Options.IOptions<KubernetesOptions>>().Value;
+
+    if (!string.IsNullOrWhiteSpace(opcoes.BaseUrl))
+        http.BaseAddress = new Uri(opcoes.BaseUrl.TrimEnd('/') + "/");
+
+    http.Timeout = TimeSpan.FromSeconds(opcoes.TimeoutSegundos);
+
+    if (!string.IsNullOrWhiteSpace(opcoes.Token))
+        http.DefaultRequestHeaders.Authorization =
+            new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", opcoes.Token);
+})
+.ConfigurePrimaryHttpMessageHandler(sp =>
+{
+    var opcoes = sp.GetRequiredService<Microsoft.Extensions.Options.IOptions<KubernetesOptions>>().Value;
+    var handler = new HttpClientHandler();
+
+    // O servidor de API do OKE apresenta um certificado assinado pela CA do próprio cluster,
+    // que não está no armazém de confiança do servidor da aplicação.
+    if (opcoes.IgnorarCertificado)
+        handler.ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
+
+    return handler;
+});
+
 // Configurar SmtpSettings
 builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("SmtpSettings"));
 
@@ -135,6 +167,7 @@ using (var scope = app.Services.CreateScope())
 
         SeedAdminAndOwner.CreateAdminAndOwnerUsers(db);
         SeedSeurAdmin.CreateSeurAdminUser(db);
+        SeedKubernetesAdmin.CreateKubernetesAdminUser(db);
     }
     catch (Exception ex)
     {

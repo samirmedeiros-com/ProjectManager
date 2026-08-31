@@ -1,0 +1,98 @@
+:host {
+  --azul: #326CE5;
+  --azul-escuro: #2757bd;
+  --texto: #2b2b2d;
+  --texto-suave: #6b6d70;
+  --borda: #e6e8ec;
+  --vermelho: #d1344b;
+  display: block;
+}
+
+.barra {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 22px;
+}
+
+.marca {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--azul);
+}
+
+.marca svg {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+}
+
+.marca h1 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.4px;
+  color: var(--texto);
+}
+
+.menu {
+  display: flex;
+  gap: 4px;
+  flex: 1;
+}
+
+.menu a {
+  padding: 7px 14px;
+  border-radius: 8px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--texto-suave);
+  text-decoration: none;
+}
+
+.menu a:hover {
+  background: #f0f2f6;
+  color: var(--texto);
+}
+
+.menu a.ativo {
+  background: #e8eefc;
+  color: var(--azul-escuro);
+}
+
+.sessao {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.utilizador {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.papel {
+  font-size: 12px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: #e8eefc;
+  color: var(--azul-escuro);
+  font-weight: 600;
+}
+
+.btn-texto {
+  background: none;
+  border: none;
+  color: var(--texto-suave);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.btn-texto:hover {
+  color: var(--vermelho);
+}

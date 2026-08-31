@@ -12,11 +12,17 @@ import { LoginOraConsoleComponent } from './components/login-oraconsole/login-or
 import { OraConsoleWorkbenchComponent } from './components/oraconsole-workbench/oraconsole-workbench.component';
 import { OpenSearchComponent } from './components/opensearch/opensearch.component';
 import { TvComponent } from './components/tv/tv.component';
+import { LoginKubernetesComponent } from './components/login-kubernetes/login-kubernetes.component';
+import { KubernetesComponent } from './components/kubernetes/kubernetes.component';
+import { KubernetesAuditoriaComponent } from './components/kubernetes-auditoria/kubernetes-auditoria.component';
+import { KubernetesUtilizadoresComponent } from './components/kubernetes-utilizadores/kubernetes-utilizadores.component';
 import { AuthGuard } from './guards/auth.guard';
 import { GestorGuard } from './guards/gestor.guard';
 import { SeurAuthGuard } from './guards/seur-auth.guard';
 import { OraConsoleAuthGuard } from './guards/oraconsole-auth.guard';
 import { OpenSearchGuard } from './guards/opensearch.guard';
+import { KubernetesAuthGuard } from './guards/kubernetes-auth.guard';
+import { KubernetesAdminGuard } from './guards/kubernetes-admin.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/portal', pathMatch: 'full' },
@@ -40,6 +46,12 @@ export const routes: Routes = [
 
   // Portal de consulta ao OpenSearch — login do Project Manager, restrito ao setor IT
   { path: 'opensearch', component: OpenSearchComponent, canActivate: [AuthGuard, OpenSearchGuard] },
+
+  // Gestão Kubernetes — login próprio, credenciais separadas das outras aplicações
+  { path: 'login-kubernetes', component: LoginKubernetesComponent },
+  { path: 'kubernetes', component: KubernetesComponent, canActivate: [KubernetesAuthGuard] },
+  { path: 'kubernetes/registo', component: KubernetesAuditoriaComponent, canActivate: [KubernetesAuthGuard, KubernetesAdminGuard] },
+  { path: 'kubernetes/utilizadores', component: KubernetesUtilizadoresComponent, canActivate: [KubernetesAuthGuard, KubernetesAdminGuard] },
 
   // Mural de TV — sem guard de propósito: não há sessão, o acesso é a chave em ?k=
   // que o backend valida em cada pedido. Sem chave o próprio componente avisa.

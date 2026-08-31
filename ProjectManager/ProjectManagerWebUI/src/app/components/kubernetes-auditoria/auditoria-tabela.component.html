@@ -1,0 +1,89 @@
+<div class="auditoria">
+  @if (mostrarFiltros) {
+    <div class="filtros">
+      <select class="campo" [(ngModel)]="filtroAcao" name="acao" (change)="aplicarFiltros()">
+        @for (a of acoes; track a.valor) {
+          <option [value]="a.valor">{{ a.rotulo }}</option>
+        }
+      </select>
+
+      <input type="search" class="campo campo-texto" placeholder="Filtrar por utilizador…"
+             [(ngModel)]="filtroUtilizador" name="utilizador"
+             (keyup.enter)="aplicarFiltros()" (search)="aplicarFiltros()" />
+
+      <button type="button" class="btn-secundario" (click)="aplicarFiltros()">Filtrar</button>
+    </div>
+  }
+
+  @if (erro) {
+    <div class="alerta-erro">{{ erro }}</div>
+  }
+
+  @if (aCarregar && registos.length === 0) {
+    <div class="vazio">A carregar…</div>
+  } @else if (registos.length === 0) {
+    <div class="vazio">Ainda não há ações registadas.</div>
+  } @else {
+    <table class="tabela">
+      <thead>
+        <tr>
+          <th>Quando</th>
+          <th>Quem</th>
+          <th>Ação</th>
+          @if (!deployment) { <th>Serviço</th> }
+          <th>Resultado</th>
+          <th>Origem</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (r of registos; track r.id) {
+          <tr [class.falhou]="!r.sucesso">
+            <td class="col-quando">{{ r.criadoEm | date: 'dd/MM/yyyy HH:mm:ss' }}</td>
+            <td>
+              <span class="quem">{{ r.userName || r.userEmail }}</span>
+              @if (r.userName) { <span class="email">{{ r.userEmail }}</span> }
+            </td>
+            <td><span class="acao" [class]="'acao-' + r.acao">{{ rotuloAcao(r.acao) }}</span></td>
+            @if (!deployment) {
+              <td class="col-servico">
+                @if (r.deployment) { {{ r.namespace }}/{{ r.deployment }} } @else { — }
+              </td>
+            }
+            <td class="col-detalhe">
+              {{ r.detalhe || (r.sucesso ? 'OK' : 'Falhou') }}
+
+              @if (temAlteracao(r)) {
+                <button type="button" class="ver-alteracao" (click)="alternarAlteracao(r.id)">
+                  {{ expandidos.has(r.id) ? 'esconder a alteração' : 'ver a alteração' }}
+                </button>
+
+                @if (expandidos.has(r.id)) {
+                  <div class="alteracao">
+                    <div class="antes">
+                      <span class="etiqueta">Estava</span>
+                      <pre>{{ r.valorAnterior || '(vazio)' }}</pre>
+                    </div>
+                    <div class="depois">
+                      <span class="etiqueta">Ficou</span>
+                      <pre>{{ r.valorNovo || '(vazio)' }}</pre>
+                    </div>
+                  </div>
+                }
+              }
+            </td>
+            <td class="col-ip">{{ r.ipOrigem || '—' }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+
+    <div class="paginacao">
+      <span>{{ primeiroDaPagina }}–{{ ultimoDaPagina }} de {{ total }}</span>
+      <div class="paginacao-botoes">
+        <button type="button" class="btn-secundario" [disabled]="pagina === 0" (click)="anterior()">Anterior</button>
+        <span class="pagina-atual">{{ pagina + 1 }} / {{ totalPaginas }}</span>
+        <button type="button" class="btn-secundario" [disabled]="pagina + 1 >= totalPaginas" (click)="seguinte()">Seguinte</button>
+      </div>
+    </div>
+  }
+</div>

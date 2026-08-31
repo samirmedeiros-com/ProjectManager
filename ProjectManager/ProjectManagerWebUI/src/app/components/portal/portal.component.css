@@ -139,6 +139,23 @@
   background: #453da0;
 }
 
+.card-icon--kubernetes {
+  background: rgba(50, 108, 229, 0.1);
+  color: #326CE5;
+}
+
+.card-action--kubernetes {
+  background: #326CE5;
+}
+
+.app-card:has(.card-icon--kubernetes):hover {
+  border-color: #326CE5;
+}
+
+.app-card:has(.card-icon--kubernetes):hover .card-action--kubernetes {
+  background: #2757bd;
+}
+
 .app-card h2 {
   color: #424143;
   font-size: 20px;

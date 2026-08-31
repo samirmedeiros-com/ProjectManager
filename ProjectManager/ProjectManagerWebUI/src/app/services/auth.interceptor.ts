@@ -11,8 +11,11 @@ export class AuthInterceptor implements HttpInterceptor {
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     // O mural de TV não tem sessão: não leva Bearer nem pode cair no redirect
     // do 401 abaixo, que o mandaria para o portal a meio de um turno.
+    // A Gestão Kubernetes tem credenciais próprias: o token dela é posto pelo
+    // kubernetes.interceptor, e pôr aqui o do Project Manager mandaria a credencial errada.
     if (request.url.includes('/api/seur/')
         || request.url.includes('/api/oraconsole/')
+        || request.url.includes('/api/kubernetes/')
         || request.url.includes('/api/tv/')) {
       return next.handle(request);
     }

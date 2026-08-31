@@ -1,0 +1,171 @@
+# Identidade usada pela sub-aplicação "Gestão Kubernetes" do Project Manager.
+#
+# Não há kubeconfig no servidor da API: o backend fala com a API do cluster por HTTPS
+# com o token desta ServiceAccount. O token é de longa duração (Secret do tipo
+# kubernetes.io/service-account-token) porque a API não tem forma de o renovar sozinha
+# — os tokens projetados do TokenRequest expiram e só servem a pods dentro do cluster.
+#
+# O acesso é dado namespace a namespace, de propósito: não há ClusterRoleBinding, por isso
+# a aplicação não consegue ver nem tocar em nada fora de gateway/webapi/qualidade/georouting.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: projectmanager-k8s
+  namespace: deploys
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: projectmanager-k8s-token
+  namespace: deploys
+  annotations:
+    kubernetes.io/service-account.name: projectmanager-k8s
+type: kubernetes.io/service-account-token
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: projectmanager-k8s
+  namespace: gateway
+rules:
+  # Leitura do que o portal mostra.
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list"]
+  # A consola de cada pod, mostrada no popup "Ver" do portal.
+  - apiGroups: [""]
+    resources: ["pods/log"]
+    verbs: ["get"]
+  - apiGroups: ["apps"]
+    resources: ["deployments", "replicasets"]
+    verbs: ["get", "list"]
+  # Os três comandos: parar (escala a 0), arrancar (repõe as réplicas) e reiniciar.
+  # "patch" chega para os três; não há delete nem create.
+  - apiGroups: ["apps"]
+    resources: ["deployments", "deployments/scale"]
+    verbs: ["patch", "update"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: projectmanager-k8s
+  namespace: gateway
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: projectmanager-k8s
+subjects:
+  - kind: ServiceAccount
+    name: projectmanager-k8s
+    namespace: deploys
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: projectmanager-k8s
+  namespace: webapi
+rules:
+  # Leitura do que o portal mostra.
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list"]
+  # A consola de cada pod, mostrada no popup "Ver" do portal.
+  - apiGroups: [""]
+    resources: ["pods/log"]
+    verbs: ["get"]
+  - apiGroups: ["apps"]
+    resources: ["deployments", "replicasets"]
+    verbs: ["get", "list"]
+  # Os três comandos: parar (escala a 0), arrancar (repõe as réplicas) e reiniciar.
+  # "patch" chega para os três; não há delete nem create.
+  - apiGroups: ["apps"]
+    resources: ["deployments", "deployments/scale"]
+    verbs: ["patch", "update"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: projectmanager-k8s
+  namespace: webapi
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: projectmanager-k8s
+subjects:
+  - kind: ServiceAccount
+    name: projectmanager-k8s
+    namespace: deploys
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: projectmanager-k8s
+  namespace: qualidade
+rules:
+  # Leitura do que o portal mostra.
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list"]
+  # A consola de cada pod, mostrada no popup "Ver" do portal.
+  - apiGroups: [""]
+    resources: ["pods/log"]
+    verbs: ["get"]
+  - apiGroups: ["apps"]
+    resources: ["deployments", "replicasets"]
+    verbs: ["get", "list"]
+  # Os três comandos: parar (escala a 0), arrancar (repõe as réplicas) e reiniciar.
+  # "patch" chega para os três; não há delete nem create.
+  - apiGroups: ["apps"]
+    resources: ["deployments", "deployments/scale"]
+    verbs: ["patch", "update"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: projectmanager-k8s
+  namespace: qualidade
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: projectmanager-k8s
+subjects:
+  - kind: ServiceAccount
+    name: projectmanager-k8s
+    namespace: deploys
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: projectmanager-k8s
+  namespace: georouting
+rules:
+  # Leitura do que o portal mostra.
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list"]
+  # A consola de cada pod, mostrada no popup "Ver" do portal.
+  - apiGroups: [""]
+    resources: ["pods/log"]
+    verbs: ["get"]
+  - apiGroups: ["apps"]
+    resources: ["deployments", "replicasets"]
+    verbs: ["get", "list"]
+  # Os três comandos: parar (escala a 0), arrancar (repõe as réplicas) e reiniciar.
+  # "patch" chega para os três; não há delete nem create.
+  - apiGroups: ["apps"]
+    resources: ["deployments", "deployments/scale"]
+    verbs: ["patch", "update"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: projectmanager-k8s
+  namespace: georouting
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: projectmanager-k8s
+subjects:
+  - kind: ServiceAccount
+    name: projectmanager-k8s
+    namespace: deploys

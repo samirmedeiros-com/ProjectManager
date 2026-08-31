@@ -1,0 +1,122 @@
+<div class="pagina">
+  <app-kubernetes-menu />
+
+  <div class="cabecalho">
+    <p class="intro">
+      Quem pode entrar na Gestão Kubernetes. A password é gerada pelo sistema e enviada por
+      email, com o endereço de acesso — nunca é escolhida aqui.
+    </p>
+    <button type="button" class="btn-primario" (click)="abrirNovo()">Novo utilizador</button>
+  </div>
+
+  @if (erro) {
+    <div class="alerta-erro">{{ erro }}</div>
+  }
+
+  @if (criando) {
+    <form class="formulario" (ngSubmit)="criar()">
+      <div class="campo-grupo">
+        <label>Nome</label>
+        <input type="text" name="nome" class="campo" [(ngModel)]="novo.fullName" placeholder="Nome completo" />
+      </div>
+
+      <div class="campo-grupo">
+        <label>Email</label>
+        <input type="email" name="email" class="campo" [(ngModel)]="novo.email" placeholder="nome@dpd.pt" />
+      </div>
+
+      <div class="campo-grupo">
+        <label>Perfil</label>
+        <select name="papel" class="campo" [(ngModel)]="novo.role">
+          @for (p of papeis; track p.valor) {
+            <option [value]="p.valor">{{ p.valor }}</option>
+          }
+        </select>
+        <span class="ajuda">{{ descricaoPapel(novo.role) }}</span>
+      </div>
+
+      <div class="formulario-botoes">
+        <button type="button" class="btn-secundario" (click)="cancelarNovo()">Cancelar</button>
+        <button type="submit" class="btn-primario" [disabled]="aGravar">
+          {{ aGravar ? 'A criar…' : 'Criar e enviar password' }}
+        </button>
+      </div>
+    </form>
+  }
+
+  @if (aCarregar && utilizadores.length === 0) {
+    <div class="vazio">A carregar…</div>
+  } @else {
+    <table class="tabela">
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>Email</th>
+          <th>Perfil</th>
+          <th>Estado</th>
+          <th>Última entrada</th>
+          <th class="col-acoes"></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (u of utilizadores; track u.id) {
+          <tr [class.inativo]="!u.isActive">
+            <td class="nome">{{ u.fullName }}</td>
+            <td class="email">{{ u.email }}</td>
+            <td><span class="papel">{{ u.role }}</span></td>
+            <td>
+              @if (u.isActive) { <span class="estado estado-ativo">Ativo</span> }
+              @else { <span class="estado estado-inativo">Inativo</span> }
+            </td>
+            <td class="data">
+              @if (u.lastLoginAt) { {{ u.lastLoginAt | date: 'dd/MM/yyyy HH:mm' }} } @else { nunca }
+            </td>
+            <td class="col-acoes">
+              <button type="button" class="btn-acao" (click)="pedirRepor(u)">Enviar password</button>
+              @if (u.isActive) {
+                <button type="button" class="btn-acao" (click)="pedirDesativar(u)">Desativar</button>
+              }
+              <button type="button" class="btn-acao btn-acao--remover" (click)="pedirRemover(u)">Remover</button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</div>
+
+@if (confirmacao) {
+  <div class="modal-fundo" (click)="cancelarConfirmacao()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <h2>{{ confirmacao.titulo }}</h2>
+      <p>{{ confirmacao.texto }}</p>
+      <div class="modal-botoes">
+        <button type="button" class="btn-secundario" (click)="cancelarConfirmacao()">Cancelar</button>
+        <button type="button" class="btn-primario" (click)="confirmar()">Confirmar</button>
+      </div>
+    </div>
+  </div>
+}
+
+@if (resultado) {
+  <div class="modal-fundo" (click)="fecharResultado()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <h2>{{ resultado.titulo }}</h2>
+
+      @if (resultado.emailEnviado) {
+        <p>A password foi enviada para <b>{{ resultado.email }}</b>, com o endereço de acesso.</p>
+      } @else {
+        <p class="aviso">
+          O email <b>não</b> chegou a ser enviado. Entregue esta password a
+          <b>{{ resultado.email }}</b> por outra via — não volta a ser mostrada.
+        </p>
+      }
+
+      <div class="password">{{ resultado.password }}</div>
+
+      <div class="modal-botoes">
+        <button type="button" class="btn-primario" (click)="fecharResultado()">Fechar</button>
+      </div>
+    </div>
+  </div>
+}

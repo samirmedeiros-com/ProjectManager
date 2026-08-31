@@ -4,6 +4,11 @@
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+
+    <!-- Segredos de desenvolvimento (ex.: o token da ServiceAccount do Kubernetes) ficam
+         fora do repositório, em ~/.microsoft/usersecrets. O appsettings.json versionado
+         mantém as chaves vazias. -->
+    <UserSecretsId>projectmanager-webapi</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>

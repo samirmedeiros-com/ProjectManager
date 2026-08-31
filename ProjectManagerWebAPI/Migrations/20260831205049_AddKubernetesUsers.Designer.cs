@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Oracle.EntityFrameworkCore.Metadata;
 using ProjectManagerWebAPI.Data;
@@ -11,9 +12,11 @@ using ProjectManagerWebAPI.Data;
 namespace ProjectManagerWebAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260831205049_AddKubernetesUsers")]
+    partial class AddKubernetesUsers
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -174,101 +177,6 @@ namespace ProjectManagerWebAPI.Migrations
                         {
                             t.ExcludeFromMigrations();
                         });
-                });
-
-            modelBuilder.Entity("ProjectManagerWebAPI.Models.KubernetesAuditLog", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("NUMBER(10)");
-
-                    OraclePropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Acao")
-                        .IsRequired()
-                        .HasColumnType("NVARCHAR2(2000)");
-
-                    b.Property<DateTime>("CriadoEm")
-                        .HasColumnType("TIMESTAMP(7)");
-
-                    b.Property<string>("Deployment")
-                        .HasColumnType("NVARCHAR2(450)");
-
-                    b.Property<string>("Detalhe")
-                        .HasColumnType("NVARCHAR2(2000)");
-
-                    b.Property<string>("IpOrigem")
-                        .HasColumnType("NVARCHAR2(2000)");
-
-                    b.Property<string>("Namespace")
-                        .HasColumnType("NVARCHAR2(450)");
-
-                    b.Property<int>("Sucesso")
-                        .HasColumnType("NUMBER(1)");
-
-                    b.Property<string>("UserEmail")
-                        .IsRequired()
-                        .HasColumnType("NVARCHAR2(2000)");
-
-                    b.Property<int?>("UserId")
-                        .HasColumnType("NUMBER(10)");
-
-                    b.Property<string>("UserName")
-                        .HasColumnType("NVARCHAR2(2000)");
-
-                    b.Property<string>("ValorAnterior")
-                        .HasColumnType("NCLOB");
-
-                    b.Property<string>("ValorNovo")
-                        .HasColumnType("NCLOB");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CriadoEm");
-
-                    b.HasIndex("Namespace", "Deployment", "CriadoEm");
-
-                    b.ToTable("KubernetesAuditLogs");
-                });
-
-            modelBuilder.Entity("ProjectManagerWebAPI.Models.KubernetesDeploymentNota", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("NUMBER(10)");
-
-                    OraclePropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("AtualizadoEm")
-                        .HasColumnType("TIMESTAMP(7)");
-
-                    b.Property<string>("AtualizadoPor")
-                        .HasColumnType("NVARCHAR2(2000)");
-
-                    b.Property<string>("AtualizadoPorNome")
-                        .HasColumnType("NVARCHAR2(2000)");
-
-                    b.Property<string>("Deployment")
-                        .IsRequired()
-                        .HasColumnType("NVARCHAR2(450)");
-
-                    b.Property<string>("Memo")
-                        .HasColumnType("NCLOB");
-
-                    b.Property<string>("Namespace")
-                        .IsRequired()
-                        .HasColumnType("NVARCHAR2(450)");
-
-                    b.Property<string>("Titulo")
-                        .HasMaxLength(100)
-                        .HasColumnType("NVARCHAR2(100)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Namespace", "Deployment")
-                        .IsUnique();
-
-                    b.ToTable("KubernetesDeploymentNotas");
                 });
 
             modelBuilder.Entity("ProjectManagerWebAPI.Models.KubernetesUser", b =>
