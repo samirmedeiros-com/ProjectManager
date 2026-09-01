@@ -1,0 +1,612 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<title>Manual — Gestão Kubernetes</title>
+<style>
+  @page { size: A4; margin: 18mm 16mm 20mm; }
+
+  :root {
+    --azul: #326CE5;
+    --azul-escuro: #2757bd;
+    --texto: #23252a;
+    --suave: #5f636b;
+    --borda: #dfe3e9;
+    --verde: #1f9d55;
+    --ambar: #b8820a;
+    --vermelho: #d1344b;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 10.5pt;
+    line-height: 1.55;
+    color: var(--texto);
+  }
+
+  h1, h2, h3 { line-height: 1.25; }
+
+  h2 {
+    font-size: 16pt;
+    margin: 0 0 4mm;
+    padding-bottom: 2mm;
+    border-bottom: 2px solid var(--azul);
+    break-after: avoid;
+  }
+
+  h3 {
+    font-size: 11.5pt;
+    margin: 6mm 0 2mm;
+    color: var(--azul-escuro);
+    break-after: avoid;
+  }
+
+  p { margin: 0 0 3mm; }
+  ul, ol { margin: 0 0 3mm; padding-left: 5mm; }
+  li { margin-bottom: 1.5mm; }
+
+  code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 9pt;
+    background: #f1f3f6;
+    padding: 0.5mm 1.2mm;
+    border-radius: 2px;
+  }
+
+  /* ── Capa ─────────────────────────────────────────────── */
+
+  .capa {
+    height: 245mm;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    break-after: page;
+  }
+
+  .capa .marca { display: flex; align-items: center; gap: 5mm; margin-bottom: 10mm; }
+  .capa svg { width: 22mm; height: 22mm; }
+  .capa h1 { font-size: 30pt; margin: 0; letter-spacing: -0.5pt; }
+  .capa .sub { font-size: 13pt; color: var(--suave); margin: 2mm 0 0; }
+
+  .capa .endereco {
+    margin-top: 10mm;
+    padding: 5mm 6mm;
+    border: 1px solid var(--borda);
+    border-left: 3px solid var(--azul);
+    border-radius: 2mm;
+    background: #f7f9fc;
+  }
+
+  .capa .endereco span {
+    display: block;
+    font-size: 8.5pt;
+    text-transform: uppercase;
+    letter-spacing: 0.6pt;
+    color: var(--suave);
+    margin-bottom: 1.5mm;
+  }
+
+  .capa .endereco b {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 13pt;
+    color: var(--azul-escuro);
+  }
+
+  .capa .aviso {
+    margin-top: 14mm;
+    padding: 5mm;
+    border-left: 3px solid var(--ambar);
+    background: #fffaf0;
+    font-size: 10pt;
+  }
+
+  .capa .rodape {
+    margin-top: auto;
+    font-size: 9.5pt;
+    color: var(--suave);
+    border-top: 1px solid var(--borda);
+    padding-top: 3mm;
+  }
+
+  /* ── Índice ───────────────────────────────────────────── */
+
+  .indice { break-after: page; }
+  .indice ol { padding-left: 6mm; }
+  .indice li { margin-bottom: 2mm; }
+
+  /* ── Secções ──────────────────────────────────────────── */
+
+  section { break-before: page; }
+
+  figure {
+    margin: 4mm 0 5mm;
+    break-inside: avoid;
+  }
+
+  figure img {
+    width: 100%;
+    display: block;
+    border: 1px solid var(--borda);
+    border-radius: 2mm;
+  }
+
+  figcaption {
+    font-size: 8.5pt;
+    color: var(--suave);
+    margin-top: 1.5mm;
+    text-align: center;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0 0 4mm;
+    font-size: 9.5pt;
+    break-inside: avoid;
+  }
+
+  th, td {
+    text-align: left;
+    padding: 2mm 2.5mm;
+    border-bottom: 1px solid var(--borda);
+    vertical-align: top;
+  }
+
+  th { background: #f5f7fa; font-size: 8.5pt; text-transform: uppercase; letter-spacing: 0.3pt; }
+
+  .nota, .atencao {
+    padding: 3.5mm 4mm;
+    border-radius: 2mm;
+    margin: 0 0 4mm;
+    font-size: 10pt;
+    break-inside: avoid;
+  }
+
+  .nota { background: #f2f6fd; border-left: 3px solid var(--azul); }
+  .atencao { background: #fff8ec; border-left: 3px solid var(--ambar); }
+
+  .etiqueta {
+    display: inline-block;
+    padding: 0.3mm 2mm;
+    border-radius: 3mm;
+    font-size: 8.5pt;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  .e-correr  { background: #eaf7f0; color: var(--verde); }
+  .e-parado  { background: #f0f1f4; color: var(--suave); }
+  .e-degrad  { background: #fdf0f2; color: var(--vermelho); }
+  .e-atual   { background: #fff6e5; color: var(--ambar); }
+</style>
+</head>
+<body>
+
+<div class="capa">
+  <div class="marca">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#326CE5"
+         stroke-width="1.3" stroke-linejoin="round">
+      <path d="M12 2.2l8.4 4v7.6L12 21.8 3.6 13.8V6.2z"/>
+      <circle cx="12" cy="12" r="3"/>
+      <path d="M12 5.4V9M12 15v3.6M6.6 8.6L9.6 10.6M14.4 13.4l3 2M6.6 15.4l3-2M14.4 10.6l3-2"/>
+    </svg>
+    <div>
+      <h1>Gestão Kubernetes</h1>
+      <p class="sub">Manual de utilização &middot; Portal DPD</p>
+    </div>
+  </div>
+
+  <p>
+    Esta aplicação mostra os serviços que correm no cluster Kubernetes da DPD e permite
+    pará-los, arrancá-los e reiniciá-los a partir do browser, sem linha de comandos.
+  </p>
+
+  <p class="endereco">
+    <span>Endereço de acesso</span>
+    <b>http://projetos.dpd.pt/login-kubernetes</b>
+  </p>
+
+  <div class="aviso">
+    <b>Isto mexe em produção.</b> Parar um deployment tira o serviço do ar de imediato. Todos os
+    comandos pedem confirmação e todos ficam registados com o nome de quem os executou.
+  </div>
+
+  <div class="rodape">
+    Portal DPD &middot; sub-aplicação do Project Manager<br>
+    Setembro de 2026
+  </div>
+</div>
+
+<div class="indice">
+  <h2>Índice</h2>
+  <ol>
+    <li>Entrar na aplicação</li>
+    <li>Perfis de acesso</li>
+    <li>O ecrã principal</li>
+    <li>Ver os pods de um serviço</li>
+    <li>Ver a consola de um pod</li>
+    <li>Parar, arrancar e reiniciar</li>
+    <li>Escrever informação sobre um serviço</li>
+    <li>Registo de ações</li>
+    <li>Gerir utilizadores</li>
+    <li>Problemas comuns</li>
+  </ol>
+</div>
+
+<section>
+  <h2>1. Entrar na aplicação</h2>
+
+  <p>
+    A entrada é pelo <b>Portal DPD</b>. No cartão <b>Gestão Kubernetes</b>, clique em <b>Entrar</b>.
+  </p>
+
+  <figure>
+    <img src="img/01-portal.png" alt="Portal DPD">
+    <figcaption>O Portal DPD, com o cartão da Gestão Kubernetes.</figcaption>
+  </figure>
+
+  <p>
+    Se preferir ir direto, sem passar pelo portal, o endereço é
+    <code>http://projetos.dpd.pt/login-kubernetes</code>. É este que consta do email que recebe
+    quando a conta é criada.
+  </p>
+
+  <div class="nota">
+    <b>As credenciais são só desta aplicação.</b> O utilizador e a password do Project Manager,
+    da Gestão SEUR ou do OraConsole <b>não funcionam aqui</b>, e a sessão também não é partilhada:
+    sair de uma não o faz sair das outras.
+  </div>
+
+  <figure>
+    <img src="img/02-login.png" alt="Ecrã de entrada">
+    <figcaption>Ecrã de entrada.</figcaption>
+  </figure>
+
+  <p>
+    <b>Não há registo próprio.</b> As contas são criadas por um administrador da aplicação, que
+    indica o nome, o email e o perfil. A password é <b>gerada pelo sistema</b> e enviada por email,
+    já com o endereço de acesso — ninguém a escolhe à mão. Altere-a no primeiro acesso.
+  </p>
+
+  <p>
+    Se se esquecer da password, peça a um administrador que carregue em <b>Enviar password</b> na
+    sua linha: recebe uma nova por email e a anterior deixa de funcionar.
+  </p>
+</section>
+
+<section>
+  <h2>2. Perfis de acesso</h2>
+
+  <p>Cada conta tem um de três perfis, que decide o que pode fazer:</p>
+
+  <table>
+    <thead>
+      <tr><th>Perfil</th><th>Ver o cluster<br>e os logs</th><th>Parar, arrancar,<br>reiniciar e escrever informação</th><th>Gerir utilizadores e<br>ver o registo global</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><b>Leitor</b></td><td>Sim</td><td>Não</td><td>Não</td></tr>
+      <tr><td><b>Operador</b></td><td>Sim</td><td>Sim</td><td>Não</td></tr>
+      <tr><td><b>Admin</b></td><td>Sim</td><td>Sim</td><td>Sim</td></tr>
+    </tbody>
+  </table>
+
+  <p>
+    O perfil aparece sempre no canto superior direito, ao lado do seu nome. Quem tem perfil
+    <b>Leitor</b> vê os botões de comando a cinzento e um aviso no topo da lista.
+  </p>
+
+  <div class="nota">
+    A aplicação só vê quatro namespaces: <code>gateway</code>, <code>webapi</code>,
+    <code>qualidade</code> e <code>georouting</code>. Nenhum perfil chega ao resto do cluster —
+    a limitação está nas permissões dadas no próprio cluster, não apenas no ecrã.
+  </div>
+</section>
+
+<section>
+  <h2>3. O ecrã principal</h2>
+
+  <figure>
+    <img src="img/03-cluster.png" alt="Lista de deployments">
+    <figcaption>Lista de deployments do namespace selecionado.</figcaption>
+  </figure>
+
+  <h3>Os separadores de cima</h3>
+  <p>
+    Um por namespace, com o número de serviços prontos sobre o total (por exemplo
+    <b>47/47</b>). Se algum estiver parado, aparece um aviso a amarelo no separador.
+  </p>
+
+  <h3>A barra de ferramentas</h3>
+  <ul>
+    <li><b>Filtrar</b> — escreve parte do nome ou da imagem e a lista reduz-se enquanto escreve.</li>
+    <li><b>Atualizar a cada 15s</b> — ligado por omissão; a lista renova-se sozinha, sem piscar.</li>
+    <li><b>Atualizar agora</b> — força uma leitura imediata.</li>
+  </ul>
+
+  <h3>A coluna Estado</h3>
+  <table>
+    <tbody>
+      <tr><td><span class="etiqueta e-correr">A correr</span></td><td>Todas as réplicas estão prontas. É o estado normal.</td></tr>
+      <tr><td><span class="etiqueta e-atual">A atualizar</span></td><td>Um rollout está a decorrer: já há réplicas prontas, mas ainda não todas.</td></tr>
+      <tr><td><span class="etiqueta e-degrad">Sem réplicas prontas</span></td><td>Deviam existir réplicas e nenhuma está pronta. O serviço está em baixo — abra os pods para ver a razão.</td></tr>
+      <tr><td><span class="etiqueta e-parado">Parado</span></td><td>Está a zero réplicas, porque alguém o parou por aqui.</td></tr>
+    </tbody>
+  </table>
+
+  <p>
+    A coluna <b>Réplicas</b> lê-se «prontas / desejadas». Num serviço parado aparece ainda
+    «antes: N» — o número a que volta se o arrancar.
+  </p>
+</section>
+
+<section>
+  <h2>4. Ver os pods de um serviço</h2>
+
+  <p>
+    O botão <b>+</b> à esquerda de cada linha abre os pods desse serviço. O <b>−</b> volta a fechar.
+  </p>
+
+  <figure>
+    <img src="img/05-pods.png" alt="Pods de um deployment">
+    <figcaption>Pods do serviço, com estado, reinícios, nó e IP.</figcaption>
+  </figure>
+
+  <p>Vale a pena olhar para duas colunas:</p>
+  <ul>
+    <li><b>Estado</b> — um ponto verde quer dizer que o pod está pronto a receber tráfego. Se o
+      pod estiver com problema, esta coluna mostra a razão (<code>CrashLoopBackOff</code>,
+      <code>ImagePullBackOff</code>) em vez do estado geral.</li>
+    <li><b>Reinícios</b> — aparece a amarelo quando é maior que zero. Um número que sobe sozinho
+      é sinal de que o serviço está a rebentar e a ser relançado.</li>
+  </ul>
+
+  <div class="nota">
+    O nome de um pod muda a cada rollout — traz um código gerado no fim. Não vale a pena decorá-lo.
+  </div>
+</section>
+
+<section>
+  <h2>5. Ver a consola de um pod</h2>
+
+  <p>
+    O botão <b>Ver</b>, à direita de cada pod, abre a consola desse pod — o mesmo que a aplicação
+    escreve para o ecrã quando corre.
+  </p>
+
+  <figure>
+    <img src="img/06-log.png" alt="Consola de um pod">
+    <figcaption>Consola de um pod, a atualizar em tempo real.</figcaption>
+  </figure>
+
+  <h3>O interruptor Autoscroll</h3>
+  <p>
+    Ao abrir, o log corre em <b>tempo real</b>: a janela lê linhas novas de dois em dois segundos e
+    acompanha o fim. O ponto verde a pulsar indica que está mesmo a ler.
+  </p>
+  <ul>
+    <li><b>Desligar</b> — a leitura pára e o que está no ecrã fica congelado, para poder ler sem
+      o texto fugir.</li>
+    <li><b>Voltar a ligar</b> — retoma no ponto onde ficou, sem repetir nem perder o que apareceu
+      entretanto.</li>
+  </ul>
+
+  <p>
+    Se o pod tiver mais do que um contentor, aparece um seletor no topo para escolher de qual quer
+    ver a consola.
+  </p>
+
+  <div class="atencao">
+    A consola mostra o que o pod escreveu <b>desde que arrancou</b>. Depois de um reinício, o que
+    é anterior já não está aqui — nesse caso a pesquisa faz-se na
+    <b>Consulta OpenSearch</b>, também no Portal DPD, que guarda o histórico.
+  </div>
+</section>
+
+<section>
+  <h2>6. Parar, arrancar e reiniciar</h2>
+
+  <p>Cada linha tem três comandos. Não fazem o mesmo, e a diferença importa:</p>
+
+  <table>
+    <thead><tr><th style="width:22%">Comando</th><th>O que acontece</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><b>Parar</b></td>
+        <td>Termina todas as réplicas: o serviço <b>deixa de responder</b>. O número de réplicas
+            fica guardado, para o arranque o repor tal como estava.</td>
+      </tr>
+      <tr>
+        <td><b>Arrancar</b></td>
+        <td>Repõe as réplicas guardadas quando foi parado. Só está disponível se o serviço estiver
+            parado.</td>
+      </tr>
+      <tr>
+        <td><b>Reiniciar</b></td>
+        <td>Substitui os pods <b>um a um</b>, sem parar o serviço. É o que se usa para o serviço
+            reler configuração ou sair de um estado esquisito.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p>Qualquer um deles pede confirmação, e a mensagem diz o que vai acontecer neste caso concreto:</p>
+
+  <figure>
+    <img src="img/08-confirmar.png" alt="Confirmação de um comando">
+    <figcaption>Confirmação antes de executar.</figcaption>
+  </figure>
+
+  <div class="atencao">
+    <b>Na dúvida, reinicie em vez de parar.</b> Reiniciar não deixa o serviço em baixo; parar
+    deixa, e ninguém o volta a arrancar sozinho — fica parado até alguém vir aqui carregar em
+    <b>Arrancar</b>.
+  </div>
+
+  <p>
+    Depois de confirmar, a linha mostra «a executar…» e a lista atualiza-se sozinha alguns segundos
+    depois. Um serviço a reiniciar passa por <span class="etiqueta e-atual">A atualizar</span> antes
+    de voltar a <span class="etiqueta e-correr">A correr</span>.
+  </p>
+</section>
+
+<section>
+  <h2>7. Escrever informação sobre um serviço</h2>
+
+  <p>
+    O ícone <b>i</b> ao lado do nome abre uma ficha onde a equipa escreve o que for útil saber
+    sobre aquele serviço: para que serve, cuidados a ter, quem é o dono, o que não fazer.
+  </p>
+
+  <figure>
+    <img src="img/07-info.png" alt="Informação de um deployment">
+    <figcaption>Ficha de informação, com título e memo.</figcaption>
+  </figure>
+
+  <ul>
+    <li><b>Título</b> — no máximo 100 caracteres. Aparece <b>por baixo do nome na lista</b>, a azul,
+      por isso deve ser a frase que quer que alguém leia antes de mexer no serviço.</li>
+    <li><b>Informação</b> — texto livre, tão longo quanto precisar. Só se vê aqui dentro.</li>
+  </ul>
+
+  <p>
+    Quando um serviço já tem informação escrita, o ícone <b>i</b> fica preenchido a azul. Assim
+    distingue-se «há aqui algo para ler» de «ninguém escreveu nada» sem ter de abrir nada.
+  </p>
+
+  <div class="nota">
+    O botão <b>Gravar</b> só fica ativo depois de mudar alguma coisa. Quem tem perfil Leitor abre
+    a ficha e lê, mas não a altera.
+  </div>
+</section>
+
+<section>
+  <h2>8. Registo de ações</h2>
+
+  <p>
+    Tudo o que se faz aqui fica registado: entradas na aplicação, entradas recusadas, comandos
+    sobre serviços e alterações à informação. Cada linha diz <b>quem</b>, <b>quando</b>,
+    <b>sobre o quê</b>, com que <b>resultado</b> e de que <b>endereço</b>.
+  </p>
+
+  <h3>O registo de um serviço</h3>
+  <p>
+    O botão <b>Logs</b>, na linha de cada serviço, mostra só o que foi feito àquele serviço.
+    Está aberto a todos os perfis — saber quem parou o quê é para ser transparente.
+  </p>
+
+  <figure>
+    <img src="img/09-registo-deployment.png" alt="Registo de ações de um deployment">
+    <figcaption>Histórico de um serviço, do mais recente para o mais antigo.</figcaption>
+  </figure>
+
+  <h3>O registo global</h3>
+  <p>
+    No menu de cima, <b>Registo de ações</b> mostra tudo, com filtros por tipo de ação e por
+    utilizador. Só está disponível a quem tem perfil Admin, porque inclui as entradas de todos.
+  </p>
+
+  <figure>
+    <img src="img/10-registo-global.png" alt="Registo global">
+    <figcaption>Registo global, com filtros e paginação.</figcaption>
+  </figure>
+
+  <h3>O que mudou numa alteração de informação</h3>
+  <p>
+    Nas linhas de alteração da ficha de um serviço aparece <b>ver a alteração</b>, que abre lado a
+    lado o que <b>estava</b> escrito e o que <b>ficou</b>.
+  </p>
+
+  <figure>
+    <img src="img/11-antes-depois.png" alt="Antes e depois de uma alteração">
+    <figcaption>O texto anterior e o novo, lado a lado.</figcaption>
+  </figure>
+
+  <div class="nota">
+    Um registo nunca se apaga, nem quando a conta de quem agiu é removida: o nome e o email ficam
+    guardados na própria linha.
+  </div>
+</section>
+
+<section>
+  <h2>9. Gerir utilizadores</h2>
+
+  <p>Reservado ao perfil Admin, no menu <b>Utilizadores</b>.</p>
+
+  <figure>
+    <img src="img/12-utilizadores.png" alt="Lista de utilizadores">
+    <figcaption>Quem tem acesso à aplicação.</figcaption>
+  </figure>
+
+  <h3>Criar uma conta</h3>
+  <p>
+    Em <b>Novo utilizador</b>, indique o nome, o email e o perfil. A password é gerada pelo sistema
+    e enviada por email com o endereço de acesso.
+  </p>
+
+  <figure>
+    <img src="img/13-novo-utilizador.png" alt="Criar utilizador">
+    <figcaption>Criação de uma conta.</figcaption>
+  </figure>
+
+  <div class="atencao">
+    Se o email não conseguir sair, a conta <b>é criada na mesma</b> e a password aparece no ecrã,
+    uma única vez, para a entregar por outra via. Copie-a antes de fechar a janela.
+  </div>
+
+  <h3>As três ações sobre uma conta</h3>
+  <table>
+    <tbody>
+      <tr><td style="width:32%"><b>Enviar password</b></td><td>Gera uma password nova e envia-a por email. A anterior deixa de funcionar.</td></tr>
+      <tr><td><b>Desativar</b></td><td>A pessoa deixa de entrar, mas continua na lista. É o que se usa quando alguém sai da equipa.</td></tr>
+      <tr><td><b>Remover</b></td><td>Apaga a conta de vez, sem recuperação. É para contas criadas por engano. O histórico de ações mantém-se.</td></tr>
+    </tbody>
+  </table>
+
+  <p>Não é possível desativar nem remover a própria conta.</p>
+</section>
+
+<section>
+  <h2>10. Problemas comuns</h2>
+
+  <h3>«Email ou password inválidos»</h3>
+  <p>
+    Confirme que está a usar as credenciais <b>desta</b> aplicação e não as do Project Manager ou
+    do SEUR. Se a conta tiver sido desativada, a mensagem é outra: «Conta de utilizador inativa».
+    Em qualquer dos casos, fale com um administrador.
+  </p>
+
+  <h3>«A sua sessão expirou»</h3>
+  <p>Normal ao fim de algum tempo sem atividade. Basta entrar outra vez.</p>
+
+  <h3>«Não tem permissão para executar esta operação»</h3>
+  <p>O seu perfil é Leitor. Peça a um Admin que o mude para Operador, se for esse o caso.</p>
+
+  <h3>«O cluster recusou as credenciais do portal»</h3>
+  <p>
+    Não é problema seu nem da sua conta: é a ligação entre a aplicação e o cluster. Avise a equipa
+    de sistemas.
+  </p>
+
+  <h3>Todos os namespaces aparecem a zero</h3>
+  <p>
+    Mesma causa da mensagem anterior. Entre num namespace para ver o erro completo e passe-o à
+    equipa de sistemas.
+  </p>
+
+  <h3>Parei um serviço por engano</h3>
+  <p>
+    Carregue em <b>Arrancar</b> na mesma linha. Volta ao número de réplicas que tinha antes de ser
+    parado. As duas ações ficam registadas.
+  </p>
+
+  <h3>O log não avança</h3>
+  <p>
+    Veja se o <b>Autoscroll</b> está desligado — desligado, a leitura está parada de propósito.
+    Se estiver ligado e mesmo assim não avançar, é porque o pod não está a escrever nada.
+  </p>
+</section>
+
+</body>
+</html>
