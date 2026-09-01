@@ -1,3 +1,9 @@
+:host {
+  /* O styles.css global não define tipo de letra: sem isto o componente cai no serifado
+     por omissão do browser. É a mesma pilha que a sub-app de OpenSearch usa. */
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
 /* Mesma estrutura do login do SEUR e do OraConsole; muda o acento, que aqui é o azul do
    Kubernetes em vez do vermelho da marca — o portal distingue as aplicações pela cor. */
 .login-container {

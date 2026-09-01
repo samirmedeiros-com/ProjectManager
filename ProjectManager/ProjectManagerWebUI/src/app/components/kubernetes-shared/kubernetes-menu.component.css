@@ -6,6 +6,9 @@
   --borda: #e6e8ec;
   --vermelho: #d1344b;
   display: block;
+  /* O styles.css global não define tipo de letra: sem isto o componente cai no serifado
+     por omissão do browser. É a mesma pilha que a sub-app de OpenSearch usa. */
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 .barra {
