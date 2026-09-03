@@ -1,7 +1,8 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
+import { SeurAuthService } from './seur-auth.service';
 
 export interface EstadoCluster {
   nome: string;
@@ -56,28 +57,37 @@ export interface ResultadoPesquisa {
 
 @Injectable({ providedIn: 'root' })
 export class OpenSearchService {
-  private apiUrl = `${environment.apiUrl}/api/opensearch`;
+  private apiUrl = `${environment.seurApiUrl}/api/opensearch`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private seurAuth: SeurAuthService) {}
 
-  /** Confirma que o utilizador pertence ao setor IT. O setor não vem no token. */
-  acesso(): Observable<{ permitido: boolean; setor: string }> {
-    return this.http.get<{ permitido: boolean; setor: string }>(`${this.apiUrl}/acesso`);
+  /**
+   * Este portal usa as credenciais da Gestão SEUR: o Bearer é o `seur_token`, posto aqui
+   * à mão como nos outros serviços do SEUR. O auth.interceptor do Project Manager exclui
+   * `/api/opensearch/` de propósito — mandaria a credencial errada.
+   */
+  private h(): HttpHeaders {
+    return new HttpHeaders({ Authorization: `Bearer ${this.seurAuth.getToken()}` });
+  }
+
+  /** Valida a sessão SEUR contra o servidor antes de abrir o ecrã. */
+  acesso(): Observable<{ permitido: boolean; aplicacao: string }> {
+    return this.http.get<{ permitido: boolean; aplicacao: string }>(`${this.apiUrl}/acesso`, { headers: this.h() });
   }
 
   estado(): Observable<EstadoCluster> {
-    return this.http.get<EstadoCluster>(`${this.apiUrl}/estado`);
+    return this.http.get<EstadoCluster>(`${this.apiUrl}/estado`, { headers: this.h() });
   }
 
   indices(): Observable<IndiceInfo[]> {
-    return this.http.get<IndiceInfo[]>(`${this.apiUrl}/indices`);
+    return this.http.get<IndiceInfo[]>(`${this.apiUrl}/indices`, { headers: this.h() });
   }
 
   campos(indice: string): Observable<CampoInfo[]> {
-    return this.http.get<CampoInfo[]>(`${this.apiUrl}/indices/${encodeURIComponent(indice)}/campos`);
+    return this.http.get<CampoInfo[]>(`${this.apiUrl}/indices/${encodeURIComponent(indice)}/campos`, { headers: this.h() });
   }
 
   pesquisar(pedido: PedidoPesquisa): Observable<ResultadoPesquisa> {
-    return this.http.post<ResultadoPesquisa>(`${this.apiUrl}/pesquisa`, pedido);
+    return this.http.post<ResultadoPesquisa>(`${this.apiUrl}/pesquisa`, pedido, { headers: this.h() });
   }
 }

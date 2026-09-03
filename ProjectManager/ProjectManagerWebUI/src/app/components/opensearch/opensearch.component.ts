@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit, computed, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { AuthService } from '../../services/auth.service';
+import { SeurAuthService } from '../../services/seur-auth.service';
 import {
   CampoInfo,
   DocumentoResultado,
@@ -106,7 +106,7 @@ export class OpenSearchComponent implements OnInit {
   constructor(
     private api: OpenSearchService,
     private router: Router,
-    private authService: AuthService,
+    private seurAuth: SeurAuthService,
   ) {}
 
   ngOnInit(): void {
@@ -114,8 +114,9 @@ export class OpenSearchComponent implements OnInit {
     this.carregarIndices();
   }
 
+  /** A sessão deste portal é a da Gestão SEUR — o nome mostrado é o do utilizador SEUR. */
   get utilizador() {
-    return this.authService.currentUserValue;
+    return this.seurAuth.currentUserValue;
   }
 
   voltarAoPortal(): void {

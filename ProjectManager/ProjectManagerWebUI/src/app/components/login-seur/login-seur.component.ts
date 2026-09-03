@@ -1,5 +1,5 @@
 import { Component, ChangeDetectorRef } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SeurAuthService, SeurLoginRequest } from '../../services/seur-auth.service';
@@ -27,6 +27,7 @@ export class LoginSeurComponent {
   constructor(
     private seurAuthService: SeurAuthService,
     private router: Router,
+    private route: ActivatedRoute,
     private cdr: ChangeDetectorRef
   ) {}
 
@@ -39,7 +40,10 @@ export class LoginSeurComponent {
     this.seurAuthService.login(this.form).subscribe({
       next: (response) => {
         if (response.success) {
-          this.router.navigate(['/seur/dashboard']);
+          // A Consulta OpenSearch entra por aqui: sem o returnUrl, quem clica no cartão
+          // do OpenSearch acabaria no dashboard do SEUR depois de se autenticar.
+          const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/seur/dashboard';
+          this.router.navigate([returnUrl]);
         } else {
           this.error = response.message || 'Falha no login';
         }

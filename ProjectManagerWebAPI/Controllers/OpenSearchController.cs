@@ -7,17 +7,18 @@ using ProjectManagerWebAPI.Services;
 namespace ProjectManagerWebAPI.Controllers;
 
 /// <summary>
-/// Portal de consulta ao OpenSearch. Autentica com o token do Project Manager
-/// (não tem login próprio, ao contrário do SEUR e do OraConsole) e restringe o
-/// acesso aos utilizadores do setor IT.
+/// Portal de consulta ao OpenSearch. Não tem login próprio: usa as credenciais da
+/// Gestão SEUR (tabela SeurUsers). Como todas as apps do portal assinam o JWT com a
+/// mesma chave, issuer e audience, [Authorize] sozinho aceitaria o token de qualquer
+/// uma delas — quem separa é o claim "app" verificado pelo [RequerApp].
 /// </summary>
 [ApiController]
 [Route("api/opensearch")]
 [Authorize]
-[RequerSetor(SetorNecessario)]
+[RequerApp(AplicacaoNecessaria)]
 public class OpenSearchController : ControllerBase
 {
-    public const string SetorNecessario = "IT";
+    public const string AplicacaoNecessaria = "seur";
 
     private readonly OpenSearchGateway _gateway;
     private readonly ILogger<OpenSearchController> _logger;
@@ -29,11 +30,11 @@ public class OpenSearchController : ControllerBase
     }
 
     /// <summary>
-    /// Confirma que o utilizador atual pode usar o portal. Serve o guard do Angular,
-    /// que não consegue ver o setor pelo token — o setor não vai nos claims.
+    /// Confirma que o token do utilizador atual serve este portal. Serve o guard do
+    /// Angular, que assim valida a sessão contra o servidor antes de abrir o ecrã.
     /// </summary>
     [HttpGet("acesso")]
-    public ActionResult<object> Acesso() => Ok(new { permitido = true, setor = SetorNecessario });
+    public ActionResult<object> Acesso() => Ok(new { permitido = true, aplicacao = AplicacaoNecessaria });
 
     [HttpGet("estado")]
     public Task<ActionResult<EstadoCluster>> Estado(CancellationToken ct)

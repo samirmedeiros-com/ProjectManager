@@ -2,40 +2,37 @@ import { Injectable } from '@angular/core';
 import { CanActivate, Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
-import { AuthService } from '../services/auth.service';
+import { SeurAuthService } from '../services/seur-auth.service';
 import { OpenSearchService } from '../services/opensearch.service';
 
 /**
- * O portal de OpenSearch usa o login do Project Manager, mas só está aberto ao setor IT.
- * A pertença ao setor não vai no JWT, por isso tem de ser confirmada no servidor —
- * este guard é conveniência de navegação; quem garante o acesso é o [RequerSetor] da API.
+ * A Consulta OpenSearch não tem login próprio: usa as credenciais da Gestão SEUR.
+ * O token do SEUR e o do Project Manager são assinados com a mesma chave, por isso quem
+ * separa as duas sessões é o claim "app" — confirmado no servidor pelo [RequerApp]. Este
+ * guard é conveniência de navegação; quem garante o acesso é a API.
  */
 @Injectable({ providedIn: 'root' })
 export class OpenSearchGuard implements CanActivate {
   constructor(
     private router: Router,
-    private authService: AuthService,
+    private seurAuth: SeurAuthService,
     private openSearch: OpenSearchService,
   ) {}
 
   canActivate(): Observable<boolean> {
-    if (!this.authService.currentUserValue) {
-      this.router.navigate(['/login'], { queryParams: { returnUrl: '/opensearch' } });
+    if (!this.seurAuth.isAuthenticated()) {
+      this.router.navigate(['/login-seur'], { queryParams: { returnUrl: '/opensearch' } });
       return of(false);
     }
 
     return this.openSearch.acesso().pipe(
       map(() => true),
       catchError((err) => {
-        // 401 é sessão expirada, não indisponibilidade: quem trata disso (e limpa o
-        // localStorage) é o auth.interceptor. Navegar aqui competiria com ele e mostraria
-        // "o serviço não respondeu" a quem apenas precisa de entrar outra vez.
+        // 401 aqui é sessão SEUR expirada ou token de outra aplicação do portal: em ambos
+        // os casos o caminho é voltar a entrar na Gestão SEUR.
         if (err?.status === 401) {
-          return of(false);
-        }
-
-        if (err?.status === 403) {
-          this.router.navigate(['/portal'], { queryParams: { opensearch: 'semSetor' } });
+          this.seurAuth.logout();
+          this.router.navigate(['/login-seur'], { queryParams: { returnUrl: '/opensearch' } });
           return of(false);
         }
 

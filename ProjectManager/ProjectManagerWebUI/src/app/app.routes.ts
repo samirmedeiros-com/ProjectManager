@@ -45,7 +45,7 @@ export const routes: Routes = [
   { path: 'oraconsole/workbench', component: OraConsoleWorkbenchComponent, canActivate: [OraConsoleAuthGuard] },
 
   // Portal de consulta ao OpenSearch — login do Project Manager, restrito ao setor IT
-  { path: 'opensearch', component: OpenSearchComponent, canActivate: [AuthGuard, OpenSearchGuard] },
+  { path: 'opensearch', component: OpenSearchComponent, canActivate: [OpenSearchGuard] },
 
   // Gestão Kubernetes — login próprio, credenciais separadas das outras aplicações
   { path: 'login-kubernetes', component: LoginKubernetesComponent },

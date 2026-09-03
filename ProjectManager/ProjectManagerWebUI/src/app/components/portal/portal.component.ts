@@ -32,12 +32,9 @@ export class PortalComponent implements OnInit {
       return;
     }
 
-    // Sem isto, um 403 leva o utilizador de volta ao portal sem explicação nenhuma,
+    // Sem isto, uma falha leva o utilizador de volta ao portal sem explicação nenhuma,
     // e o cartão parece estar avariado.
     switch (this.route.snapshot.queryParams['opensearch']) {
-      case 'semSetor':
-        this.avisoAcesso = 'A Consulta OpenSearch está reservada aos utilizadores do setor IT.';
-        break;
       case 'indisponivel':
         this.avisoAcesso =
           'Não foi possível abrir a Consulta OpenSearch: o serviço não respondeu. Tente novamente mais tarde.';
