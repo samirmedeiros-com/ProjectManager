@@ -1,0 +1,479 @@
+<div class="app">
+  <!-- ── Topbar ── -->
+  <header class="topbar">
+    <div class="topbar-esquerda">
+      <div class="logo-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round">
+          <ellipse cx="12" cy="5" rx="8" ry="3" />
+          <path d="M4 5v14c0 1.657 3.582 3 8 3s8-1.343 8-3V5" />
+          <path d="M4 12c0 1.657 3.582 3 8 3s8-1.343 8-3" />
+        </svg>
+      </div>
+      <h1>
+        <ng-container [ngSwitch]="vista()">
+          <ng-container *ngSwitchCase="'detalhe'">
+            {{ contaAberta()?.eeent || 'Nova conta' }}
+          </ng-container>
+          <ng-container *ngSwitchCase="'registo'">Registo de envios</ng-container>
+          <ng-container *ngSwitchDefault>Gestão de Dados</ng-container>
+        </ng-container>
+      </h1>
+    </div>
+    <div class="topbar-direita">
+      <span class="utilizador" *ngIf="utilizador">{{ utilizador }}</span>
+      <button type="button" class="btn btn--discreto" (click)="voltarAoPortal()">Portal</button>
+      <button type="button" class="btn btn--discreto" (click)="sair()">Sair</button>
+    </div>
+  </header>
+
+  <div class="corpo">
+    <!-- ── Menu de navegação (mais módulos entram aqui) ── -->
+    <nav class="menu">
+      <button type="button" class="menu-item" *ngFor="let m of menu"
+              [class.menu-item--ativo]="m.chave === moduloAtivo()"
+              [disabled]="!m.ativo" (click)="selecionarModulo(m.chave)">
+        {{ m.etiqueta }}
+      </button>
+    </nav>
+
+    <div class="painel-conteudo">
+      <div class="mensagem mensagem--erro" *ngIf="erro()">{{ erro() }}</div>
+      <div class="mensagem mensagem--aviso" *ngIf="aviso()">{{ aviso() }}</div>
+
+  <!-- ══════════════════ LISTA ══════════════════ -->
+  <main class="conteudo" *ngIf="vista() === 'lista'">
+    <!-- ── Dashboard: estado de transmissão de contas e subcontas ── -->
+    <section class="dashboard" *ngIf="estatisticas() as e">
+      <div class="dash-grupo">
+        <h3>Contas</h3>
+        <div class="dash-tiles">
+          <div class="tile tile--ok">
+            <span class="tile-num">{{ e.contas.transmitidas }}</span>
+            <span class="tile-lbl">Transmitidas</span>
+          </div>
+          <div class="tile tile--pendente">
+            <span class="tile-num">{{ e.contas.aTransmitir }}</span>
+            <span class="tile-lbl">A transmitir</span>
+          </div>
+          <div class="tile tile--erro">
+            <span class="tile-num">{{ e.contas.erros }}</span>
+            <span class="tile-lbl">Com erro</span>
+          </div>
+          <div class="tile">
+            <span class="tile-num">{{ e.contas.total }}</span>
+            <span class="tile-lbl">Total</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="dash-grupo">
+        <h3>Subcontas</h3>
+        <div class="dash-tiles">
+          <div class="tile tile--ok">
+            <span class="tile-num">{{ e.subContas.transmitidas }}</span>
+            <span class="tile-lbl">Transmitidas</span>
+          </div>
+          <div class="tile tile--pendente">
+            <span class="tile-num">{{ e.subContas.aTransmitir }}</span>
+            <span class="tile-lbl">A transmitir</span>
+          </div>
+          <div class="tile tile--erro">
+            <span class="tile-num">{{ e.subContas.erros }}</span>
+            <span class="tile-lbl">Com erro</span>
+          </div>
+          <div class="tile">
+            <span class="tile-num">{{ e.subContas.total }}</span>
+            <span class="tile-lbl">Total</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="barra">
+      <div class="barra-filtros">
+        <label class="campo campo--procura">
+          <span>Procurar conta</span>
+          <input type="search" placeholder="Número da conta ou nome do cliente"
+                 [(ngModel)]="procura" (keyup.enter)="procurar()" aria-label="Procurar conta" />
+        </label>
+        <label class="campo campo--estado">
+          <span>Estado de envio</span>
+          <select [(ngModel)]="filtroFlag" (change)="procurar()">
+            <option value="">Todos os estados</option>
+            <option value="N">Por enviar</option>
+            <option value="Y">Enviadas</option>
+            <option value="E">Com erro</option>
+          </select>
+        </label>
+        <button type="button" class="btn btn--primario campo-botao" (click)="procurar()">Procurar</button>
+      </div>
+      <div class="barra-acoes">
+        <button type="button" class="btn" (click)="abrirRegisto()">Registo de envios</button>
+        <button type="button" class="btn btn--primario" (click)="novaConta()">Nova conta</button>
+      </div>
+    </div>
+
+    <p class="estado-vazio" *ngIf="aCarregar()">A carregar…</p>
+    <p class="estado-vazio" *ngIf="!aCarregar() && contas().length === 0">
+      Nenhuma conta encontrada. Ajuste a procura ou crie uma conta nova.
+    </p>
+
+    <table class="tabela tabela--clicavel" *ngIf="!aCarregar() && contas().length">
+      <thead>
+        <tr>
+          <th>Conta</th><th>Nome</th><th>Situação</th>
+          <th class="num">Subcontas</th><th>Estado de envio</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let c of contas()" (click)="abrirConta(c.eeent!)" tabindex="0"
+            (keyup.enter)="abrirConta(c.eeent!)">
+          <td class="mono">{{ c.eeent }}</td>
+          <td>{{ c.eenom || '—' }}</td>
+          <td>{{ c.ftsit || '—' }}</td>
+          <td class="num">{{ c.subContas }}</td>
+          <td><span [class]="classeEstado(c.flagportal)">{{ estado(c.flagportal) }}</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="paginacao" *ngIf="!aCarregar() && contasTotal() > 0">
+      <div class="pag-esq">
+        <span class="pag-total">{{ contasTotal() }} conta(s)</span>
+        <label class="pag-tamanho">
+          <span>Por página</span>
+          <select [ngModel]="contasTamanho()" (ngModelChange)="mudarTamanhoContas($event)">
+            <option *ngFor="let t of tamanhosPagina" [ngValue]="t">{{ t }}</option>
+          </select>
+        </label>
+      </div>
+      <div class="pag-nav">
+        <button type="button" class="btn btn--pequeno" (click)="irParaPaginaContas(contasPagina() - 1)"
+                [disabled]="contasPagina() <= 1">Anterior</button>
+        <span class="pag-pos">Página {{ contasPagina() }} de {{ contasTotalPaginas() }}</span>
+        <button type="button" class="btn btn--pequeno" (click)="irParaPaginaContas(contasPagina() + 1)"
+                [disabled]="contasPagina() >= contasTotalPaginas()">Seguinte</button>
+      </div>
+    </div>
+  </main>
+
+  <!-- ══════════════════ DETALHE ══════════════════ -->
+  <main class="conteudo" *ngIf="vista() === 'detalhe' && contaAberta() as conta">
+    <div class="barra">
+      <button type="button" class="btn btn--voltar" (click)="voltar()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        Voltar à lista
+      </button>
+    </div>
+
+    <div class="cartao">
+      <div class="cartao-topo">
+        <h2>Dados da conta</h2>
+        <span [class]="classeEstado(conta.flagportal)">{{ estado(conta.flagportal) }}</span>
+      </div>
+
+      <div class="campos">
+        <label>
+          <span>Conta (EEENT)</span>
+          <input type="text" [(ngModel)]="conta.eeent" [readonly]="!!conta.idt" />
+          <small *ngIf="conta.idt">O número identifica a conta e não se altera aqui.</small>
+        </label>
+        <label><span>Nome (EENOM)</span><input type="text" [(ngModel)]="conta.eenom" /></label>
+        <label><span>Nome 2 (EENOM2)</span><input type="text" [(ngModel)]="conta.eenom2" /></label>
+        <label><span>Contabilidade (EECTB)</span><input type="text" [(ngModel)]="conta.eectb" /></label>
+        <label><span>CAE (EECAE)</span><input type="text" [(ngModel)]="conta.eecae" /></label>
+        <label><span>Situação (FTSIT)</span><input type="text" [(ngModel)]="conta.ftsit" /></label>
+        <label><span>Segmento (FTSGM)</span><input type="text" [(ngModel)]="conta.ftsgm" /></label>
+        <label><span>Zona (FTZON)</span><input type="text" [(ngModel)]="conta.ftzon" /></label>
+        <label><span>Vendedor (FTVEN)</span><input type="text" [(ngModel)]="conta.ftven" /></label>
+      </div>
+
+      <div class="acoes">
+        <button type="button" class="btn btn--primario" (click)="gravarConta()" [disabled]="aGravar()">
+          {{ aGravar() ? 'A gravar…' : 'Gravar conta' }}
+        </button>
+        <button type="button" class="btn btn--envio" (click)="abrirEnvio()" [disabled]="!conta.idt">
+          Enviar ao portal
+        </button>
+      </div>
+    </div>
+
+    <!-- ── Envio ── -->
+    <div class="cartao" *ngIf="painelEnvio()">
+      <div class="cartao-topo"><h2>Enviar ao portal</h2></div>
+
+      <p class="nota">
+        O ambiente é escolhido a cada envio e não fica guardado. Um envio para produção
+        marca os registos como enviados; um envio para qualidade é um teste e não mexe no estado.
+        Cada envio fica registado.
+      </p>
+
+      <div class="opcoes">
+        <label class="opcao">
+          <input type="radio" name="ambiente" value="QUA"
+                 [checked]="ambiente() === 'QUA'" (change)="ambiente.set('QUA')" />
+          <span><strong>Qualidade (QUA)</strong><small>qabusiness.dpd.pt</small></span>
+        </label>
+        <label class="opcao opcao--producao">
+          <input type="radio" name="ambiente" value="PRD"
+                 [checked]="ambiente() === 'PRD'" (change)="ambiente.set('PRD')" />
+          <span><strong>Produção (PRD)</strong><small>business.dpd.pt</small></span>
+        </label>
+      </div>
+
+      <label class="campo-envio">
+        <span>O que enviar</span>
+        <select [ngModel]="envioSubConta()" (ngModelChange)="envioSubConta.set($event)">
+          <option value="">A conta e todas as subcontas</option>
+          <option *ngFor="let s of subContas()" [value]="s.emend">
+            A conta e a subconta {{ s.emend }} — {{ s.emdsc || 'sem descrição' }}
+          </option>
+        </select>
+        <small>A conta vai sempre: o portal recusa uma subconta cuja conta não conheça.</small>
+      </label>
+
+      <div class="acoes">
+        <button type="button" class="btn btn--envio" (click)="enviar()" [disabled]="aEnviar() || !ambiente()">
+          {{ aEnviar() ? 'A enviar…' : 'Enviar' }}
+        </button>
+        <button type="button" class="btn btn--discreto" (click)="painelEnvio.set(false)">Cancelar</button>
+      </div>
+
+      <div class="resultado" *ngIf="resultadoEnvio() as r">
+        <p [class.resultado-ok]="r.sucesso" [class.resultado-erro]="!r.sucesso">{{ r.mensagem }}</p>
+        <table class="tabela">
+          <thead>
+            <tr><th>Registo</th><th>Método</th><th>Estado</th><th>Resposta</th></tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let l of r.linhas" [class.falhou]="!l.sucesso">
+              <td>{{ l.tipo }} {{ l.identificacao }}</td>
+              <td>{{ l.metodo }}</td>
+              <td>{{ l.statusCode || 'sem resposta' }}</td>
+              <td class="resposta">{{ l.resposta }}</td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="nota">
+          Um PUT falhado seguido de um POST com sucesso é o caminho normal de uma criação:
+          o portal não tem "criar ou atualizar". Este envio ficou guardado no registo.
+        </p>
+      </div>
+    </div>
+
+    <!-- ── Subcontas ── -->
+    <div class="cartao">
+      <div class="cartao-topo">
+        <h2>Subcontas</h2>
+        <button type="button" class="btn" (click)="novaSubConta()" [disabled]="!conta.idt">Nova subconta</button>
+      </div>
+
+      <p class="nota" *ngIf="!conta.idt">Grave a conta antes de lhe acrescentar subcontas.</p>
+      <p class="nota" *ngIf="conta.idt && subContas().length === 0">Esta conta ainda não tem subcontas.</p>
+
+      <table class="tabela" *ngIf="subContas().length">
+        <thead>
+          <tr><th>Subconta</th><th>Descrição</th><th>Localidade</th><th>Serviço</th><th>Estado</th><th></th></tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let s of subContasPagina()">
+            <td class="mono">{{ s.emend }}</td>
+            <td>{{ s.emdsc || '—' }}</td>
+            <td>{{ s.emloc || '—' }}</td>
+            <td>{{ s.serviceRc || '—' }}</td>
+            <td><span [class]="classeEstado(s.flagportal)">{{ estado(s.flagportal) }}</span></td>
+            <td><button type="button" class="btn btn--pequeno" (click)="abrirSubConta(s)">Editar</button></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="paginacao" *ngIf="subContas().length">
+        <div class="pag-esq">
+          <span class="pag-total">{{ subContas().length }} subconta(s)</span>
+          <label class="pag-tamanho">
+            <span>Por página</span>
+            <select [ngModel]="subTamanho()" (ngModelChange)="mudarTamanhoSub($event)">
+              <option *ngFor="let t of tamanhosPagina" [ngValue]="t">{{ t }}</option>
+            </select>
+          </label>
+        </div>
+        <div class="pag-nav">
+          <button type="button" class="btn btn--pequeno" (click)="irParaPaginaSub(subPagina() - 1)"
+                  [disabled]="subPagina() <= 1">Anterior</button>
+          <span class="pag-pos">Página {{ subPagina() }} de {{ subTotalPaginas() }}</span>
+          <button type="button" class="btn btn--pequeno" (click)="irParaPaginaSub(subPagina() + 1)"
+                  [disabled]="subPagina() >= subTotalPaginas()">Seguinte</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Registo de envios desta conta ── -->
+    <div class="cartao" *ngIf="contaAberta()?.idt">
+      <div class="cartao-topo">
+        <h2>Registo de envios desta conta</h2>
+      </div>
+
+      <p class="nota" *ngIf="logsConta().length === 0">
+        Esta conta ainda não foi enviada ao portal a partir daqui.
+      </p>
+
+      <table class="tabela tabela--clicavel" *ngIf="logsConta().length">
+        <thead>
+          <tr>
+            <th>Data</th><th>Utilizador</th><th>Ambiente</th>
+            <th>Subconta</th><th class="num">Registos</th><th>Resultado</th>
+          </tr>
+        </thead>
+        <ng-container *ngFor="let log of logsConta()">
+          <tbody>
+            <tr (click)="alternarLinhasConta(log)" tabindex="0" (keyup.enter)="alternarLinhasConta(log)">
+              <td>{{ log.criadoEm | date: 'dd/MM/yyyy HH:mm:ss' }}</td>
+              <td>{{ log.utilizador || '—' }}</td>
+              <td>
+                <span class="ambiente" [class.ambiente--prd]="log.ambiente === 'PRD'">{{ log.ambiente }}</span>
+              </td>
+              <td class="mono">{{ log.subConta || 'todas' }}</td>
+              <td class="num">{{ log.totalLinhas }}</td>
+              <td>
+                <span [class]="log.sucesso ? 'estado estado--ok' : 'estado estado--erro'">
+                  {{ log.sucesso ? 'OK' : log.falhas + ' falha(s)' }}
+                </span>
+              </td>
+            </tr>
+            <tr class="linhas-envio" *ngIf="logContaExpandido() === log.id">
+              <td colspan="6">
+                <p class="nota" *ngIf="log.mensagem">{{ log.mensagem }}</p>
+                <table class="tabela">
+                  <thead>
+                    <tr><th>Registo</th><th>Método</th><th>Estado</th><th>Resposta do portal</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let l of logContaLinhas()" [class.falhou]="!l.sucesso">
+                      <td>{{ l.tipo }} {{ l.identificacao }}</td>
+                      <td>{{ l.metodo }}</td>
+                      <td>{{ l.statusCode || 'sem resposta' }}</td>
+                      <td class="resposta">{{ l.resposta }}</td>
+                    </tr>
+                    <tr *ngIf="logContaLinhas().length === 0">
+                      <td colspan="4" class="estado-vazio">A carregar as respostas…</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </td>
+            </tr>
+          </tbody>
+        </ng-container>
+      </table>
+    </div>
+  </main>
+
+  <!-- ══════════════════ REGISTO DE ENVIOS ══════════════════ -->
+  <main class="conteudo" *ngIf="vista() === 'registo'">
+    <div class="barra">
+      <button type="button" class="btn btn--voltar" (click)="voltar()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        Voltar à lista
+      </button>
+      <button type="button" class="btn" (click)="carregarLogs()">Atualizar</button>
+    </div>
+
+    <p class="nota">
+      Cada linha é uma operação de envio ao portal. Abra uma para ver a resposta que o portal
+      deu a cada conta e subconta enviada.
+    </p>
+
+    <p class="estado-vazio" *ngIf="aCarregarLogs()">A carregar…</p>
+    <p class="estado-vazio" *ngIf="!aCarregarLogs() && logs().length === 0">
+      Ainda não há envios registados.
+    </p>
+
+    <table class="tabela tabela--clicavel" *ngIf="!aCarregarLogs() && logs().length">
+      <thead>
+        <tr>
+          <th>Data</th><th>Utilizador</th><th>Ambiente</th><th>Conta</th>
+          <th>Subconta</th><th class="num">Registos</th><th>Resultado</th>
+        </tr>
+      </thead>
+      <ng-container *ngFor="let log of logs()">
+        <tbody>
+          <tr (click)="alternarLinhas(log)" tabindex="0" (keyup.enter)="alternarLinhas(log)">
+            <td>{{ log.criadoEm | date: 'dd/MM/yyyy HH:mm:ss' }}</td>
+            <td>{{ log.utilizador || '—' }}</td>
+            <td><span class="ambiente" [class.ambiente--prd]="log.ambiente === 'PRD'">{{ log.ambiente }}</span></td>
+            <td class="mono">{{ log.conta }}</td>
+            <td class="mono">{{ log.subConta || 'todas' }}</td>
+            <td class="num">{{ log.totalLinhas }}</td>
+            <td>
+              <span [class]="log.sucesso ? 'estado estado--ok' : 'estado estado--erro'">
+                {{ log.sucesso ? 'OK' : log.falhas + ' falha(s)' }}
+              </span>
+            </td>
+          </tr>
+          <tr class="linhas-envio" *ngIf="logExpandido() === log.id">
+            <td colspan="7">
+              <p class="nota" *ngIf="log.mensagem">{{ log.mensagem }}</p>
+              <table class="tabela">
+                <thead>
+                  <tr><th>Registo</th><th>Método</th><th>Estado</th><th>Resposta do portal</th></tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let l of logLinhas()" [class.falhou]="!l.sucesso">
+                    <td>{{ l.tipo }} {{ l.identificacao }}</td>
+                    <td>{{ l.metodo }}</td>
+                    <td>{{ l.statusCode || 'sem resposta' }}</td>
+                    <td class="resposta">{{ l.resposta }}</td>
+                  </tr>
+                  <tr *ngIf="logLinhas().length === 0">
+                    <td colspan="4" class="estado-vazio">A carregar as respostas…</td>
+                  </tr>
+                </tbody>
+              </table>
+            </td>
+          </tr>
+        </tbody>
+      </ng-container>
+    </table>
+  </main>
+    </div><!-- painel-conteudo -->
+  </div><!-- corpo -->
+</div>
+
+<!-- ── Editor de subconta ── -->
+<div class="sobreposicao" *ngIf="subContaAberta() as sub" (click)="fecharSubConta()">
+  <div class="painel" (click)="$event.stopPropagation()">
+    <header class="painel-topo">
+      <h2>{{ sub.idt ? 'Subconta ' + sub.ement + '/' + sub.emend : 'Nova subconta' }}</h2>
+      <button type="button" class="btn btn--discreto" (click)="fecharSubConta()">Fechar</button>
+    </header>
+
+    <div class="painel-corpo">
+      <p class="nota">
+        Os campos guardam texto tal como está na tabela — o envio é que converte para o
+        formato do portal. Deixar um campo vazio grava vazio, não o valor por omissão.
+      </p>
+
+      <fieldset *ngFor="let grupo of grupos">
+        <legend>{{ grupo.titulo }}</legend>
+        <div class="campos">
+          <label *ngFor="let campo of grupo.campos">
+            <span>{{ campo.etiqueta }}</span>
+            <input type="text" [value]="valor(sub, campo.chave)"
+                   [readonly]="campo.chave === 'ement' || (!!sub.idt && campo.chave === 'emend')"
+                   (input)="escrever(campo.chave, $any($event.target).value)" />
+            <small *ngIf="campo.ajuda">{{ campo.ajuda }}</small>
+          </label>
+        </div>
+      </fieldset>
+    </div>
+
+    <footer class="painel-rodape">
+      <button type="button" class="btn btn--primario" (click)="gravarSubConta()" [disabled]="aGravar()">
+        {{ aGravar() ? 'A gravar…' : 'Gravar subconta' }}
+      </button>
+      <button type="button" class="btn btn--discreto" (click)="fecharSubConta()">Cancelar</button>
+    </footer>
+  </div>
+</div>

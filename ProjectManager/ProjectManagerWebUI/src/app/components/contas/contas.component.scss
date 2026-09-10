@@ -1,0 +1,500 @@
+/* Estilos da Gestão de Dados, contidos no componente.
+   Os tokens vivem em :host (e não em :root) porque o Angular encapsula o CSS —
+   a mesma razão pela qual a Consulta OpenSearch os declara assim. */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:host {
+  --purple-50: #eeedfe;
+  --purple-500: #534ab7;
+  --purple-600: #453da0;
+
+  --teal-50: #e1f5ee;
+  --teal-500: #1d9e75;
+  --teal-800: #085041;
+
+  --coral-50: #faece7;
+  --coral-500: #d85a30;
+  --coral-800: #993c1d;
+
+  --amber-50: #faeeda;
+  --amber-500: #ba7517;
+  --amber-800: #854f0b;
+
+  --bg: #f5f4f2;
+  --surface: #ffffff;
+  --surface-2: #f9f8f7;
+  --text: #1a1a18;
+  --text-2: #6b6a65;
+  --text-3: #9e9d98;
+  --border: rgba(0, 0, 0, 0.1);
+  --border-2: rgba(0, 0, 0, 0.18);
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+@media (prefers-color-scheme: dark) {
+  :host {
+    --bg: #121210;
+    --surface: #1e1e1b;
+    --surface-2: #272724;
+    --text: #eeecea;
+    --text-2: #9e9d98;
+    --text-3: #6b6a65;
+    --border: rgba(255, 255, 255, 0.08);
+    --border-2: rgba(255, 255, 255, 0.15);
+  }
+}
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Topbar ── */
+.topbar {
+  height: 56px;
+  flex-shrink: 0;
+  background: var(--surface);
+  border-bottom: 0.5px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+
+.topbar-esquerda { display: flex; align-items: center; gap: 10px; }
+.topbar h1 { font-size: 16px; font-weight: 600; }
+.topbar-direita { display: flex; align-items: center; gap: 8px; }
+.utilizador { color: var(--text-2); font-size: 13px; }
+
+.logo-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-md);
+  background: var(--purple-50);
+  color: var(--purple-600);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* ── Corpo: menu de navegação + conteúdo ── */
+.corpo {
+  flex: 1;
+  display: flex;
+  align-items: flex-start;
+}
+
+.menu {
+  width: 200px;
+  flex-shrink: 0;
+  align-self: stretch;
+  background: var(--surface);
+  border-right: 0.5px solid var(--border);
+  padding: 16px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.menu-item {
+  text-align: left;
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-md);
+  padding: 9px 12px;
+  cursor: pointer;
+  color: var(--text);
+  font: inherit;
+  font-weight: 500;
+}
+
+.menu-item:hover:not(:disabled) { background: var(--surface-2); }
+.menu-item:disabled { color: var(--text-3); cursor: default; }
+
+.menu-item--ativo {
+  background: var(--purple-50);
+  color: var(--purple-600);
+}
+
+@media (prefers-color-scheme: dark) {
+  .menu-item--ativo { background: var(--surface-2); color: var(--text); }
+}
+
+.painel-conteudo { flex: 1; min-width: 0; }
+
+/* ── Conteúdo ── */
+.conteudo {
+  padding: 20px;
+  max-width: 1100px;
+  width: 100%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ── Dashboard ── */
+.dashboard {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 16px;
+}
+
+.dash-grupo h3 {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-3);
+  margin-bottom: 8px;
+}
+
+.dash-tiles {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.tile {
+  background: var(--surface);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  /* Uma faixa de cor à esquerda marca o estado sem tingir o número todo. */
+  border-left: 3px solid var(--border-2);
+}
+
+.tile-num { font-size: 24px; font-weight: 600; line-height: 1; }
+.tile-lbl { font-size: 12px; color: var(--text-2); }
+
+.tile--ok { border-left-color: var(--teal-500); }
+.tile--pendente { border-left-color: var(--amber-500); }
+.tile--erro { border-left-color: var(--coral-500); }
+.tile--ok .tile-num { color: var(--teal-800); }
+.tile--pendente .tile-num { color: var(--amber-800); }
+.tile--erro .tile-num { color: var(--coral-800); }
+
+@media (prefers-color-scheme: dark) {
+  .tile--ok .tile-num { color: var(--teal-500); }
+  .tile--pendente .tile-num { color: var(--amber-500); }
+  .tile--erro .tile-num { color: var(--coral-500); }
+}
+
+.barra {
+  display: flex;
+  /* Alinhar em baixo: os campos de filtro têm rótulo por cima e ficam mais altos, por isso
+     o botão Procurar assenta na base — os botões de ação têm de assentar na mesma linha. */
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.barra-filtros { display: flex; gap: 12px; align-items: flex-end; flex: 1; min-width: 260px; flex-wrap: wrap; }
+.barra-acoes { display: flex; gap: 8px; }
+
+/* Campos com rótulo por cima: sem o rótulo, a caixa de procura lia-se como uma barra
+   sem função. O rótulo diz o que é, e a largura mínima impede que encolha. */
+.campo { display: flex; flex-direction: column; gap: 4px; }
+.campo > span { font-size: 12px; color: var(--text-2); font-weight: 500; }
+.campo--procura { flex: 1; min-width: 240px; }
+.campo--estado { min-width: 160px; }
+.campo-botao { align-self: flex-end; }
+
+/* ── Paginação ── */
+.paginacao {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding-top: 4px;
+}
+
+.pag-esq { display: flex; align-items: center; gap: 16px; }
+.pag-total { font-size: 13px; color: var(--text-2); }
+.pag-tamanho { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-2); }
+.pag-tamanho select { width: auto; }
+.pag-nav { display: flex; align-items: center; gap: 10px; }
+.pag-pos { font-size: 13px; color: var(--text-2); }
+
+.estado-vazio { color: var(--text-2); font-size: 13px; padding: 24px 4px; }
+
+.mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+.num { text-align: right; }
+
+.tabela--clicavel tbody tr { cursor: pointer; }
+.tabela--clicavel tbody tr:hover td { background: var(--surface-2); }
+
+.linhas-envio > td { background: var(--surface-2); padding: 12px 16px; }
+
+.btn--voltar { display: inline-flex; align-items: center; gap: 6px; }
+
+.mensagem {
+  margin: 16px 20px 0;
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+}
+
+.mensagem--erro { background: var(--coral-50); color: var(--coral-800); }
+.mensagem--aviso { background: var(--teal-50); color: var(--teal-800); }
+
+.vazio { padding: 40px 20px; max-width: 620px; }
+.vazio h2 { font-size: 18px; margin-bottom: 8px; }
+.vazio p { color: var(--text-2); margin-bottom: 8px; }
+.vazio-nota { font-size: 13px; }
+
+.ficha { padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+
+.cartao {
+  background: var(--surface);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 18px 20px;
+}
+
+.cartao-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.cartao-topo h2 { font-size: 15px; font-weight: 600; }
+
+.campos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 12px;
+}
+
+label { display: flex; flex-direction: column; gap: 4px; }
+label > span { font-size: 12px; color: var(--text-2); font-weight: 500; }
+label small { font-size: 11px; color: var(--text-3); }
+
+input[type='text'],
+input[type='search'],
+select {
+  background: var(--surface-2);
+  border: 0.5px solid var(--border-2);
+  border-radius: var(--radius-sm);
+  padding: 7px 10px;
+  color: var(--text);
+  font: inherit;
+  width: 100%;
+}
+
+input[readonly] { color: var(--text-2); }
+
+input:focus,
+select:focus {
+  outline: 2px solid var(--purple-500);
+  outline-offset: -1px;
+}
+
+.acoes { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
+
+.btn {
+  background: var(--surface-2);
+  border: 0.5px solid var(--border-2);
+  border-radius: var(--radius-sm);
+  padding: 7px 14px;
+  cursor: pointer;
+  color: var(--text);
+  font: inherit;
+  font-weight: 500;
+}
+
+.btn:hover:not(:disabled) { border-color: var(--text-3); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.btn--primario {
+  background: var(--purple-500);
+  border-color: var(--purple-500);
+  color: #fff;
+}
+
+.btn--envio {
+  background: var(--teal-500);
+  border-color: var(--teal-500);
+  color: #fff;
+}
+
+.btn--discreto { background: transparent; }
+.btn--pequeno { padding: 4px 10px; font-size: 12px; }
+
+.nota { color: var(--text-2); font-size: 13px; margin-bottom: 12px; }
+
+/* ── Estados ── */
+.estado {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--text-2);
+  white-space: nowrap;
+}
+
+.estado--ok { background: var(--teal-50); color: var(--teal-800); }
+.estado--erro { background: var(--coral-50); color: var(--coral-800); }
+.estado--pendente { background: var(--amber-50); color: var(--amber-800); }
+
+/* Ambiente do envio: QUA discreto, PRD assinalado — para produção saltar à vista no registo. */
+.ambiente {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--text-2);
+}
+.ambiente--prd { background: var(--coral-50); color: var(--coral-800); }
+
+@media (prefers-color-scheme: dark) {
+  .ambiente--prd { background: rgba(216, 90, 48, 0.16); color: var(--coral-500); }
+}
+
+/* ── Envio ── */
+.opcoes { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+
+.opcao {
+  flex: 1;
+  min-width: 200px;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  border: 0.5px solid var(--border-2);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  cursor: pointer;
+}
+
+.opcao span { display: flex; flex-direction: column; }
+.opcao small { color: var(--text-3); font-size: 11px; }
+
+/* Produção fica assinalada a cor de aviso: os dois botões são iguais ao clique,
+   e só o rótulo distingue um teste de uma alteração real em clientes. */
+.opcao--producao { border-color: var(--coral-500); }
+.opcao--producao strong { color: var(--coral-800); }
+
+@media (prefers-color-scheme: dark) {
+  .opcao--producao strong { color: var(--coral-500); }
+}
+
+.campo-envio { max-width: 520px; }
+
+.resultado { margin-top: 16px; }
+.resultado-ok { color: var(--teal-800); font-weight: 600; margin-bottom: 8px; }
+.resultado-erro { color: var(--coral-800); font-weight: 600; margin-bottom: 8px; }
+
+/* ── Tabelas ── */
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+
+th {
+  text-align: left;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-3);
+  padding: 6px 8px;
+  border-bottom: 0.5px solid var(--border);
+}
+
+td { padding: 8px; border-bottom: 0.5px solid var(--border); vertical-align: top; }
+
+tr.falhou td { background: var(--coral-50); }
+
+@media (prefers-color-scheme: dark) {
+  tr.falhou td { background: rgba(216, 90, 48, 0.12); }
+}
+
+.resposta {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  color: var(--text-2);
+  max-width: 420px;
+  word-break: break-word;
+}
+
+/* ── Editor de subconta ── */
+.sobreposicao {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 10;
+}
+
+.painel {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  width: min(980px, 100%);
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.painel-topo,
+.painel-rodape {
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface);
+}
+
+.painel-topo {
+  justify-content: space-between;
+  border-bottom: 0.5px solid var(--border);
+}
+
+.painel-topo h2 { font-size: 15px; font-weight: 600; }
+
+.painel-rodape { border-top: 0.5px solid var(--border); }
+
+.painel-corpo { padding: 18px 20px; overflow-y: auto; }
+
+fieldset {
+  border: 0;
+  margin-bottom: 20px;
+}
+
+legend {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-3);
+  margin-bottom: 10px;
+}

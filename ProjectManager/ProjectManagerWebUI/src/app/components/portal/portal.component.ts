@@ -38,6 +38,13 @@ export class PortalComponent implements OnInit {
       case 'indisponivel':
         this.avisoAcesso =
           'Não foi possível abrir a Consulta OpenSearch: o serviço não respondeu. Tente novamente mais tarde.';
+        return;
+    }
+
+    switch (this.route.snapshot.queryParams['contas']) {
+      case 'indisponivel':
+        this.avisoAcesso =
+          'Não foi possível abrir a Gestão de Dados: o serviço não respondeu. Tente novamente mais tarde.';
         break;
     }
   }

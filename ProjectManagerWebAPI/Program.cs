@@ -151,6 +151,22 @@ builder.Services.AddHttpClient<KubernetesGateway>((sp, http) =>
     return handler;
 });
 
+// Gestão de Dados — contas e subcontas (WSDPD) e envio ao portal de clientes.
+// Usa as credenciais da Gestão SEUR, como a Consulta OpenSearch: o [RequerApp("seur")] no
+// controlador é que separa as sessões, já que todas as apps assinam o JWT com a mesma chave.
+builder.Services.Configure<ContasOptions>(builder.Configuration.GetSection(ContasOptions.Seccao));
+builder.Services.AddScoped<IContasRepository, ContasRepository>();
+builder.Services.AddScoped<IContasPortalSender, ContasPortalSender>();
+builder.Services.AddScoped<IContasAuditService, ContasAuditService>();
+
+// Cliente nomeado (e não tipado): os endereços mudam com o ambiente escolhido em cada envio,
+// por isso não há BaseAddress fixo — cada pedido leva o URL completo.
+builder.Services.AddHttpClient("ContasPortal", (sp, http) =>
+{
+    var opcoes = sp.GetRequiredService<Microsoft.Extensions.Options.IOptions<ContasOptions>>().Value;
+    http.Timeout = TimeSpan.FromSeconds(opcoes.TimeoutSegundos);
+});
+
 // Configurar SmtpSettings
 builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("SmtpSettings"));
 
@@ -182,6 +198,15 @@ try
 catch (Exception ex)
 {
     Console.WriteLine($"Erro ao criar tabela de log OraConsole: {ex.Message}");
+}
+
+try
+{
+    ContasLogSchemaInitializer.EnsureLogTables(builder.Configuration);
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"Erro ao criar tabelas de log de envios: {ex.Message}");
 }
 
 if (app.Environment.IsDevelopment())

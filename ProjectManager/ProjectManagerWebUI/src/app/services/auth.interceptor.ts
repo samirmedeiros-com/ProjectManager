@@ -13,9 +13,11 @@ export class AuthInterceptor implements HttpInterceptor {
     // do 401 abaixo, que o mandaria para o portal a meio de um turno.
     // A Gestão Kubernetes tem credenciais próprias: o token dela é posto pelo
     // kubernetes.interceptor, e pôr aqui o do Project Manager mandaria a credencial errada.
+    // A Gestão de Dados usa as credenciais do SEUR, tal como a Consulta OpenSearch.
     // A Consulta OpenSearch usa as credenciais do SEUR: o Bearer é posto pelo
     // opensearch.service, e o 401 dela leva ao /login-seur, não ao portal.
     if (request.url.includes('/api/seur/')
+        || request.url.includes('/api/contas/')
         || request.url.includes('/api/opensearch/')
         || request.url.includes('/api/oraconsole/')
         || request.url.includes('/api/kubernetes/')

@@ -21,7 +21,7 @@ export class OpenSearchGuard implements CanActivate {
 
   canActivate(): Observable<boolean> {
     if (!this.seurAuth.isAuthenticated()) {
-      this.router.navigate(['/login-seur'], { queryParams: { returnUrl: '/opensearch' } });
+      this.router.navigate(['/login-opensearch'], { queryParams: { returnUrl: '/opensearch' } });
       return of(false);
     }
 
@@ -32,7 +32,7 @@ export class OpenSearchGuard implements CanActivate {
         // os casos o caminho é voltar a entrar na Gestão SEUR.
         if (err?.status === 401) {
           this.seurAuth.logout();
-          this.router.navigate(['/login-seur'], { queryParams: { returnUrl: '/opensearch' } });
+          this.router.navigate(['/login-opensearch'], { queryParams: { returnUrl: '/opensearch' } });
           return of(false);
         }
 

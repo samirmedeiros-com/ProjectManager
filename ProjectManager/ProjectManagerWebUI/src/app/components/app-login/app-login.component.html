@@ -1,0 +1,70 @@
+<div class="login" [style.--accent]="tema.cor">
+  <div class="cartao">
+    <div class="emblema">{{ tema.sigla }}</div>
+    <h1>{{ tema.titulo }}</h1>
+    <p class="sub">{{ tema.subtitulo }}</p>
+
+    <form (ngSubmit)="onSubmit()">
+      <label class="campo">
+        <span>Email</span>
+        <input type="email" name="email" [(ngModel)]="form.email"
+               [class.invalido]="submitted() && !form.email" autocomplete="username" />
+        <small class="erro-campo" *ngIf="submitted() && !form.email">O email é obrigatório.</small>
+      </label>
+
+      <label class="campo">
+        <span>Password</span>
+        <input type="password" name="password" [(ngModel)]="form.password"
+               [class.invalido]="submitted() && !form.password"
+               (keyup.enter)="onSubmit()" autocomplete="current-password" />
+        <small class="erro-campo" *ngIf="submitted() && !form.password">A password é obrigatória.</small>
+      </label>
+
+      <div class="alerta" *ngIf="error()">{{ error() }}</div>
+
+      <button type="submit" class="btn-entrar" [disabled]="loading()">
+        {{ loading() ? 'A entrar…' : 'Entrar' }}
+      </button>
+
+      <button type="button" class="ligacao" (click)="abrirRecuperar()">Esqueci a password</button>
+    </form>
+
+    <button type="button" class="voltar" (click)="voltarAoPortal()">← Voltar ao Portal</button>
+  </div>
+</div>
+
+<!-- Recuperação: pedir email -->
+<div class="sobreposicao" *ngIf="showForgotModal()" (click)="fecharRecuperar()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <header class="modal-topo">
+      <h2>Recuperar password</h2>
+      <button type="button" class="fechar" (click)="fecharRecuperar()">✕</button>
+    </header>
+    <div class="modal-corpo">
+      <p class="sub">Introduza o seu email e enviamos uma nova password para a sua caixa de correio.</p>
+      <label class="campo">
+        <span>Email</span>
+        <input type="email" name="recEmail" [(ngModel)]="forgotEmail"
+               placeholder="o.seu@email.pt" [disabled]="forgotLoading()" />
+      </label>
+    </div>
+    <footer class="modal-rodape">
+      <button type="button" class="btn-secundario" (click)="fecharRecuperar()" [disabled]="forgotLoading()">Cancelar</button>
+      <button type="button" class="btn-entrar" (click)="submeterRecuperar()" [disabled]="forgotLoading()">
+        {{ forgotLoading() ? 'A enviar…' : 'Solicitar' }}
+      </button>
+    </footer>
+  </div>
+</div>
+
+<!-- Recuperação: resultado -->
+<div class="sobreposicao" *ngIf="showResultModal()" (click)="fecharResultado()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-corpo">
+      <div [class]="resultSuccess() ? 'alerta alerta--ok' : 'alerta'">{{ resultMessage() }}</div>
+    </div>
+    <footer class="modal-rodape">
+      <button type="button" class="btn-entrar" (click)="fecharResultado()">OK</button>
+    </footer>
+  </div>
+</div>

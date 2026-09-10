@@ -1,0 +1,187 @@
+/* Ecrã de login partilhado, personalizado por rota. A cor de destaque entra por --accent,
+   definida no elemento a partir do tema da rota; o resto segue os tokens das outras telas. */
+
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+:host {
+  --bg: #f5f4f2;
+  --surface: #ffffff;
+  --surface-2: #f9f8f7;
+  --text: #1a1a18;
+  --text-2: #6b6a65;
+  --text-3: #9e9d98;
+  --border: rgba(0, 0, 0, 0.1);
+  --border-2: rgba(0, 0, 0, 0.18);
+  --coral-50: #faece7;
+  --coral-800: #993c1d;
+  --teal-50: #e1f5ee;
+  --teal-800: #085041;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: var(--text);
+}
+
+@media (prefers-color-scheme: dark) {
+  :host {
+    --bg: #121210;
+    --surface: #1e1e1b;
+    --surface-2: #272724;
+    --text: #eeecea;
+    --text-2: #9e9d98;
+    --text-3: #6b6a65;
+    --border: rgba(255, 255, 255, 0.08);
+    --border-2: rgba(255, 255, 255, 0.15);
+  }
+}
+
+.login {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: var(--bg);
+  /* Um toque da cor da app no fundo, para o ecrã não ser branco genérico. */
+  background-image: radial-gradient(circle at 50% -10%, color-mix(in srgb, var(--accent) 18%, transparent), transparent 55%);
+}
+
+.cartao {
+  width: 100%;
+  max-width: 380px;
+  background: var(--surface);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 32px 28px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+  text-align: center;
+}
+
+.emblema {
+  width: 52px;
+  height: 52px;
+  margin: 0 auto 16px;
+  border-radius: 14px;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 700;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+h1 { font-size: 20px; font-weight: 600; margin: 0 0 4px; }
+.sub { color: var(--text-2); font-size: 13px; margin: 0 0 20px; }
+
+form { text-align: left; display: flex; flex-direction: column; gap: 14px; }
+
+.campo { display: flex; flex-direction: column; gap: 5px; }
+.campo > span { font-size: 12px; color: var(--text-2); font-weight: 500; }
+
+input {
+  background: var(--surface-2);
+  border: 0.5px solid var(--border-2);
+  border-radius: var(--radius-sm);
+  padding: 9px 11px;
+  color: var(--text);
+  font: inherit;
+  width: 100%;
+}
+
+input:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+input.invalido { border-color: var(--coral-800); }
+
+.erro-campo { font-size: 11px; color: var(--coral-800); }
+
+.alerta {
+  background: var(--coral-50);
+  color: var(--coral-800);
+  border-radius: var(--radius-sm);
+  padding: 9px 12px;
+  font-size: 13px;
+}
+
+.alerta--ok { background: var(--teal-50); color: var(--teal-800); }
+
+.btn-entrar {
+  background: var(--accent);
+  border: 0;
+  border-radius: var(--radius-sm);
+  color: #fff;
+  font: inherit;
+  font-weight: 600;
+  padding: 10px 14px;
+  cursor: pointer;
+}
+
+.btn-entrar:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.btn-secundario {
+  background: transparent;
+  border: 0.5px solid var(--border-2);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font: inherit;
+  font-weight: 500;
+  padding: 10px 14px;
+  cursor: pointer;
+}
+
+.ligacao,
+.voltar {
+  background: none;
+  border: 0;
+  color: var(--text-2);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.ligacao { align-self: center; margin-top: 2px; }
+.ligacao:hover { color: var(--accent); }
+.voltar { display: block; margin: 18px auto 0; }
+.voltar:hover { color: var(--text); }
+
+/* ── Modais de recuperação ── */
+.sobreposicao {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 10;
+}
+
+.modal {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  width: min(420px, 100%);
+  overflow: hidden;
+}
+
+.modal-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  border-bottom: 0.5px solid var(--border);
+}
+
+.modal-topo h2 { font-size: 15px; font-weight: 600; margin: 0; }
+.fechar { background: none; border: 0; font-size: 15px; cursor: pointer; color: var(--text-2); }
+
+.modal-corpo { padding: 18px; display: flex; flex-direction: column; gap: 12px; }
+.modal-rodape {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 14px 18px;
+  border-top: 0.5px solid var(--border);
+}

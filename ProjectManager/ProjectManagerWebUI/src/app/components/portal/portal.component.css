@@ -187,3 +187,22 @@
 .app-card:hover .card-action {
   background: #bb0028;
 }
+
+/* Gestão de Dados — verde, para não se confundir com o roxo da Consulta OpenSearch,
+   que usa as mesmas credenciais e fica ao lado no portal. */
+.card-icon--contas {
+  background: rgba(29, 158, 117, 0.1);
+  color: #1d9e75;
+}
+
+.card-action--contas {
+  background: #1d9e75;
+}
+
+.app-card:has(.card-icon--contas):hover {
+  border-color: #1d9e75;
+}
+
+.app-card:has(.card-icon--contas):hover .card-action--contas {
+  background: #16805e;
+}

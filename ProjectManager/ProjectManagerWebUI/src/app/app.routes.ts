@@ -11,6 +11,8 @@ import { DebugComponent } from './components/debug/debug.component';
 import { LoginOraConsoleComponent } from './components/login-oraconsole/login-oraconsole.component';
 import { OraConsoleWorkbenchComponent } from './components/oraconsole-workbench/oraconsole-workbench.component';
 import { OpenSearchComponent } from './components/opensearch/opensearch.component';
+import { ContasComponent } from './components/contas/contas.component';
+import { AppLoginComponent } from './components/app-login/app-login.component';
 import { TvComponent } from './components/tv/tv.component';
 import { LoginKubernetesComponent } from './components/login-kubernetes/login-kubernetes.component';
 import { KubernetesComponent } from './components/kubernetes/kubernetes.component';
@@ -21,6 +23,7 @@ import { GestorGuard } from './guards/gestor.guard';
 import { SeurAuthGuard } from './guards/seur-auth.guard';
 import { OraConsoleAuthGuard } from './guards/oraconsole-auth.guard';
 import { OpenSearchGuard } from './guards/opensearch.guard';
+import { ContasGuard } from './guards/contas.guard';
 import { KubernetesAuthGuard } from './guards/kubernetes-auth.guard';
 import { KubernetesAdminGuard } from './guards/kubernetes-admin.guard';
 
@@ -44,8 +47,34 @@ export const routes: Routes = [
   { path: 'login-oraconsole', component: LoginOraConsoleComponent },
   { path: 'oraconsole/workbench', component: OraConsoleWorkbenchComponent, canActivate: [OraConsoleAuthGuard] },
 
-  // Portal de consulta ao OpenSearch — login do Project Manager, restrito ao setor IT
+  // Consulta OpenSearch — credenciais da Gestão SEUR, com ecrã de login próprio.
+  {
+    path: 'login-opensearch',
+    component: AppLoginComponent,
+    data: {
+      titulo: 'Consulta OpenSearch',
+      subtitulo: 'Pesquisa nos logs das aplicações',
+      cor: '#534ab7',
+      returnUrlPadrao: '/opensearch',
+      sigla: 'OS',
+    },
+  },
   { path: 'opensearch', component: OpenSearchComponent, canActivate: [OpenSearchGuard] },
+
+  // Gestão de Dados — contas e subcontas; credenciais da Gestão SEUR, como o OpenSearch,
+  // mas com ecrã de login próprio (partilha a base de utilizadores, muda a identidade).
+  {
+    path: 'login-contas',
+    component: AppLoginComponent,
+    data: {
+      titulo: 'Gestão de Dados',
+      subtitulo: 'Contas e subcontas · portal de clientes',
+      cor: '#1d9e75',
+      returnUrlPadrao: '/contas',
+      sigla: 'GD',
+    },
+  },
+  { path: 'contas', component: ContasComponent, canActivate: [ContasGuard] },
 
   // Gestão Kubernetes — login próprio, credenciais separadas das outras aplicações
   { path: 'login-kubernetes', component: LoginKubernetesComponent },
