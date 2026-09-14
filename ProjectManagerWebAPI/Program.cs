@@ -163,6 +163,11 @@ builder.Services.AddScoped<IContasAuditService, ContasAuditService>();
 builder.Services.AddScoped<ITracePushRepository, TracePushRepository>();
 builder.Services.AddScoped<ITracePushAuditService, TracePushAuditService>();
 
+// Kafka — módulo da Gestão de Dados sobre a REST API do Kafka Connect.
+builder.Services.Configure<KafkaOptions>(builder.Configuration.GetSection(KafkaOptions.Seccao));
+builder.Services.AddScoped<IKafkaConnectGateway, KafkaConnectGateway>();
+builder.Services.AddHttpClient("KafkaConnect");
+
 // Cliente nomeado (e não tipado): os endereços mudam com o ambiente escolhido em cada envio,
 // por isso não há BaseAddress fixo — cada pedido leva o URL completo.
 builder.Services.AddHttpClient("ContasPortal", (sp, http) =>

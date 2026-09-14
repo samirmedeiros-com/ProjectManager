@@ -1,0 +1,144 @@
+<div class="kafka">
+  <div class="mensagem mensagem--erro" *ngIf="erro()">{{ erro() }}</div>
+  <div class="mensagem mensagem--aviso" *ngIf="aviso()">{{ aviso() }}</div>
+
+  <!-- ── Contadores ── -->
+  <section class="dashboard" *ngIf="resumo() as r">
+    <header class="dash-cabecalho">
+      <h3 class="dash-titulo">Conectores</h3>
+      <span class="dash-nota">
+        Replicação AS400 → Kafka → Oracle
+        <span *ngIf="atualizadoEm() as a"> · lido às {{ a | date: 'HH:mm:ss' }}</span>
+      </span>
+      <button type="button" class="btn btn--mini" (click)="carregar()" [disabled]="aCarregar()">
+        {{ aCarregar() ? 'A ler…' : 'Atualizar' }}
+      </button>
+    </header>
+
+    <div class="dash-tiles">
+      <div class="tile tile--ok">
+        <span class="tile-num">{{ r.aFuncionar }}</span>
+        <span class="tile-lbl">A funcionar</span>
+      </div>
+      <div class="tile tile--erro">
+        <span class="tile-num">{{ r.comErro }}</span>
+        <span class="tile-lbl">Com erro</span>
+      </div>
+      <div class="tile tile--pausa">
+        <span class="tile-num">{{ r.emPausa }}</span>
+        <span class="tile-lbl">Em pausa</span>
+      </div>
+      <div class="tile">
+        <span class="tile-num">{{ r.total }}</span>
+        <span class="tile-lbl">Total</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Lista de conectores ── -->
+  <section class="cartao">
+    <header class="cartao-cabecalho">
+      <h3>Estado</h3>
+      <span class="cartao-nota">Clique num conector para ver as tasks e o erro</span>
+    </header>
+
+    <div class="tabela-envolucro">
+      <table class="tabela">
+        <thead>
+          <tr>
+            <th>Conector</th>
+            <th>Tipo</th>
+            <th>Estado</th>
+            <th>Tasks</th>
+            <th>Tópico</th>
+            <th>Destino</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let c of resumo()?.conectores" class="clicavel"
+              [class.linha--erro]="c.emErro" (click)="abrirDetalhe(c)">
+            <td class="forte mono">{{ c.nome }}</td>
+            <td><span class="tipo">{{ c.tipo }}</span></td>
+            <td><span class="cracha" [ngClass]="classeEstado(c.estado)">{{ c.estado }}</span></td>
+            <td>
+              <span *ngFor="let t of c.tasks" class="task-ponto"
+                    [ngClass]="classeEstado(t.estado)"
+                    [attr.title]="'Task ' + t.id + ': ' + t.estado">{{ t.id }}</span>
+              <span class="sem-tasks" *ngIf="c.tasks.length === 0">sem tasks</span>
+            </td>
+            <td class="mono">{{ c.topico || '—' }}</td>
+            <td class="mono">{{ c.tabela || '—' }}</td>
+            <td class="num">
+              <button type="button" class="btn btn--mini" (click)="$event.stopPropagation(); abrirDetalhe(c)">
+                Detalhe
+              </button>
+            </td>
+          </tr>
+
+          <tr *ngIf="!resumo() && !aCarregar() && !erro()">
+            <td colspan="7" class="vazio">Sem dados do Kafka Connect.</td>
+          </tr>
+          <tr *ngIf="aCarregar() && !resumo()">
+            <td colspan="7" class="vazio">A ler os conectores…</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ── Popup do conector ── -->
+  <div class="overlay" *ngIf="detalhe()" (click)="fecharDetalhe()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <ng-container *ngIf="detalhe() as d">
+        <header class="modal-cabecalho">
+          <div>
+            <h3 class="mono">{{ d.nome }}</h3>
+            <span class="modal-sub">
+              <span class="cracha" [ngClass]="classeEstado(d.estado)">{{ d.estado }}</span>
+              <span class="tipo">{{ d.tipo }}</span>
+              <span *ngIf="d.classe">{{ d.classe }}</span>
+            </span>
+          </div>
+          <button type="button" class="btn btn--discreto" (click)="fecharDetalhe()">Fechar</button>
+        </header>
+
+        <div class="modal-corpo">
+          <dl class="ficha">
+            <div><dt>Tópico</dt><dd class="mono">{{ d.topico || '—' }}</dd></div>
+            <div><dt>Destino</dt><dd class="mono">{{ d.tabela || '—' }}</dd></div>
+            <div><dt>Worker</dt><dd class="mono">{{ d.worker || '—' }}</dd></div>
+          </dl>
+
+          <h4 class="seccao">Tasks</h4>
+
+          <div class="task" *ngFor="let t of d.tasks" [class.task--erro]="t.emErro">
+            <div class="task-cabecalho">
+              <span class="task-id">Task {{ t.id }}</span>
+              <span class="cracha" [ngClass]="classeEstado(t.estado)">{{ t.estado }}</span>
+              <span class="task-worker mono">{{ t.worker }}</span>
+
+              <button type="button" class="btn btn--mini"
+                      [class.btn--primario]="t.emErro"
+                      (click)="reiniciar(d.nome, t)"
+                      [disabled]="aReiniciarEsta(d.nome, t)">
+                {{ aReiniciarEsta(d.nome, t) ? 'A reiniciar…' : 'Reiniciar task' }}
+              </button>
+            </div>
+
+            <pre class="bloco" *ngIf="t.traco">{{ t.traco }}</pre>
+          </div>
+
+          <p class="vazio" *ngIf="d.tasks.length === 0">Este conector não tem tasks a correr.</p>
+        </div>
+
+        <footer class="modal-rodape">
+          <span class="modal-nota">
+            Reiniciar uma task que está a correr interrompe a replicação por instantes. O estado
+            novo aparece na leitura seguinte.
+          </span>
+        </footer>
+      </ng-container>
+    </div>
+  </div>
+</div>
