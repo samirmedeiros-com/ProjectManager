@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit, computed, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TracePushComponent } from '../tracepush/tracepush.component';
+import { KafkaComponent } from '../kafka/kafka.component';
 import { Router } from '@angular/router';
 import { SeurAuthService } from '../../services/seur-auth.service';
 import {
@@ -26,6 +27,12 @@ interface ItemMenu {
   chave: string;
   etiqueta: string;
   ativo: boolean;
+  /**
+   * Traçado do ícone, desenhado num <svg> de 24×24 com stroke e sem preenchimento — o mesmo
+   * estilo do ícone da barra de topo. Fica aqui e não num ficheiro de assets porque são três
+   * traçados curtos e uma imagem externa por item seriam três pedidos para desenhar um menu.
+   */
+  icone: string;
 }
 
 /** Campos de uma subconta agrupados como se lêem no ecrã, não como estão na tabela. */
@@ -37,7 +44,7 @@ interface GrupoCampos {
 @Component({
   selector: 'app-contas',
   standalone: true,
-  imports: [CommonModule, FormsModule, TracePushComponent],
+  imports: [CommonModule, FormsModule, TracePushComponent, KafkaComponent],
   templateUrl: './contas.component.html',
   styleUrls: ['./contas.component.scss'],
 })
@@ -46,8 +53,27 @@ export class ContasComponent implements OnInit {
 
   /** Módulos da Gestão de Dados. "Contas" é o único ativo; os outros ficam para depois. */
   readonly menu: ItemMenu[] = [
-    { chave: 'contas', etiqueta: 'Contas', ativo: true },
-    { chave: 'tracepush', etiqueta: 'Trace Push', ativo: true },
+    // Contas: uma ficha de cliente.
+    {
+      chave: 'contas',
+      etiqueta: 'Contas',
+      ativo: true,
+      icone: 'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2 M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8',
+    },
+    // Trace Push: um envio a sair.
+    {
+      chave: 'tracepush',
+      etiqueta: 'Trace Push',
+      ativo: true,
+      icone: 'M22 2 11 13 M22 2l-7 20-4-9-9-4 20-7z',
+    },
+    // Kafka: nós ligados, que é o que um pipeline de conectores é.
+    {
+      chave: 'kafka',
+      etiqueta: 'Kafka',
+      ativo: true,
+      icone: 'M5 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4z M19 21a2 2 0 1 0 0-4 2 2 0 0 0 0 4z M19 11a2 2 0 1 0 0-4 2 2 0 0 0 0 4z M5 17a2 2 0 1 0 0-4 2 2 0 0 0 0 4z M7 5h6a4 4 0 0 1 4 4 M17 15v0a4 4 0 0 1-4 4H7 M5 7v6',
+    },
   ];
   moduloAtivo = signal('contas');
 

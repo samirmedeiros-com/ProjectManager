@@ -11,7 +11,9 @@
         </svg>
       </div>
       <h1>
-        <ng-container *ngIf="moduloAtivo() === 'tracepush'; else tituloContas">Trace Push</ng-container>
+        <ng-container *ngIf="moduloAtivo() === 'tracepush'; else tituloKafka">Trace Push</ng-container>
+        <ng-template #tituloKafka>
+        <ng-container *ngIf="moduloAtivo() === 'kafka'; else tituloContas">Kafka</ng-container>
         <ng-template #tituloContas>
         <ng-container [ngSwitch]="vista()">
           <ng-container *ngSwitchCase="'detalhe'">
@@ -20,6 +22,7 @@
           <ng-container *ngSwitchCase="'registo'">Registo de envios</ng-container>
           <ng-container *ngSwitchDefault>Gestão de Dados</ng-container>
         </ng-container>
+        </ng-template>
         </ng-template>
       </h1>
     </div>
@@ -36,7 +39,11 @@
       <button type="button" class="menu-item" *ngFor="let m of menu"
               [class.menu-item--ativo]="m.chave === moduloAtivo()"
               [disabled]="!m.ativo" (click)="selecionarModulo(m.chave)">
-        {{ m.etiqueta }}
+        <svg class="menu-icone" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path [attr.d]="m.icone" />
+        </svg>
+        <span>{{ m.etiqueta }}</span>
       </button>
     </nav>
 
@@ -443,6 +450,11 @@
   <!-- ══════════════════ TRACE PUSH ══════════════════ -->
   <main class="conteudo" *ngIf="moduloAtivo() === 'tracepush'">
     <app-tracepush></app-tracepush>
+  </main>
+
+  <!-- ══════════════════ KAFKA ══════════════════ -->
+  <main class="conteudo" *ngIf="moduloAtivo() === 'kafka'">
+    <app-kafka></app-kafka>
   </main>
 
     </div><!-- painel-conteudo -->

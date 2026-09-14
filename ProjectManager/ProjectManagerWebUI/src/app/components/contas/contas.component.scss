@@ -118,6 +118,9 @@
 }
 
 .menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   text-align: left;
   background: transparent;
   border: 0;
@@ -128,6 +131,16 @@
   font: inherit;
   font-weight: 500;
 }
+
+/* O ícone acompanha a cor do texto (stroke: currentColor), por isso acende com o item activo
+   sem precisar de regra própria. Um pouco mais apagado que a etiqueta para não competir com ela. */
+.menu-icone {
+  width: 17px;
+  height: 17px;
+  flex-shrink: 0;
+  opacity: 0.75;
+}
+.menu-item--ativo .menu-icone { opacity: 1; }
 
 .menu-item:hover:not(:disabled) { background: var(--surface-2); }
 .menu-item:disabled { color: var(--text-3); cursor: default; }
