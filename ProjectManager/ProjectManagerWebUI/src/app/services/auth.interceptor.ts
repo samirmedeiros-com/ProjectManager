@@ -18,6 +18,7 @@ export class AuthInterceptor implements HttpInterceptor {
     // opensearch.service, e o 401 dela leva ao /login-seur, não ao portal.
     if (request.url.includes('/api/seur/')
         || request.url.includes('/api/contas/')
+        || request.url.includes('/api/tracepush')
         || request.url.includes('/api/opensearch/')
         || request.url.includes('/api/oraconsole/')
         || request.url.includes('/api/kubernetes/')

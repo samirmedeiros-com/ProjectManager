@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, computed, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { TracePushComponent } from '../tracepush/tracepush.component';
 import { Router } from '@angular/router';
 import { SeurAuthService } from '../../services/seur-auth.service';
 import {
@@ -36,7 +37,7 @@ interface GrupoCampos {
 @Component({
   selector: 'app-contas',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, TracePushComponent],
   templateUrl: './contas.component.html',
   styleUrls: ['./contas.component.scss'],
 })
@@ -46,6 +47,7 @@ export class ContasComponent implements OnInit {
   /** Módulos da Gestão de Dados. "Contas" é o único ativo; os outros ficam para depois. */
   readonly menu: ItemMenu[] = [
     { chave: 'contas', etiqueta: 'Contas', ativo: true },
+    { chave: 'tracepush', etiqueta: 'Trace Push', ativo: true },
   ];
   moduloAtivo = signal('contas');
 

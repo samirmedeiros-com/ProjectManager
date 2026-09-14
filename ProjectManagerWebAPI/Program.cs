@@ -159,6 +159,10 @@ builder.Services.AddScoped<IContasRepository, ContasRepository>();
 builder.Services.AddScoped<IContasPortalSender, ContasPortalSender>();
 builder.Services.AddScoped<IContasAuditService, ContasAuditService>();
 
+// Trace Push — módulo da Gestão de Dados sobre CHRONO_WEB.CW_TRACEPUSH (mesma ligação das contas).
+builder.Services.AddScoped<ITracePushRepository, TracePushRepository>();
+builder.Services.AddScoped<ITracePushAuditService, TracePushAuditService>();
+
 // Cliente nomeado (e não tipado): os endereços mudam com o ambiente escolhido em cada envio,
 // por isso não há BaseAddress fixo — cada pedido leva o URL completo.
 builder.Services.AddHttpClient("ContasPortal", (sp, http) =>
@@ -203,6 +207,7 @@ catch (Exception ex)
 try
 {
     ContasLogSchemaInitializer.EnsureLogTables(builder.Configuration);
+    TracePushLogSchemaInitializer.EnsureLogTables(builder.Configuration);
 }
 catch (Exception ex)
 {

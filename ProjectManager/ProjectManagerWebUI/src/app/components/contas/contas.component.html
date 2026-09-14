@@ -11,6 +11,8 @@
         </svg>
       </div>
       <h1>
+        <ng-container *ngIf="moduloAtivo() === 'tracepush'; else tituloContas">Trace Push</ng-container>
+        <ng-template #tituloContas>
         <ng-container [ngSwitch]="vista()">
           <ng-container *ngSwitchCase="'detalhe'">
             {{ contaAberta()?.eeent || 'Nova conta' }}
@@ -18,6 +20,7 @@
           <ng-container *ngSwitchCase="'registo'">Registo de envios</ng-container>
           <ng-container *ngSwitchDefault>Gestão de Dados</ng-container>
         </ng-container>
+        </ng-template>
       </h1>
     </div>
     <div class="topbar-direita">
@@ -42,7 +45,7 @@
       <div class="mensagem mensagem--aviso" *ngIf="aviso()">{{ aviso() }}</div>
 
   <!-- ══════════════════ LISTA ══════════════════ -->
-  <main class="conteudo" *ngIf="vista() === 'lista'">
+  <main class="conteudo" *ngIf="moduloAtivo() === 'contas' && vista() === 'lista'">
     <!-- ── Dashboard: estado de transmissão de contas e subcontas ── -->
     <section class="dashboard" *ngIf="estatisticas() as e">
       <div class="dash-grupo">
@@ -159,7 +162,7 @@
   </main>
 
   <!-- ══════════════════ DETALHE ══════════════════ -->
-  <main class="conteudo" *ngIf="vista() === 'detalhe' && contaAberta() as conta">
+  <main class="conteudo" *ngIf="moduloAtivo() === 'contas' && vista() === 'detalhe' && contaAberta() as conta">
     <div class="barra">
       <button type="button" class="btn btn--voltar" (click)="voltar()">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -370,7 +373,7 @@
   </main>
 
   <!-- ══════════════════ REGISTO DE ENVIOS ══════════════════ -->
-  <main class="conteudo" *ngIf="vista() === 'registo'">
+  <main class="conteudo" *ngIf="moduloAtivo() === 'contas' && vista() === 'registo'">
     <div class="barra">
       <button type="button" class="btn btn--voltar" (click)="voltar()">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -437,6 +440,11 @@
       </ng-container>
     </table>
   </main>
+  <!-- ══════════════════ TRACE PUSH ══════════════════ -->
+  <main class="conteudo" *ngIf="moduloAtivo() === 'tracepush'">
+    <app-tracepush></app-tracepush>
+  </main>
+
     </div><!-- painel-conteudo -->
   </div><!-- corpo -->
 </div>

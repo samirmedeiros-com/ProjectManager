@@ -1,0 +1,318 @@
+<div class="tracepush">
+  <div class="mensagem mensagem--erro" *ngIf="erro()">{{ erro() }}</div>
+  <div class="mensagem mensagem--aviso" *ngIf="aviso()">{{ aviso() }}</div>
+
+  <!-- ── Cartões do dia ── -->
+  <section class="dashboard" *ngIf="estatisticas() as e">
+    <div class="dash-cabecalho">
+      <h3>{{ ehHoje() ? 'Hoje' : (e.dia | date: 'dd/MM/yyyy') }}</h3>
+      <span class="dash-nota">Envios de trace para os webservices dos clientes</span>
+    </div>
+    <div class="dash-tiles">
+      <div class="tile tile--ok">
+        <span class="tile-num">{{ e.enviados | number }}</span>
+        <span class="tile-lbl">Enviados</span>
+      </div>
+      <div class="tile tile--erro">
+        <span class="tile-num">{{ e.erros | number }}</span>
+        <span class="tile-lbl">Com erro</span>
+      </div>
+      <div class="tile tile--pendente">
+        <span class="tile-num">{{ e.pendentes | number }}</span>
+        <span class="tile-lbl">Pendentes</span>
+      </div>
+      <div class="tile">
+        <span class="tile-num">{{ e.total | number }}</span>
+        <span class="tile-lbl">Total</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Report por userlogin ── -->
+  <section class="cartao">
+    <header class="cartao-cabecalho">
+      <h3>Por cliente</h3>
+      <span class="cartao-nota">Clique num cliente para filtrar a lista e ver o gráfico</span>
+    </header>
+
+    <div class="tabela-envolucro">
+      <table class="tabela tabela--report">
+        <thead>
+          <tr>
+            <th>Cliente</th>
+            <th class="num">Enviados</th>
+            <th class="num">Erros</th>
+            <th class="num">Pendentes</th>
+            <th class="num">Total</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let r of porUserLogin()" class="clicavel"
+              [class.linha--ativa]="r.userLogin === userlogin"
+              (click)="escolherUserLogin(r.userLogin)">
+            <td class="forte">{{ r.userLogin }}</td>
+            <td class="num">{{ r.enviados | number }}</td>
+            <td class="num" [class.num--erro]="r.erros > 0">{{ r.erros | number }}</td>
+            <td class="num" [class.num--pendente]="r.pendentes > 0">{{ r.pendentes | number }}</td>
+            <td class="num forte">{{ r.total | number }}</td>
+            <td class="num">
+              <button type="button" class="btn btn--mini"
+                      (click)="$event.stopPropagation(); verGrafico(r.userLogin)">Gráfico</button>
+            </td>
+          </tr>
+          <tr *ngIf="porUserLogin().length === 0">
+            <td colspan="6" class="vazio">Sem envios neste dia.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ── Gráfico por hora ── -->
+  <section class="cartao" *ngIf="loginGrafico()">
+    <header class="cartao-cabecalho">
+      <h3>{{ loginGrafico() }} — por hora</h3>
+      <div class="cartao-acoes">
+        <span class="legenda">
+          <i class="ponto ponto--ok"></i> Enviados
+          <i class="ponto ponto--erro"></i> Erros
+          <i class="ponto ponto--pendente"></i> Pendentes
+        </span>
+        <button type="button" class="btn btn--mini" (click)="fecharGrafico()">Fechar</button>
+      </div>
+    </header>
+
+    <div class="grafico">
+      <div class="grafico-barra" *ngFor="let b of barras()"
+           [attr.title]="b.etiqueta + 'h — ' + b.total + ' envios (' + b.enviados + ' enviados, ' + b.erros + ' erros, ' + b.pendentes + ' pendentes)'">
+        <div class="barra-pilha">
+          <span class="segmento segmento--pendente" [style.height.px]="b.alturaPendentes"></span>
+          <span class="segmento segmento--erro" [style.height.px]="b.alturaErros"></span>
+          <span class="segmento segmento--ok" [style.height.px]="b.alturaEnviados"></span>
+        </div>
+        <span class="barra-hora">{{ b.etiqueta }}</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Filtros ── -->
+  <section class="barra">
+    <div class="barra-filtros">
+      <label class="campo">
+        <span>Data</span>
+        <input type="date" [(ngModel)]="data" (change)="carregarDia()" [disabled]="!!guia.trim()" />
+      </label>
+
+      <label class="campo">
+        <span>Cliente (userlogin)</span>
+        <select [(ngModel)]="userlogin" [disabled]="!!guia.trim()">
+          <option value="">Todos</option>
+          <option *ngFor="let r of porUserLogin()" [value]="r.userLogin">{{ r.userLogin }}</option>
+        </select>
+      </label>
+
+      <label class="campo">
+        <span>Conta</span>
+        <input type="text" [(ngModel)]="conta" placeholder="ex. 012386" [disabled]="!!guia.trim()" />
+      </label>
+
+      <label class="campo">
+        <span>Estado</span>
+        <select [(ngModel)]="estado" [disabled]="!!guia.trim()">
+          <option value="">Todos</option>
+          <option value="enviado">Enviado</option>
+          <option value="erro">Erro</option>
+          <option value="pendente">Pendente</option>
+        </select>
+      </label>
+
+      <label class="campo campo--guia">
+        <span>Número de guia</span>
+        <input type="text" [(ngModel)]="guia" placeholder="ex. 09660926268561B" />
+        <small>Procura em todo o histórico — dispensa a data e os restantes filtros.</small>
+      </label>
+    </div>
+
+    <div class="barra-acoes">
+      <button type="button" class="btn btn--primario" (click)="procurar()" [disabled]="aCarregar()">
+        {{ aCarregar() ? 'A procurar…' : 'Procurar' }}
+      </button>
+      <button type="button" class="btn btn--discreto" (click)="limparFiltros()">Limpar</button>
+      <button type="button" class="btn btn--discreto" (click)="alternarRegisto()">
+        {{ mostrarRegisto() ? 'Ocultar registo' : 'Registo de reenvios' }}
+      </button>
+    </div>
+  </section>
+
+  <!-- ── Registo de reenvios ── -->
+  <section class="cartao" *ngIf="mostrarRegisto()">
+    <header class="cartao-cabecalho">
+      <h3>Registo de reenvios</h3>
+      <span class="cartao-nota">Quem repôs o quê na fila, e em que estado estava antes</span>
+    </header>
+
+    <div class="tabela-envolucro">
+      <table class="tabela">
+        <thead>
+          <tr>
+            <th>Quando</th>
+            <th>Quem</th>
+            <th>Guia</th>
+            <th>Cliente</th>
+            <th>Conta</th>
+            <th>Estado anterior</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let l of logs()">
+            <td>{{ l.criadoEm | date: 'dd/MM/yyyy HH:mm:ss' }}</td>
+            <td>{{ l.utilizador }}</td>
+            <td class="mono">{{ l.guia }}</td>
+            <td>{{ l.userLogin }}</td>
+            <td class="mono">{{ l.conta }}</td>
+            <td><span class="flag">{{ l.flagAnterior }}</span></td>
+          </tr>
+          <tr *ngIf="logs().length === 0">
+            <td colspan="6" class="vazio">Ainda não houve reenvios.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ── Lista ── -->
+  <section class="cartao">
+    <header class="cartao-cabecalho">
+      <h3>Envios</h3>
+      <div class="cartao-acoes">
+        <span class="cartao-nota" *ngIf="procurou()">{{ total() | number }} encontrados</span>
+        <button type="button" class="btn btn--primario btn--mini"
+                *ngIf="haSelecao()" (click)="reenviarSelecionados()" [disabled]="aReenviar()">
+          {{ aReenviar() ? 'A repor…' : 'Reenviar ' + selecionados().size }}
+        </button>
+      </div>
+    </header>
+
+    <div class="tabela-envolucro">
+      <table class="tabela">
+        <thead>
+          <tr>
+            <th class="col-check">
+              <input type="checkbox" [checked]="todosSelecionados()" (change)="alternarTodos()"
+                     [disabled]="linhas().length === 0" title="Selecionar a página" />
+            </th>
+            <th>Estado</th>
+            <th>Guia</th>
+            <th>Cliente</th>
+            <th>Conta</th>
+            <th>Evento</th>
+            <th>Referência</th>
+            <th>Criado</th>
+            <th>Processado</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let l of linhas()" class="clicavel" (click)="abrirDetalhe(l)">
+            <td class="col-check">
+              <input type="checkbox" [checked]="estaSelecionado(l.hhpRowId)"
+                     (click)="alternar(l.hhpRowId, $event)" />
+            </td>
+            <td>
+              <span class="cracha" [ngClass]="'cracha--' + l.estado">{{ etiquetaEstado(l.estado) }}</span>
+              <span class="flag" *ngIf="l.estado === 'erro'">{{ l.flag }}</span>
+            </td>
+            <td class="mono">{{ l.guia }}</td>
+            <td>{{ l.userLogin }}</td>
+            <td class="mono">{{ l.conta }}</td>
+            <td>
+              <span class="mono">{{ l.codigo }}</span>
+              <small class="sub" *ngIf="l.descricao">{{ l.descricao }}</small>
+            </td>
+            <td class="mono">{{ l.referencia }}</td>
+            <td>{{ l.criado | date: 'dd/MM HH:mm:ss' }}</td>
+            <td>{{ l.processado ? (l.processado | date: 'dd/MM HH:mm:ss') : '—' }}</td>
+          </tr>
+          <tr *ngIf="linhas().length === 0 && procurou() && !aCarregar()">
+            <td colspan="9" class="vazio">Nenhum envio corresponde a estes filtros.</td>
+          </tr>
+          <tr *ngIf="!procurou() && !aCarregar()">
+            <td colspan="9" class="vazio">Escolha os filtros e carregue em Procurar.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <footer class="paginacao" *ngIf="procurou() && total() > 0">
+      <label class="campo campo--inline">
+        <span>Por página</span>
+        <select [ngModel]="tamanho()" (ngModelChange)="mudarTamanho($event)">
+          <option *ngFor="let t of tamanhosPagina" [value]="t">{{ t }}</option>
+        </select>
+      </label>
+
+      <div class="paginacao-controlos">
+        <button type="button" class="btn btn--mini" (click)="irPara(1)" [disabled]="pagina() === 1">««</button>
+        <button type="button" class="btn btn--mini" (click)="irPara(pagina() - 1)" [disabled]="pagina() === 1">«</button>
+        <span class="paginacao-info">{{ pagina() }} / {{ totalPaginas() }}</span>
+        <button type="button" class="btn btn--mini" (click)="irPara(pagina() + 1)"
+                [disabled]="pagina() === totalPaginas()">»</button>
+        <button type="button" class="btn btn--mini" (click)="irPara(totalPaginas())"
+                [disabled]="pagina() === totalPaginas()">»»</button>
+      </div>
+    </footer>
+  </section>
+
+  <!-- ── Popup de detalhe ── -->
+  <div class="overlay" *ngIf="detalhe() || aCarregarDetalhe()" (click)="fecharDetalhe()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-carregar" *ngIf="aCarregarDetalhe()">A carregar…</div>
+
+      <ng-container *ngIf="detalhe() as d">
+        <header class="modal-cabecalho">
+          <div>
+            <h3>Guia {{ d.guia }}</h3>
+            <span class="modal-sub">
+              <span class="cracha" [ngClass]="'cracha--' + d.estado">{{ etiquetaEstado(d.estado) }}</span>
+              <span class="flag">{{ d.flag }}</span>
+              {{ d.userLogin }} · conta {{ d.conta }}
+            </span>
+          </div>
+          <button type="button" class="btn btn--discreto" (click)="fecharDetalhe()">Fechar</button>
+        </header>
+
+        <div class="modal-corpo">
+          <dl class="ficha">
+            <div><dt>Evento</dt><dd>{{ d.codigo }} <span *ngIf="d.descricao">— {{ d.descricao }}</span></dd></div>
+            <div><dt>Data do evento</dt><dd>{{ d.dataEvento || '—' }}</dd></div>
+            <div><dt>Referência do cliente</dt><dd class="mono">{{ d.referencia || '—' }}</dd></div>
+            <div><dt>Lote</dt><dd class="mono">{{ d.lote || '—' }}</dd></div>
+            <div><dt>Criado</dt><dd>{{ d.criado | date: 'dd/MM/yyyy HH:mm:ss' }}</dd></div>
+            <div><dt>Processado</dt><dd>{{ d.processado ? (d.processado | date: 'dd/MM/yyyy HH:mm:ss') : '—' }}</dd></div>
+            <div><dt>Motorista</dt><dd>{{ d.motorista || '—' }}</dd></div>
+            <div><dt>Ponto de recolha</dt><dd>{{ d.pudo || '—' }}</dd></div>
+            <div class="largo"><dt>Destino</dt><dd class="mono quebra">{{ d.destino || '—' }}</dd></div>
+            <div class="largo" *ngIf="d.observacoes"><dt>Observações</dt><dd>{{ d.observacoes }}</dd></div>
+          </dl>
+
+          <div class="separadores">
+            <button type="button" [class.ativo]="separadorDetalhe() === 'resposta'"
+                    (click)="separadorDetalhe.set('resposta')">Resposta</button>
+            <button type="button" [class.ativo]="separadorDetalhe() === 'pedido'"
+                    (click)="separadorDetalhe.set('pedido')">Pedido</button>
+          </div>
+
+          <pre class="bloco" *ngIf="separadorDetalhe() === 'resposta'">{{ d.resposta || 'Sem resposta registada.' }}</pre>
+          <pre class="bloco" *ngIf="separadorDetalhe() === 'pedido'">{{ d.pedido || 'Sem pedido registado.' }}</pre>
+        </div>
+
+        <footer class="modal-rodape">
+          <span class="modal-nota">O reenvio repõe a linha na fila; quem envia é o processo automático.</span>
+          <button type="button" class="btn btn--primario" (click)="reenviarDetalhe()" [disabled]="aReenviar()">
+            Reenviar
+          </button>
+        </footer>
+      </ng-container>
+    </div>
+  </div>
+</div>
