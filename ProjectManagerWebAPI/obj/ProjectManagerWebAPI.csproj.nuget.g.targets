@@ -4,5 +4,9 @@
     <Import Project="$(NuGetPackageRoot)mono.texttemplating/3.0.0/buildTransitive/Mono.TextTemplating.targets" Condition="Exists('$(NuGetPackageRoot)mono.texttemplating/3.0.0/buildTransitive/Mono.TextTemplating.targets')" />
     <Import Project="$(NuGetPackageRoot)microsoft.codeanalysis.analyzers/3.11.0/buildTransitive/Microsoft.CodeAnalysis.Analyzers.targets" Condition="Exists('$(NuGetPackageRoot)microsoft.codeanalysis.analyzers/3.11.0/buildTransitive/Microsoft.CodeAnalysis.Analyzers.targets')" />
     <Import Project="$(NuGetPackageRoot)microsoft.aspnetcore.openapi/10.0.2/build/Microsoft.AspNetCore.OpenApi.targets" Condition="Exists('$(NuGetPackageRoot)microsoft.aspnetcore.openapi/10.0.2/build/Microsoft.AspNetCore.OpenApi.targets')" />
+    <Import Project="$(NuGetPackageRoot)ikvm.msbuild.tools/8.15.0/buildTransitive/IKVM.MSBuild.Tools.targets" Condition="Exists('$(NuGetPackageRoot)ikvm.msbuild.tools/8.15.0/buildTransitive/IKVM.MSBuild.Tools.targets')" />
+    <Import Project="$(NuGetPackageRoot)ikvm.msbuild/8.15.0/buildTransitive/IKVM.MSBuild.targets" Condition="Exists('$(NuGetPackageRoot)ikvm.msbuild/8.15.0/buildTransitive/IKVM.MSBuild.targets')" />
+    <Import Project="$(NuGetPackageRoot)ikvm.image/8.15.0/buildTransitive/IKVM.Image.targets" Condition="Exists('$(NuGetPackageRoot)ikvm.image/8.15.0/buildTransitive/IKVM.Image.targets')" />
+    <Import Project="$(NuGetPackageRoot)ikvm/8.15.0/buildTransitive/IKVM.targets" Condition="Exists('$(NuGetPackageRoot)ikvm/8.15.0/buildTransitive/IKVM.targets')" />
   </ImportGroup>
 </Project>

@@ -51,8 +51,10 @@ public class ContasPortalSender(
             ?? throw new ContasException($"A conta {pedido.Conta} não existe.");
 
         using var http = fabrica.CreateClient("ContasPortal");
-        var token = await ObterTokenAsync(http, ambiente, nomeAmbiente, ct)
-            ?? throw new ContasException($"Não foi possível autenticar no portal de {nomeAmbiente}.");
+        var (token, motivo) = await ObterTokenAsync(http, ambiente, nomeAmbiente, ct);
+        if (token is null)
+            throw new ContasException(
+                $"Não foi possível autenticar no portal de {nomeAmbiente}: {motivo}");
 
         var resultado = new ResultadoEnvio { Ambiente = nomeAmbiente };
 
@@ -95,9 +97,17 @@ public class ContasPortalSender(
     /// <summary>
     /// Pede o token OAuth. As credenciais vão como campos de um formulário multipart — é o
     /// formato que o portal aceita; com form-urlencoded a resposta é 401.
+    ///
+    /// Devolve o token, ou o motivo por que não veio. O motivo sobe ao ecrã: "não foi possível
+    /// autenticar" sozinho não distingue uma palavra-passe caducada de um portal em baixo, e era
+    /// isso que obrigava a ir ao log do servidor para saber qual dos dois.
     /// </summary>
-    private async Task<string?> ObterTokenAsync(HttpClient http, ContasAmbiente ambiente, string nome, CancellationToken ct)
+    private async Task<(string? Token, string Motivo)> ObterTokenAsync(
+        HttpClient http, ContasAmbiente ambiente, string nome, CancellationToken ct)
     {
+        string texto;
+        int status;
+
         try
         {
             using var corpo = new MultipartFormDataContent
@@ -110,25 +120,88 @@ public class ContasPortalSender(
             };
 
             using var resposta = await http.PostAsync(ambiente.AuthEndpoint, corpo, ct);
-            var texto = await resposta.Content.ReadAsStringAsync(ct);
+            texto = await resposta.Content.ReadAsStringAsync(ct);
+            status = (int)resposta.StatusCode;
 
             if (!resposta.IsSuccessStatusCode)
             {
                 logger.LogWarning("Autenticação no portal {Ambiente} devolveu {Status}: {Corpo}",
-                    nome, (int)resposta.StatusCode, texto);
-                return null;
+                    nome, status, texto);
+
+                // Um 403 com a página do Imperva não é uma recusa de credenciais: o pedido foi
+                // travado no WAF à frente de dpd.pt e nunca chegou ao OAuth. Confundir os dois
+                // manda quem está a resolver para o lado errado — a senha, o client_id, o
+                // formato do corpo — quando o que falta é autorizar o endereço de saída deste
+                // servidor no ambiente de qualidade.
+                if (BloqueadoNoWaf(status, texto))
+                    return (null,
+                        $"o acesso a {ambiente.AuthEndpoint} está a ser bloqueado pela protecção "
+                        + "(WAF) à frente de dpd.pt — o pedido nem chega ao portal. Não são as "
+                        + "credenciais: é preciso autorizar o endereço de saída deste servidor.");
+
+                return (null, $"o portal respondeu {status} — {Resumir(texto)}");
             }
-
-            var token = JsonSerializer.Deserialize<tokenModel>(texto);
-            if (token is null || string.IsNullOrWhiteSpace(token.access_token)) return null;
-
-            return $"{token.token_type} {token.access_token}";
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Falha ao autenticar no portal {Ambiente}", nome);
-            return null;
+            // Aqui não se chegou a falar com o portal: DNS, rede da empresa, certificado.
+            logger.LogError(ex, "Falha ao contactar o portal {Ambiente} em {Endereco}",
+                nome, ambiente.AuthEndpoint);
+            return (null, $"não foi possível contactar {ambiente.AuthEndpoint} ({ex.Message})");
         }
+
+        // Lê-se com JsonDocument e não com um modelo tipado: os dois ambientes correm versões
+        // diferentes do portal, e um `expires_in` que venha como texto em vez de número fazia
+        // rebentar a desserialização — deitando fora um token que estava lá e era válido.
+        try
+        {
+            using var documento = JsonDocument.Parse(texto);
+            var raiz = documento.RootElement;
+
+            if (raiz.ValueKind != JsonValueKind.Object
+                || !raiz.TryGetProperty("access_token", out var acesso)
+                || acesso.ValueKind != JsonValueKind.String
+                || string.IsNullOrWhiteSpace(acesso.GetString()))
+            {
+                logger.LogWarning("Portal {Ambiente} respondeu {Status} sem access_token: {Corpo}",
+                    nome, status, texto);
+                return (null, $"a resposta não trouxe nenhum token — {Resumir(texto)}");
+            }
+
+            var tipo = raiz.TryGetProperty("token_type", out var t) && t.ValueKind == JsonValueKind.String
+                ? t.GetString()
+                : null;
+
+            // Sem token_type o cabeçalho ficava a começar por um espaço e o portal recusava
+            // tudo o que viesse a seguir com 401.
+            return ($"{(string.IsNullOrWhiteSpace(tipo) ? "Bearer" : tipo)} {acesso.GetString()}", "");
+        }
+        catch (JsonException ex)
+        {
+            logger.LogWarning(ex, "Portal {Ambiente} respondeu {Status} em formato inesperado: {Corpo}",
+                nome, status, texto);
+            return (null, $"a resposta não veio em JSON — {Resumir(texto)}");
+        }
+    }
+
+    /// <summary>
+    /// Reconhece a página de bloqueio do Imperva/Incapsula, o WAF à frente de dpd.pt. Vem como
+    /// HTML e não como JSON, e traz sempre a referência a `_Incapsula_Resource`.
+    /// </summary>
+    private static bool BloqueadoNoWaf(int status, string corpo) =>
+        status is 403 or 405
+        && (corpo.Contains("_Incapsula_Resource", StringComparison.OrdinalIgnoreCase)
+            || corpo.Contains("incapsula", StringComparison.OrdinalIgnoreCase));
+
+    /// <summary>
+    /// O princípio da resposta do portal, para caber numa mensagem de ecrã. Algumas respostas de
+    /// erro vêm com uma página inteira de HTML.
+    /// </summary>
+    private static string Resumir(string texto)
+    {
+        var limpo = (texto ?? "").Trim();
+        if (limpo.Length == 0) return "sem corpo na resposta";
+        return limpo.Length > 300 ? limpo[..300] + "…" : limpo;
     }
 
     private async Task<bool> GravarNoPortalAsync(HttpClient http, string endpoint, string token,

@@ -106,3 +106,31 @@ passava do minuto.
 Fica também de fora, por não ter sido pedido: o `ContasPortal_NET` sincroniza cada subconta
 com a base MySQL do **DPD Go** (`dpdgo.accounts`) logo a seguir ao envio. Um envio feito por
 aqui **não** faz essa sincronização.
+
+## Envio para QUA bloqueado no WAF (14 set 2026)
+
+`qabusiness.dpd.pt` está atrás do **Imperva/Incapsula**, o mesmo WAF que protege `dpd.pt`, e
+recusa com **403 todos os caminhos** — incluindo a raiz `/`. Medido a partir da máquina de
+desenvolvimento:
+
+| | `business.dpd.pt` (PRD) | `qabusiness.dpd.pt` (QUA) |
+| --- | --- | --- |
+| `GET /` | 200 | **403** |
+| `POST /api/oauth/token` sem parâmetros | 400 (o endpoint vive) | **403** |
+| Com User-Agent de browser | 200 | **403** |
+| Num browser real, depois do challenge | 200 | **403** |
+
+O 403 traz a página do Incapsula (`_Incapsula_Resource`) e o cabeçalho `x-iinfo` mostra que o
+pedido **não chegou à origem**. Não é o OAuth, não são as credenciais, não é o `multipart` nem o
+código: é acesso de rede ao ambiente de qualidade, travado no edge.
+
+**O que resolve:** autorizar no Imperva o endereço de saída de quem chama — a máquina de
+desenvolvimento e, sobretudo, o servidor onde a Gestão de Dados corre. É um pedido a quem gere o
+portal/WAF, não uma alteração nesta aplicação.
+
+**O que mudou aqui entretanto:** a falha de autenticação deixou de ser uma frase só. O motivo
+real sobe ao ecrã (status e resposta do portal), e um 403 do Incapsula é dito pelo nome — antes,
+"não foi possível autenticar" mandava quem investigasse para a senha e para o `client_id`, que
+estavam certos. O token passou também a ser lido com `JsonDocument`: os dois ambientes correm
+versões diferentes do portal, e um `expires_in` que viesse como texto deitava fora um token
+válido pela mesma mensagem.
