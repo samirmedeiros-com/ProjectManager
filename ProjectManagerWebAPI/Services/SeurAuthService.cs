@@ -160,8 +160,12 @@ public class SeurAuthService : ISeurAuthService
 
     public async Task<(bool Success, string Message)> ForgotPasswordAsync(string email)
     {
-        var user = await _context.SeurUsers.FirstOrDefaultAsync(u => u.Email == email && u.IsActive);
-        if (user == null)
+        // IsActive fica FORA da consulta de propósito. O provider Oracle traduz um bool usado
+        // como predicado para "... = True", e o Oracle não tem literais booleanos antes da 23c:
+        // rebenta com InvalidCastException antes de chegar sequer à base. É a mesma armadilha do
+        // AnyAsync() documentada no resto do projeto — filtrar em memória é a saída.
+        var user = await _context.SeurUsers.FirstOrDefaultAsync(u => u.Email == email);
+        if (user is not { IsActive: true })
             return (false, "Email não encontrado ou conta inativa");
 
         var password = GenerateRandomPassword();

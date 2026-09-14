@@ -46,6 +46,8 @@ export class AppLoginComponent implements OnInit {
   loading = signal(false);
   submitted = signal(false);
   error = signal('');
+  /** Dito à chegada, não a seguir a uma tentativa: explica porque é que voltou aqui sozinho. */
+  aviso = signal('');
 
   showForgotModal = signal(false);
   forgotEmail = '';
@@ -64,6 +66,10 @@ export class AppLoginComponent implements OnInit {
     const data = this.route.snapshot.data as Partial<LoginTema>;
     this.tema = { ...this.tema, ...data };
 
+    if (this.route.snapshot.queryParams['sessao'] === 'expirada') {
+      this.aviso.set('A sua sessão expirou. Entre novamente para continuar.');
+    }
+
     // Se já há sessão SEUR válida, não vale a pena pedir login outra vez.
     if (this.seurAuth.isAuthenticated()) {
       this.router.navigate([this.returnUrl()]);
@@ -77,6 +83,8 @@ export class AppLoginComponent implements OnInit {
   onSubmit(): void {
     this.submitted.set(true);
     this.error.set('');
+    // A partir daqui o que interessa é o resultado desta tentativa, não o motivo de ter vindo parar aqui.
+    this.aviso.set('');
     if (!this.form.email || !this.form.password) return;
 
     this.loading.set(true);
@@ -89,9 +97,11 @@ export class AppLoginComponent implements OnInit {
           this.error.set(resposta.message || 'Falha no login.');
         }
       },
-      error: () => {
+      error: (err) => {
         this.loading.set(false);
-        this.error.set('Falha no login. Verifique as suas credenciais.');
+        // O 401 do login traz o motivo no corpo, e os motivos não são equivalentes: uma conta
+        // inativa não se resolve a tentar a password outra vez.
+        this.error.set(err?.error?.message || 'Falha no login. Verifique as suas credenciais.');
       },
     });
   }

@@ -198,10 +198,13 @@ public class AuthService : IAuthService
 
     public async Task<List<UserDto>> GetAllUsers()
     {
-        var users = await _context.Users
+        // O filtro por IsActive é feito em memória pela mesma razão que no SeurAuthService:
+        // um bool como predicado SQL não sobrevive à tradução para Oracle.
+        var users = (await _context.Users
+                .OrderBy(u => u.FullName)
+                .ToListAsync())
             .Where(u => u.IsActive)
-            .OrderBy(u => u.FullName)
-            .ToListAsync();
+            .ToList();
 
         return users.Select(u => new UserDto
         {

@@ -20,6 +20,7 @@
         <small class="erro-campo" *ngIf="submitted() && !form.password">A password é obrigatória.</small>
       </label>
 
+      <div class="alerta alerta--aviso" *ngIf="aviso() && !error()">{{ aviso() }}</div>
       <div class="alerta" *ngIf="error()">{{ error() }}</div>
 
       <button type="submit" class="btn-entrar" [disabled]="loading()">

@@ -18,6 +18,8 @@
   --coral-800: #993c1d;
   --teal-50: #e1f5ee;
   --teal-800: #085041;
+  --amber-50: #faeeda;
+  --amber-800: #854f0b;
   --radius-sm: 6px;
   --radius-md: 8px;
   --radius-lg: 12px;
@@ -106,6 +108,9 @@ input.invalido { border-color: var(--coral-800); }
 }
 
 .alerta--ok { background: var(--teal-50); color: var(--teal-800); }
+
+/* Sessão expirada não é um erro da pessoa — é âmbar, não coral. */
+.alerta--aviso { background: var(--amber-50); color: var(--amber-800); }
 
 .btn-entrar {
   background: var(--accent);
