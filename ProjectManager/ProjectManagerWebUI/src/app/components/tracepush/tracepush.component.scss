@@ -80,10 +80,23 @@
 .dash-cabecalho {
   display: flex;
   align-items: baseline;
-  gap: 10px;
-  margin-bottom: 12px;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  margin-bottom: 14px;
 }
-.dash-cabecalho h3 { font-size: 15px; font-weight: 600; }
+
+/* "Hoje" e a data são a mesma frase: a palavra dá o peso, a data dá a precisão. Antes a
+   palavra aparecia sozinha, em negrito e sem a data ao lado, e lia-se como um fragmento. */
+.dash-titulo {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+.dash-dia { letter-spacing: -0.01em; }
+.dash-data { color: var(--text-2); font-weight: 400; font-variant-numeric: tabular-nums; }
 .dash-nota { color: var(--text-3); font-size: 12px; }
 
 .dash-tiles {
@@ -200,7 +213,7 @@
   display: flex;
   align-items: flex-end;
   gap: 4px;
-  padding: 20px 16px 12px;
+  padding: 8px 0 4px;
   overflow-x: auto;
 }
 
@@ -218,7 +231,7 @@
   flex-direction: column-reverse;
   justify-content: flex-start;
   width: 100%;
-  height: 120px;
+  height: 150px;
   background: var(--surface-2);
   border-radius: var(--radius-sm);
   overflow: hidden;
@@ -232,6 +245,7 @@
 .barra-hora { color: var(--text-3); font-size: 10px; font-variant-numeric: tabular-nums; }
 
 .legenda { display: flex; align-items: center; gap: 6px; color: var(--text-2); font-size: 11px; }
+.legenda--centrada { justify-content: center; margin-bottom: 14px; font-size: 12px; }
 .ponto {
   display: inline-block;
   width: 8px;
@@ -332,6 +346,10 @@
 }
 
 .modal-carregar { padding: 40px; text-align: center; color: var(--text-2); }
+
+/* O gráfico tem 24 barras: precisa de largura, não de altura. */
+.modal--grafico { width: min(780px, 100%); }
+.grafico-vazio { padding: 24px; text-align: center; color: var(--text-3); }
 
 .modal-cabecalho {
   display: flex;

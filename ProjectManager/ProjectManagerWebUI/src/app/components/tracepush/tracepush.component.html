@@ -2,12 +2,16 @@
   <div class="mensagem mensagem--erro" *ngIf="erro()">{{ erro() }}</div>
   <div class="mensagem mensagem--aviso" *ngIf="aviso()">{{ aviso() }}</div>
 
-  <!-- ── Cartões do dia ── -->
+  <!-- ── 1. Contador do dia ── -->
   <section class="dashboard" *ngIf="estatisticas() as e">
-    <div class="dash-cabecalho">
-      <h3>{{ ehHoje() ? 'Hoje' : (e.dia | date: 'dd/MM/yyyy') }}</h3>
+    <header class="dash-cabecalho">
+      <h3 class="dash-titulo">
+        <span class="dash-dia">{{ ehHoje() ? 'Hoje' : 'Dia' }}</span>
+        <span class="dash-data">{{ e.dia | date: 'dd/MM/yyyy' }}</span>
+      </h3>
       <span class="dash-nota">Envios de trace para os webservices dos clientes</span>
-    </div>
+    </header>
+
     <div class="dash-tiles">
       <div class="tile tile--ok">
         <span class="tile-num">{{ e.enviados | number }}</span>
@@ -28,75 +32,7 @@
     </div>
   </section>
 
-  <!-- ── Report por userlogin ── -->
-  <section class="cartao">
-    <header class="cartao-cabecalho">
-      <h3>Por cliente</h3>
-      <span class="cartao-nota">Clique num cliente para filtrar a lista e ver o gráfico</span>
-    </header>
-
-    <div class="tabela-envolucro">
-      <table class="tabela tabela--report">
-        <thead>
-          <tr>
-            <th>Cliente</th>
-            <th class="num">Enviados</th>
-            <th class="num">Erros</th>
-            <th class="num">Pendentes</th>
-            <th class="num">Total</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let r of porUserLogin()" class="clicavel"
-              [class.linha--ativa]="r.userLogin === userlogin"
-              (click)="escolherUserLogin(r.userLogin)">
-            <td class="forte">{{ r.userLogin }}</td>
-            <td class="num">{{ r.enviados | number }}</td>
-            <td class="num" [class.num--erro]="r.erros > 0">{{ r.erros | number }}</td>
-            <td class="num" [class.num--pendente]="r.pendentes > 0">{{ r.pendentes | number }}</td>
-            <td class="num forte">{{ r.total | number }}</td>
-            <td class="num">
-              <button type="button" class="btn btn--mini"
-                      (click)="$event.stopPropagation(); verGrafico(r.userLogin)">Gráfico</button>
-            </td>
-          </tr>
-          <tr *ngIf="porUserLogin().length === 0">
-            <td colspan="6" class="vazio">Sem envios neste dia.</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </section>
-
-  <!-- ── Gráfico por hora ── -->
-  <section class="cartao" *ngIf="loginGrafico()">
-    <header class="cartao-cabecalho">
-      <h3>{{ loginGrafico() }} — por hora</h3>
-      <div class="cartao-acoes">
-        <span class="legenda">
-          <i class="ponto ponto--ok"></i> Enviados
-          <i class="ponto ponto--erro"></i> Erros
-          <i class="ponto ponto--pendente"></i> Pendentes
-        </span>
-        <button type="button" class="btn btn--mini" (click)="fecharGrafico()">Fechar</button>
-      </div>
-    </header>
-
-    <div class="grafico">
-      <div class="grafico-barra" *ngFor="let b of barras()"
-           [attr.title]="b.etiqueta + 'h — ' + b.total + ' envios (' + b.enviados + ' enviados, ' + b.erros + ' erros, ' + b.pendentes + ' pendentes)'">
-        <div class="barra-pilha">
-          <span class="segmento segmento--pendente" [style.height.px]="b.alturaPendentes"></span>
-          <span class="segmento segmento--erro" [style.height.px]="b.alturaErros"></span>
-          <span class="segmento segmento--ok" [style.height.px]="b.alturaEnviados"></span>
-        </div>
-        <span class="barra-hora">{{ b.etiqueta }}</span>
-      </div>
-    </div>
-  </section>
-
-  <!-- ── Filtros ── -->
+  <!-- ── 2. Filtros ── -->
   <section class="barra">
     <div class="barra-filtros">
       <label class="campo">
@@ -106,8 +42,9 @@
 
       <label class="campo">
         <span>Cliente (userlogin)</span>
-        <select [(ngModel)]="userlogin" [disabled]="!!guia.trim()">
-          <option value="">Todos</option>
+        <select [ngModel]="userlogin" (ngModelChange)="mudarCliente($event)" [disabled]="!!guia.trim()">
+          <option value="">Escolher…</option>
+          <option [value]="TODOS">Todos</option>
           <option *ngFor="let r of porUserLogin()" [value]="r.userLogin">{{ r.userLogin }}</option>
         </select>
       </label>
@@ -145,43 +82,52 @@
     </div>
   </section>
 
-  <!-- ── Registo de reenvios ── -->
-  <section class="cartao" *ngIf="mostrarRegisto()">
+  <!-- ── 3. Por cliente ── -->
+  <section class="cartao">
     <header class="cartao-cabecalho">
-      <h3>Registo de reenvios</h3>
-      <span class="cartao-nota">Quem repôs o quê na fila, e em que estado estava antes</span>
+      <h3>Por cliente</h3>
+      <span class="cartao-nota">Clique numa linha para filtrar os envios</span>
     </header>
 
     <div class="tabela-envolucro">
-      <table class="tabela">
+      <table class="tabela tabela--report">
         <thead>
           <tr>
-            <th>Quando</th>
-            <th>Quem</th>
-            <th>Guia</th>
             <th>Cliente</th>
-            <th>Conta</th>
-            <th>Estado anterior</th>
+            <th class="num">Enviados</th>
+            <th class="num">Erros</th>
+            <th class="num">Pendentes</th>
+            <th class="num">Total</th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let l of logs()">
-            <td>{{ l.criadoEm | date: 'dd/MM/yyyy HH:mm:ss' }}</td>
-            <td>{{ l.utilizador }}</td>
-            <td class="mono">{{ l.guia }}</td>
-            <td>{{ l.userLogin }}</td>
-            <td class="mono">{{ l.conta }}</td>
-            <td><span class="flag">{{ l.flagAnterior }}</span></td>
+          <tr *ngFor="let r of reportVisivel()" class="clicavel"
+              [class.linha--ativa]="r.userLogin === userlogin"
+              (click)="escolherUserLogin(r.userLogin)">
+            <td class="forte">{{ r.userLogin }}</td>
+            <td class="num">{{ r.enviados | number }}</td>
+            <td class="num" [class.num--erro]="r.erros > 0">{{ r.erros | number }}</td>
+            <td class="num" [class.num--pendente]="r.pendentes > 0">{{ r.pendentes | number }}</td>
+            <td class="num forte">{{ r.total | number }}</td>
+            <td class="num">
+              <button type="button" class="btn btn--mini"
+                      (click)="$event.stopPropagation(); verGrafico(r.userLogin)">Gráfico</button>
+            </td>
           </tr>
-          <tr *ngIf="logs().length === 0">
-            <td colspan="6" class="vazio">Ainda não houve reenvios.</td>
+
+          <tr *ngIf="reportVisivel().length === 0 && !userlogin">
+            <td colspan="6" class="vazio">Escolha um cliente no filtro acima, ou "Todos" para ver a lista inteira.</td>
+          </tr>
+          <tr *ngIf="reportVisivel().length === 0 && userlogin">
+            <td colspan="6" class="vazio">Sem envios deste cliente no dia escolhido.</td>
           </tr>
         </tbody>
       </table>
     </div>
   </section>
 
-  <!-- ── Lista ── -->
+  <!-- ── 4. Envios ── -->
   <section class="cartao">
     <header class="cartao-cabecalho">
       <h3>Envios</h3>
@@ -262,6 +208,77 @@
       </div>
     </footer>
   </section>
+
+  <!-- ── 5. Registo de reenvios ── -->
+  <section class="cartao" *ngIf="mostrarRegisto()">
+    <header class="cartao-cabecalho">
+      <h3>Registo de reenvios</h3>
+      <span class="cartao-nota">Quem repôs o quê na fila, e em que estado estava antes</span>
+    </header>
+
+    <div class="tabela-envolucro">
+      <table class="tabela">
+        <thead>
+          <tr>
+            <th>Quando</th>
+            <th>Quem</th>
+            <th>Guia</th>
+            <th>Cliente</th>
+            <th>Conta</th>
+            <th>Estado anterior</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let l of logs()">
+            <td>{{ l.criadoEm | date: 'dd/MM/yyyy HH:mm:ss' }}</td>
+            <td>{{ l.utilizador }}</td>
+            <td class="mono">{{ l.guia }}</td>
+            <td>{{ l.userLogin }}</td>
+            <td class="mono">{{ l.conta }}</td>
+            <td><span class="flag">{{ l.flagAnterior }}</span></td>
+          </tr>
+          <tr *ngIf="logs().length === 0">
+            <td colspan="6" class="vazio">Ainda não houve reenvios.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ── Popup do gráfico ── -->
+  <div class="overlay" *ngIf="loginGrafico()" (click)="fecharGrafico()">
+    <div class="modal modal--grafico" (click)="$event.stopPropagation()">
+      <header class="modal-cabecalho">
+        <div>
+          <h3>{{ loginGrafico() }}</h3>
+          <span class="modal-sub">Envios por hora · {{ data | date: 'dd/MM/yyyy' }}</span>
+        </div>
+        <button type="button" class="btn btn--discreto" (click)="fecharGrafico()">Fechar</button>
+      </header>
+
+      <div class="modal-corpo">
+        <div class="legenda legenda--centrada">
+          <i class="ponto ponto--ok"></i> Enviados
+          <i class="ponto ponto--erro"></i> Erros
+          <i class="ponto ponto--pendente"></i> Pendentes
+        </div>
+
+        <div class="grafico">
+          <div class="grafico-barra" *ngFor="let b of barras()"
+               [attr.title]="b.etiqueta + 'h — ' + b.total + ' envios (' + b.enviados + ' enviados, ' + b.erros + ' erros, ' + b.pendentes + ' pendentes)'">
+            <div class="barra-pilha">
+              <span class="segmento segmento--pendente" [style.height.px]="b.alturaPendentes"></span>
+              <span class="segmento segmento--erro" [style.height.px]="b.alturaErros"></span>
+              <span class="segmento segmento--ok" [style.height.px]="b.alturaEnviados"></span>
+            </div>
+            <span class="barra-hora">{{ b.etiqueta }}</span>
+          </div>
+        </div>
+
+        <p class="grafico-vazio" *ngIf="porHora().length === 0">A carregar…</p>
+      </div>
+    </div>
+  </div>
 
   <!-- ── Popup de detalhe ── -->
   <div class="overlay" *ngIf="detalhe() || aCarregarDetalhe()" (click)="fecharDetalhe()">

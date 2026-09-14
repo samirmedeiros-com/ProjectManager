@@ -36,6 +36,13 @@ export class TracePushComponent implements OnInit {
   // ------------------------------------------------------------- filtros
   /** Por omissão o dia de hoje: é o que interessa em 99% das vezes que alguém abre isto. */
   data = this.hojeIso();
+
+  /**
+   * Vazio = nenhum cliente escolhido, TODOS = a lista inteira, qualquer outro valor = esse
+   * cliente. Sem este terceiro estado a tabela abria sempre com as duas dezenas de clientes
+   * do dia à frente de quem só queria ver um.
+   */
+  readonly TODOS = 'TODOS';
   userlogin = '';
   conta = '';
   guia = '';
@@ -44,6 +51,9 @@ export class TracePushComponent implements OnInit {
   readonly tamanhosPagina = [10, 50, 100];
 
   // ------------------------------------------------------------- estado
+  /** Espelho reactivo de `userlogin`: o computed do report precisa de um signal para reagir. */
+  escolhaCliente = signal('');
+
   estatisticas = signal<PushEstatisticas | null>(null);
   porUserLogin = signal<PushPorUserLogin[]>([]);
   porHora = signal<PushPorHora[]>([]);
@@ -81,6 +91,14 @@ export class TracePushComponent implements OnInit {
 
   haSelecao = computed(() => this.selecionados().size > 0);
 
+  /** As linhas do report que estão à vista — ver o comentário em `userlogin`. */
+  reportVisivel = computed<PushPorUserLogin[]>(() => {
+    const escolha = this.escolhaCliente();
+    if (!escolha) return [];
+    if (escolha === this.TODOS) return this.porUserLogin();
+    return this.porUserLogin().filter((r) => r.userLogin === escolha);
+  });
+
   /** O dia mostrado é hoje? Muda o rótulo dos cartões — "Hoje" lê-se melhor que a data. */
   ehHoje = computed(() => this.estatisticas()?.dia?.slice(0, 10) === this.hojeIso());
 
@@ -92,7 +110,7 @@ export class TracePushComponent implements OnInit {
   barras = computed<BarraHora[]>(() => {
     const dados = this.porHora();
     const maximo = Math.max(1, ...dados.map((h) => h.total));
-    const altura = 120;
+    const altura = 150;
 
     return dados.map((h) => ({
       hora: h.hora,
@@ -139,7 +157,7 @@ export class TracePushComponent implements OnInit {
     this.servico
       .procurar({
         data: this.data,
-        userlogin: this.userlogin,
+        userlogin: this.clienteParaFiltro(),
         conta: this.conta,
         guia: this.guia,
         estado: this.estado,
@@ -162,7 +180,7 @@ export class TracePushComponent implements OnInit {
 
   limparFiltros(): void {
     this.data = this.hojeIso();
-    this.userlogin = '';
+    this.mudarCliente('');
     this.conta = '';
     this.guia = '';
     this.estado = '';
@@ -174,16 +192,28 @@ export class TracePushComponent implements OnInit {
     this.carregarDia();
   }
 
-  /** Clicar numa linha do report escolhe esse cliente: filtra a lista e desenha o gráfico. */
+  /** O select de cliente. TODOS não é um userlogin — é a ausência de filtro na pesquisa. */
+  mudarCliente(valor: string): void {
+    this.userlogin = valor;
+    this.escolhaCliente.set(valor);
+  }
+
+  /** O filtro que vai para a API: TODOS e "nada escolhido" são ambos "sem filtro". */
+  private clienteParaFiltro(): string {
+    return this.userlogin && this.userlogin !== this.TODOS ? this.userlogin : '';
+  }
+
+  /** Clicar numa linha do report escolhe esse cliente e filtra a lista. */
   escolherUserLogin(login: string): void {
-    this.userlogin = login;
-    this.verGrafico(login);
+    this.mudarCliente(login);
     this.procurar();
   }
 
+  /** Abre o gráfico em popup — ver `fecharGrafico` para o fecho. */
   verGrafico(login: string): void {
     if (!login) return;
     this.loginGrafico.set(login);
+    this.porHora.set([]);
     this.servico.porHora(login, this.data).subscribe({
       next: (h) => this.porHora.set(h),
       error: (e) => this.erro.set(this.mensagem(e)),
@@ -316,7 +346,7 @@ export class TracePushComponent implements OnInit {
     this.mostrarRegisto.set(aAbrir);
     if (!aAbrir) return;
 
-    this.servico.logs(100, this.userlogin || undefined, this.guia || undefined).subscribe({
+    this.servico.logs(100, this.clienteParaFiltro() || undefined, this.guia || undefined).subscribe({
       next: (l) => this.logs.set(l),
       error: (e) => this.erro.set(this.mensagem(e)),
     });
