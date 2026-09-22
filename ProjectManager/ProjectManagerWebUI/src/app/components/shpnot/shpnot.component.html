@@ -1,0 +1,266 @@
+<div class="shpnot">
+  <div class="mensagem mensagem--erro" *ngIf="erro()">{{ erro() }}</div>
+
+  <!-- ══════════════════ Lista ══════════════════ -->
+  <ng-container *ngIf="!detalhe()">
+    <!-- ── Estado da fila ── -->
+    <section class="dashboard" *ngIf="estatisticas() as e">
+      <header class="dash-cabecalho">
+        <h3 class="dash-titulo">
+          <span class="dash-dia">Fila para o AS400</span>
+        </h3>
+        <span class="dash-nota">Avisos de expedição recebidos do Geopost</span>
+      </header>
+
+      <div class="dash-tiles">
+        <div class="tile tile--pendente">
+          <span class="tile-num">{{ e.pendentes | number }}</span>
+          <span class="tile-lbl">Por integrar</span>
+        </div>
+        <div class="tile tile--erro">
+          <span class="tile-num">{{ e.erros | number }}</span>
+          <span class="tile-lbl">Com erro</span>
+        </div>
+        <div class="tile tile--ok">
+          <span class="tile-num tile-num--data">{{ (e.ultimoRecebido | date: 'HH:mm') || '—' }}</span>
+          <span class="tile-lbl">Último recebido</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Filtros ── -->
+    <section class="barra">
+      <div class="barra-filtros">
+        <label class="campo">
+          <span>Data de receção</span>
+          <input
+            type="date"
+            [(ngModel)]="data"
+            (change)="irPara(1)"
+            [disabled]="!!mpsid.trim() || !!volume.trim()"
+          />
+        </label>
+
+        <label class="campo">
+          <span>MPS ID</span>
+          <input type="text" [(ngModel)]="mpsid" (keyup.enter)="irPara(1)" placeholder="ex. 05012345678901" />
+        </label>
+
+        <label class="campo">
+          <span>Nº de volume</span>
+          <input type="text" [(ngModel)]="volume" (keyup.enter)="irPara(1)" placeholder="número exato" />
+        </label>
+
+        <label class="campo">
+          <span>Estado</span>
+          <select [(ngModel)]="estado" (change)="irPara(1)">
+            <option value="">Todos</option>
+            <option value="enviado">No AS400</option>
+            <option value="pendente">Por integrar</option>
+            <option value="erro">Com erro</option>
+          </select>
+        </label>
+
+        <label class="campo">
+          <span>Origem</span>
+          <input type="text" [(ngModel)]="respserv" (keyup.enter)="irPara(1)" placeholder="quem enviou" />
+        </label>
+
+        <div class="barra-botoes">
+          <button type="button" class="btn btn--principal" (click)="irPara(1)" [disabled]="aCarregar()">
+            {{ aCarregar() ? 'A procurar…' : 'Procurar' }}
+          </button>
+          <button type="button" class="btn" (click)="limpar()">Limpar</button>
+        </div>
+      </div>
+
+      <p class="barra-nota" *ngIf="mpsid.trim() || volume.trim()">
+        A procurar em todas as datas — o MPS ID e o número de volume chegam para encontrar o envio.
+      </p>
+      <!-- A data é o filtro caro: a coluna da receção não tem índice e entram ~80 mil
+           SHPNOTs por dia. Dizer isto antes evita que a espera pareça uma avaria. -->
+      <p class="barra-nota" *ngIf="data && !mpsid.trim() && !volume.trim()">
+        Filtrar por data percorre toda a tabela e pode demorar um minuto. Sem data, a listagem
+        mostra os últimos a entrar e é imediata.
+      </p>
+    </section>
+
+    <!-- ── Tabela ── -->
+    <section class="tabela-envolve">
+      <table class="tabela">
+        <thead>
+          <tr>
+            <th>Recebido</th>
+            <th>MPS ID</th>
+            <th>Remetente</th>
+            <th>Destinatário</th>
+            <th class="col-num">Volumes</th>
+            <th>Origem</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let l of linhas()" (click)="abrir(l)" class="linha">
+            <td>{{ l.recebido | date: 'dd/MM/yyyy HH:mm' }}</td>
+            <td class="mono">{{ l.mpsId || '—' }}</td>
+            <td>{{ l.remetente || '—' }}</td>
+            <td>
+              {{ l.destinatario || '—' }}
+              <span class="pais" *ngIf="l.pais">{{ l.pais }}</span>
+            </td>
+            <td class="col-num">{{ l.volumes ?? '—' }}</td>
+            <td>{{ l.respServ || '—' }}</td>
+            <td>
+              <span class="estado" [class]="'estado--' + l.estado">
+                {{ l.estado === 'enviado' ? 'No AS400' : l.estado === 'erro' ? 'Com erro' : 'Por integrar' }}
+              </span>
+              <!-- A letra da FLAGAS400 fica à vista: distingue estados que o rótulo junta. -->
+              <span class="flag" *ngIf="l.flagAs400" [title]="'FLAGAS400 = ' + l.flagAs400">{{ l.flagAs400 }}</span>
+            </td>
+          </tr>
+
+          <tr *ngIf="!aCarregar() && procurou() && linhas().length === 0">
+            <td colspan="7" class="vazio">Nenhum SHPNOT para estes filtros.</td>
+          </tr>
+          <tr *ngIf="aCarregar()">
+            <td colspan="7" class="vazio">A carregar…</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="paginacao" *ngIf="linhas().length > 0">
+        <span class="paginacao-total">Os mais recentes primeiro</span>
+
+        <label class="paginacao-tamanho">
+          <span>Por página</span>
+          <select [ngModel]="tamanho()" (ngModelChange)="mudarTamanho($event)">
+            <option *ngFor="let t of tamanhosPagina" [value]="t">{{ t }}</option>
+          </select>
+        </label>
+
+        <div class="paginacao-botoes">
+          <button type="button" class="btn btn--pequeno" (click)="irPara(pagina() - 1)" [disabled]="pagina() <= 1">
+            Anterior
+          </button>
+          <span class="paginacao-pagina">Página {{ pagina() }}</span>
+          <button
+            type="button"
+            class="btn btn--pequeno"
+            (click)="irPara(pagina() + 1)"
+            [disabled]="!haMais()"
+          >
+            Seguinte
+          </button>
+        </div>
+      </div>
+    </section>
+  </ng-container>
+
+  <!-- ══════════════════ Detalhe ══════════════════ -->
+  <ng-container *ngIf="detalhe() as d">
+    <header class="detalhe-cabecalho">
+      <button type="button" class="btn" (click)="fechar()">← Voltar à lista</button>
+
+      <div class="detalhe-identidade">
+        <span class="detalhe-mps mono">{{ d.resumo.mpsId || 'sem MPS ID' }}</span>
+        <span class="estado" [class]="'estado--' + d.resumo.estado">
+          {{ d.resumo.estado === 'enviado' ? 'No AS400' : d.resumo.estado === 'erro' ? 'Com erro' : 'Por integrar' }}
+        </span>
+      </div>
+
+      <dl class="detalhe-meta">
+        <div><dt>Recebido</dt><dd>{{ d.resumo.recebido | date: 'dd/MM/yyyy HH:mm:ss' }}</dd></div>
+        <div><dt>Integrado</dt><dd>{{ (d.resumo.processadoAs400 | date: 'dd/MM/yyyy HH:mm:ss') || '—' }}</dd></div>
+        <div><dt>Origem</dt><dd>{{ d.resumo.respServ || '—' }}</dd></div>
+        <div><dt>Volumes</dt><dd>{{ d.resumo.volumes ?? '—' }}</dd></div>
+      </dl>
+    </header>
+
+    <p class="detalhe-ajuda">
+      Passe o rato sobre um campo para ver o nome que tem no JSON recebido, a tabela e coluna
+      onde está guardado, e o nome com que segue para o AS400.
+    </p>
+
+    <nav class="abas">
+      <button
+        type="button"
+        *ngFor="let a of d.abas"
+        class="aba"
+        [class.aba--ativa]="a.chave === abaAtiva()"
+        (click)="abaAtiva.set(a.chave)"
+      >
+        {{ a.titulo }}
+      </button>
+    </nav>
+
+    <section class="conteudo" *ngIf="abaCorrente() as aba">
+      <ng-container *ngFor="let bloco of ordenados(aba.blocos)">
+        <ng-container *ngTemplateOutlet="tplBloco; context: { $implicit: bloco, nivel: 0 }"></ng-container>
+      </ng-container>
+    </section>
+
+    <div class="mensagem" *ngIf="aCarregarDetalhe()">A carregar o SHPNOT…</div>
+  </ng-container>
+</div>
+
+<!-- ─────────────── Um bloco: ou uma ficha de campos, ou uma coleção ─────────────── -->
+<ng-template #tplBloco let-bloco let-nivel="nivel">
+  <section class="bloco" [class.bloco--aninhado]="nivel > 0" [class.bloco--vazio]="bloco.vazio">
+    <header class="bloco-cabecalho">
+      <h4 class="bloco-titulo">{{ bloco.titulo }}</h4>
+      <span class="bloco-tabela mono" [title]="'Tabela ' + bloco.tabela">{{ bloco.tabela }}</span>
+      <span class="bloco-nota" *ngIf="bloco.vazio">sem dados</span>
+      <span class="bloco-nota" *ngIf="bloco.colecao && !bloco.vazio">{{ bloco.linhas.length }}</span>
+    </header>
+
+    <ng-container *ngIf="!bloco.vazio">
+      <!-- Ficha: os campos da linha -->
+      <dl class="campos" *ngIf="!bloco.colecao">
+        <div class="campo-ficha" *ngFor="let c of bloco.campos" [title]="hint(c)">
+          <dt>
+            {{ c.etiqueta }}
+            <span class="campo-alias mono" *ngIf="c.alias">{{ c.alias }}</span>
+          </dt>
+          <dd [class.campo-nulo]="!c.valor">{{ valor(c) }}</dd>
+        </div>
+      </dl>
+
+      <!-- Coleção: uma linha de cada vez, aberta a pedido -->
+      <div class="colecao" *ngIf="bloco.colecao">
+        <div class="colecao-linha" *ngFor="let linha of bloco.linhas; let i = index">
+          <button type="button" class="colecao-cabecalho" (click)="alternarLinha(linha.id)">
+            <span class="colecao-seta" [class.colecao-seta--aberta]="linhaAberta() === linha.id">▸</span>
+            <span class="colecao-rotulo">
+              {{ bloco.titulo }} {{ linha.rotulo || i + 1 }}
+            </span>
+          </button>
+
+          <div class="colecao-corpo" *ngIf="linhaAberta() === linha.id">
+            <dl class="campos">
+              <div class="campo-ficha" *ngFor="let c of linha.campos" [title]="hint(c)">
+                <dt>
+                  {{ c.etiqueta }}
+                  <span class="campo-alias mono" *ngIf="c.alias">{{ c.alias }}</span>
+                </dt>
+                <dd [class.campo-nulo]="!c.valor">{{ valor(c) }}</dd>
+              </div>
+            </dl>
+
+            <ng-container *ngFor="let filho of ordenados(linha.filhos)">
+              <ng-container
+                *ngTemplateOutlet="tplBloco; context: { $implicit: filho, nivel: nivel + 1 }"
+              ></ng-container>
+            </ng-container>
+          </div>
+        </div>
+      </div>
+
+      <!-- Blocos por baixo deste -->
+      <ng-container *ngIf="!bloco.colecao">
+        <ng-container *ngFor="let filho of ordenados(bloco.filhos)">
+          <ng-container *ngTemplateOutlet="tplBloco; context: { $implicit: filho, nivel: nivel + 1 }"></ng-container>
+        </ng-container>
+      </ng-container>
+    </ng-container>
+  </section>
+</ng-template>

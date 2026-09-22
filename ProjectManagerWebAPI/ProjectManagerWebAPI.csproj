@@ -24,6 +24,13 @@
   </ItemGroup>
 
 
+  <!-- Dicionário de campos do ShpNot: diz, para cada coluna, o nome no JSON recebido e o
+       alias na GROUPSHPNOT.VW_SHPNOT_AS400. É lido do disco no arranque, por isso tem de
+       acompanhar o binário. O .sql ao lado é o DDL da view de onde saíram os aliases. -->
+  <ItemGroup>
+    <Content Update="Data\ShpNot\**" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
   <!-- Driver JDBC oficial da IBM para o AS400 (jt400), compilado para .NET pelo
        IKVM. Evita depender do IBM i Access ODBC Driver e do unixODBC instalados
        na máquina: assim a comparação AS400 vs Oracle funciona tal e qual em

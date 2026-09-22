@@ -13,7 +13,9 @@
       <h1>
         <ng-container *ngIf="moduloAtivo() === 'tracepush'; else tituloKafka">Trace Push</ng-container>
         <ng-template #tituloKafka>
-        <ng-container *ngIf="moduloAtivo() === 'kafka'; else tituloContas">Kafka</ng-container>
+        <ng-container *ngIf="moduloAtivo() === 'kafka'; else tituloShpNot">Kafka</ng-container>
+        <ng-template #tituloShpNot>
+        <ng-container *ngIf="moduloAtivo() === 'shpnot'; else tituloContas">ShpNot</ng-container>
         <ng-template #tituloContas>
         <ng-container [ngSwitch]="vista()">
           <ng-container *ngSwitchCase="'detalhe'">
@@ -22,6 +24,7 @@
           <ng-container *ngSwitchCase="'registo'">Registo de envios</ng-container>
           <ng-container *ngSwitchDefault>Gestão de Dados</ng-container>
         </ng-container>
+        </ng-template>
         </ng-template>
         </ng-template>
       </h1>
@@ -455,6 +458,11 @@
   <!-- ══════════════════ KAFKA ══════════════════ -->
   <main class="conteudo" *ngIf="moduloAtivo() === 'kafka'">
     <app-kafka></app-kafka>
+  </main>
+
+  <!-- ══════════════════ SHPNOT ══════════════════ -->
+  <main class="conteudo" *ngIf="moduloAtivo() === 'shpnot'">
+    <app-shpnot></app-shpnot>
   </main>
 
     </div><!-- painel-conteudo -->

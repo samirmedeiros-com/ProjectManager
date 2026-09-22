@@ -163,6 +163,13 @@ builder.Services.AddScoped<IContasAuditService, ContasAuditService>();
 builder.Services.AddScoped<ITracePushRepository, TracePushRepository>();
 builder.Services.AddScoped<ITracePushAuditService, TracePushAuditService>();
 
+// ShpNot — módulo da Gestão de Dados sobre os SHPNOTs recebidos pelo WebApiShpNot. Ligação
+// própria: as tabelas estão noutro esquema, que o utilizador das contas não alcança.
+// O catálogo é singleton — lê um ficheiro que não muda enquanto a aplicação corre.
+builder.Services.Configure<ShpNotOptions>(builder.Configuration.GetSection(ShpNotOptions.Seccao));
+builder.Services.AddSingleton<IShpNotCatalogo, ShpNotCatalogo>();
+builder.Services.AddScoped<IShpNotRepository, ShpNotRepository>();
+
 // Kafka — módulo da Gestão de Dados sobre a REST API do Kafka Connect.
 builder.Services.Configure<KafkaOptions>(builder.Configuration.GetSection(KafkaOptions.Seccao));
 builder.Services.AddScoped<IKafkaConnectGateway, KafkaConnectGateway>();

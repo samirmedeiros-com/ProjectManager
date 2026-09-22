@@ -3,6 +3,7 @@ import { Component, OnInit, computed, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TracePushComponent } from '../tracepush/tracepush.component';
 import { KafkaComponent } from '../kafka/kafka.component';
+import { ShpNotComponent } from '../shpnot/shpnot.component';
 import { Router } from '@angular/router';
 import { SeurAuthService } from '../../services/seur-auth.service';
 import {
@@ -44,7 +45,7 @@ interface GrupoCampos {
 @Component({
   selector: 'app-contas',
   standalone: true,
-  imports: [CommonModule, FormsModule, TracePushComponent, KafkaComponent],
+  imports: [CommonModule, FormsModule, TracePushComponent, KafkaComponent, ShpNotComponent],
   templateUrl: './contas.component.html',
   styleUrls: ['./contas.component.scss'],
 })
@@ -73,6 +74,13 @@ export class ContasComponent implements OnInit {
       etiqueta: 'Kafka',
       ativo: true,
       icone: 'M5 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4z M19 21a2 2 0 1 0 0-4 2 2 0 0 0 0 4z M19 11a2 2 0 1 0 0-4 2 2 0 0 0 0 4z M5 17a2 2 0 1 0 0-4 2 2 0 0 0 0 4z M7 5h6a4 4 0 0 1 4 4 M17 15v0a4 4 0 0 1-4 4H7 M5 7v6',
+    },
+    // ShpNot: uma encomenda, que é o que um aviso de expedição anuncia.
+    {
+      chave: 'shpnot',
+      etiqueta: 'ShpNot',
+      ativo: true,
+      icone: 'M21 8v8a2 2 0 0 1-1 1.73l-7 4a2 2 0 0 1-2 0l-7-4A2 2 0 0 1 3 16V8a2 2 0 0 1 1-1.73l7-4a2 2 0 0 1 2 0l7 4A2 2 0 0 1 21 8z M3.3 7 12 12l8.7-5 M12 22V12',
     },
   ];
   moduloAtivo = signal('contas');

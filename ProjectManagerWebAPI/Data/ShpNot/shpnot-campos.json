@@ -1,0 +1,3054 @@
+{
+ "ADDRESSCORRECTIONJOURNEY": {
+  "ID": {
+   "tabela": "ADDRESSCORRECTIONJOURNEY",
+   "coluna": "ID"
+  },
+  "CHANGED": {
+   "tabela": "ADDRESSCORRECTIONJOURNEY",
+   "coluna": "CHANGED",
+   "json": "changed",
+   "alias": "ENRADDJ_CHANGED"
+  },
+  "CHANGEDWITHCLEANING": {
+   "tabela": "ADDRESSCORRECTIONJOURNEY",
+   "coluna": "CHANGEDWITHCLEANING",
+   "json": "changedWithCleaning",
+   "alias": "ENRADDJ_CHANGEDWITHCLEANING"
+  },
+  "CHANGEDWITHNER": {
+   "tabela": "ADDRESSCORRECTIONJOURNEY",
+   "coluna": "CHANGEDWITHNER",
+   "json": "changedWithNer",
+   "alias": "ENRADDJ_CHANGEDWITHNER"
+  },
+  "FILTERED": {
+   "tabela": "ADDRESSCORRECTIONJOURNEY",
+   "coluna": "FILTERED",
+   "json": "filtered",
+   "alias": "ENRADDJ_FILTERED"
+  },
+  "GEOLOCATED": {
+   "tabela": "ADDRESSCORRECTIONJOURNEY",
+   "coluna": "GEOLOCATED",
+   "json": "geolocated",
+   "alias": "ENRADDJ_GEOLOCATED"
+  },
+  "SENTTOOSM": {
+   "tabela": "ADDRESSCORRECTIONJOURNEY",
+   "coluna": "SENTTOOSM",
+   "json": "sentToOsm",
+   "alias": "ENRADDJ_SENTTOOSM"
+  },
+  "TREATED": {
+   "tabela": "ADDRESSCORRECTIONJOURNEY",
+   "coluna": "TREATED",
+   "json": "treated",
+   "alias": "ENRADDJ_TREATED"
+  }
+ },
+ "BUSINESSTYPES": {
+  "ID": {
+   "tabela": "BUSINESSTYPES",
+   "coluna": "ID"
+  },
+  "DELIVERYLOCATION": {
+   "tabela": "BUSINESSTYPES",
+   "coluna": "DELIVERYLOCATION",
+   "json": "deliveryLocation",
+   "alias": "ENRBU_DELIVERYLOCATION"
+  },
+  "DELIVERYLOCATIONCONFIDENCESCORE": {
+   "tabela": "BUSINESSTYPES",
+   "coluna": "DELIVERYLOCATIONCONFIDENCESCORE",
+   "json": "deliveryLocationConfidenceScore"
+  },
+  "RECEIVER": {
+   "tabela": "BUSINESSTYPES",
+   "coluna": "RECEIVER",
+   "json": "receiver",
+   "alias": "ENRBU_RECEIVER"
+  },
+  "RECEIVERCONFIDENCESCORE": {
+   "tabela": "BUSINESSTYPES",
+   "coluna": "RECEIVERCONFIDENCESCORE",
+   "json": "receiverConfidenceScore"
+  },
+  "SENDER": {
+   "tabela": "BUSINESSTYPES",
+   "coluna": "SENDER",
+   "json": "sender",
+   "alias": "ENRBU_SENDER"
+  },
+  "SENDERCONFIDENCESCORE": {
+   "tabela": "BUSINESSTYPES",
+   "coluna": "SENDERCONFIDENCESCORE",
+   "json": "senderConfidenceScore"
+  }
+ },
+ "CADDRESS": {
+  "ID": {
+   "tabela": "CADDRESS",
+   "coluna": "ID"
+  },
+  "ADDRESSLINE2": {
+   "tabela": "CADDRESS",
+   "coluna": "ADDRESSLINE2",
+   "json": "addressLine2",
+   "alias": "CPROPAD1X"
+  },
+  "ADDRESSLINE3": {
+   "tabela": "CADDRESS",
+   "coluna": "ADDRESSLINE3",
+   "json": "addressLine3",
+   "alias": "CPROPAD2X"
+  },
+  "BUILDING": {
+   "tabela": "CADDRESS",
+   "coluna": "BUILDING",
+   "json": "building",
+   "alias": "CPROPBUIX"
+  },
+  "CITY": {
+   "tabela": "CADDRESS",
+   "coluna": "CITY",
+   "json": "city",
+   "alias": "CTOWNX"
+  },
+  "COMPNAME": {
+   "tabela": "CADDRESS",
+   "coluna": "COMPNAME",
+   "json": "compName",
+   "alias": "CINVCN1X"
+  },
+  "COMPNAME2": {
+   "tabela": "CADDRESS",
+   "coluna": "COMPNAME2",
+   "json": "compName2",
+   "alias": "CINVCN2X"
+  },
+  "COUNTRYCODE": {
+   "tabela": "CADDRESS",
+   "coluna": "COUNTRYCODE",
+   "json": "countryCode",
+   "alias": "CCOUNTRYCX"
+  },
+  "DEPARTMENT": {
+   "tabela": "CADDRESS",
+   "coluna": "DEPARTMENT",
+   "json": "department",
+   "alias": "CPROPDEPX"
+  },
+  "DOORCODE": {
+   "tabela": "CADDRESS",
+   "coluna": "DOORCODE",
+   "json": "doorCode",
+   "alias": "CPROPDOOX"
+  },
+  "FLOOR": {
+   "tabela": "CADDRESS",
+   "coluna": "FLOOR",
+   "json": "floor",
+   "alias": "CPROPFLOX"
+  },
+  "INTERPHONENAME": {
+   "tabela": "CADDRESS",
+   "coluna": "INTERPHONENAME",
+   "json": "interphoneName",
+   "alias": "CPROPPHOX"
+  },
+  "NAME": {
+   "tabela": "CADDRESS",
+   "coluna": "NAME",
+   "json": "name",
+   "alias": "CNAME1X"
+  },
+  "NAME2": {
+   "tabela": "CADDRESS",
+   "coluna": "NAME2",
+   "json": "name2",
+   "alias": "CNAME2X"
+  },
+  "PROPERTYNUMBER": {
+   "tabela": "CADDRESS",
+   "coluna": "PROPERTYNUMBER",
+   "json": "propertyNumber",
+   "alias": "CPROPNUMX"
+  },
+  "STATE": {
+   "tabela": "CADDRESS",
+   "coluna": "STATE",
+   "json": "state",
+   "alias": "CSTATEX"
+  },
+  "STREET": {
+   "tabela": "CADDRESS",
+   "coluna": "STREET",
+   "json": "street",
+   "alias": "CSTREETX"
+  },
+  "ZIPCODE": {
+   "tabela": "CADDRESS",
+   "coluna": "ZIPCODE",
+   "json": "zipCode",
+   "alias": "CZIPCODEX"
+  }
+ },
+ "CAMOUNT": {
+  "ID": {
+   "tabela": "CAMOUNT",
+   "coluna": "ID"
+  },
+  "AMOUNT": {
+   "tabela": "CAMOUNT",
+   "coluna": "AMOUNT",
+   "json": "amount",
+   "alias": "CAMOUNTX"
+  },
+  "CURRENCY": {
+   "tabela": "CAMOUNT",
+   "coluna": "CURRENCY",
+   "json": "currency",
+   "alias": "CURRENCYX"
+  }
+ },
+ "CAMOUNTEX": {
+  "ID": {
+   "tabela": "CAMOUNTEX",
+   "coluna": "ID"
+  },
+  "AMOUNT": {
+   "tabela": "CAMOUNTEX",
+   "coluna": "AMOUNT",
+   "json": "amount",
+   "alias": "CAMOUNTEXX"
+  },
+  "CURRENCY": {
+   "tabela": "CAMOUNTEX",
+   "coluna": "CURRENCY",
+   "json": "currency",
+   "alias": "CURRENCYEX"
+  }
+ },
+ "CCONTACT": {
+  "ID": {
+   "tabela": "CCONTACT",
+   "coluna": "ID"
+  },
+  "CONTACTPERSON": {
+   "tabela": "CCONTACT",
+   "coluna": "CONTACTPERSON",
+   "json": "contactPerson",
+   "alias": "CCONTACTX"
+  },
+  "EMAIL": {
+   "tabela": "CCONTACT",
+   "coluna": "EMAIL",
+   "json": "email",
+   "alias": "CEMAILX"
+  },
+  "FAX": {
+   "tabela": "CCONTACT",
+   "coluna": "FAX",
+   "json": "fax",
+   "alias": "CFAXX"
+  },
+  "PHONE": {
+   "tabela": "CCONTACT",
+   "coluna": "PHONE",
+   "json": "phone",
+   "alias": "CPHONEX"
+  },
+  "PHONE2": {
+   "tabela": "CCONTACT",
+   "coluna": "PHONE2",
+   "json": "phone2",
+   "alias": "CPHONE2X"
+  },
+  "TITLE": {
+   "tabela": "CCONTACT",
+   "coluna": "TITLE",
+   "json": "title"
+  }
+ },
+ "CGPS": {
+  "ID": {
+   "tabela": "CGPS",
+   "coluna": "ID"
+  },
+  "LATITUDE": {
+   "tabela": "CGPS",
+   "coluna": "LATITUDE",
+   "json": "latitude",
+   "alias": "CGPSLATX"
+  },
+  "LONGITUDE": {
+   "tabela": "CGPS",
+   "coluna": "LONGITUDE",
+   "json": "longitude",
+   "alias": "CGPSLONGX"
+  }
+ },
+ "CGROSSWEIGHT": {
+  "ID": {
+   "tabela": "CGROSSWEIGHT",
+   "coluna": "ID"
+  },
+  "QUALIF": {
+   "tabela": "CGROSSWEIGHT",
+   "coluna": "QUALIF",
+   "json": "qualif",
+   "alias": "GROSS_QUALIF"
+  },
+  "VALUE": {
+   "tabela": "CGROSSWEIGHT",
+   "coluna": "VALUE",
+   "json": "value",
+   "alias": "GROSS_VALUE"
+  }
+ },
+ "CIFCOST": {
+  "ID": {
+   "tabela": "CIFCOST",
+   "coluna": "ID"
+  },
+  "AMOUNT": {
+   "tabela": "CIFCOST",
+   "coluna": "AMOUNT",
+   "json": "amount",
+   "alias": "CIFCOSTX"
+  },
+  "CURRENCY": {
+   "tabela": "CIFCOST",
+   "coluna": "CURRENCY",
+   "json": "currency",
+   "alias": "CIFCOSTCUX"
+  }
+ },
+ "CNETWEIGHT": {
+  "ID": {
+   "tabela": "CNETWEIGHT",
+   "coluna": "ID"
+  },
+  "QUALIF": {
+   "tabela": "CNETWEIGHT",
+   "coluna": "QUALIF",
+   "json": "qualif",
+   "alias": "CNET_QUALIF"
+  },
+  "VALUE": {
+   "tabela": "CNETWEIGHT",
+   "coluna": "VALUE",
+   "json": "value",
+   "alias": "CNET_VALUE"
+  }
+ },
+ "COD": {
+  "ID": {
+   "tabela": "COD",
+   "coluna": "ID"
+  },
+  "BIC": {
+   "tabela": "COD",
+   "coluna": "BIC",
+   "json": "bic",
+   "alias": "BICX"
+  },
+  "IBAN": {
+   "tabela": "COD",
+   "coluna": "IBAN",
+   "json": "iban",
+   "alias": "IBANX"
+  },
+  "NAMOUNTID": {
+   "tabela": "COD",
+   "coluna": "NAMOUNTID"
+  },
+  "NCOLLECTTYPE": {
+   "tabela": "COD",
+   "coluna": "NCOLLECTTYPE",
+   "json": "nCollectType",
+   "alias": "NCOLLECTTYPE"
+  },
+  "NPURPOSE": {
+   "tabela": "COD",
+   "coluna": "NPURPOSE",
+   "json": "nPurpose",
+   "alias": "NPURPOSEX"
+  },
+  "SACCNAME": {
+   "tabela": "COD",
+   "coluna": "SACCNAME",
+   "json": "sAccName",
+   "alias": "SACCNAMEX"
+  },
+  "SACCOUNT": {
+   "tabela": "COD",
+   "coluna": "SACCOUNT",
+   "json": "sAccount",
+   "alias": "SACCOUNTX"
+  },
+  "SBKCODE": {
+   "tabela": "COD",
+   "coluna": "SBKCODE",
+   "json": "sbkCode",
+   "alias": "SBKCODEX"
+  },
+  "SBKNAME": {
+   "tabela": "COD",
+   "coluna": "SBKNAME",
+   "json": "sbkName",
+   "alias": "SBKNAMEX"
+  }
+ },
+ "CUSTOMERINFOS": {
+  "ID": {
+   "tabela": "CUSTOMERINFOS",
+   "coluna": "ID"
+  },
+  "CUSTACCNUMBER": {
+   "tabela": "CUSTOMERINFOS",
+   "coluna": "CUSTACCNUMBER",
+   "json": "custAccNumber",
+   "alias": "SCUSTACCNX"
+  },
+  "CUSTCOMPACCNUMBER": {
+   "tabela": "CUSTOMERINFOS",
+   "coluna": "CUSTCOMPACCNUMBER",
+   "json": "custCompAccNumber"
+  },
+  "CUSTSUBACCNUMBER": {
+   "tabela": "CUSTOMERINFOS",
+   "coluna": "CUSTSUBACCNUMBER",
+   "json": "custSubAccNumber",
+   "alias": "SCUSTSUBAX"
+  },
+  "UNIQCUSTID": {
+   "tabela": "CUSTOMERINFOS",
+   "coluna": "UNIQCUSTID",
+   "json": "uniqCustId",
+   "alias": "SUNIQCUSTX"
+  }
+ },
+ "CUSTOMSFEES": {
+  "ID": {
+   "tabela": "CUSTOMSFEES",
+   "coluna": "ID"
+  },
+  "AMOUNT": {
+   "tabela": "CUSTOMSFEES",
+   "coluna": "AMOUNT",
+   "json": "amount",
+   "alias": "CUSTFEESAX"
+  },
+  "CURRENCY": {
+   "tabela": "CUSTOMSFEES",
+   "coluna": "CURRENCY",
+   "json": "currency",
+   "alias": "CF_CURRENCY"
+  }
+ },
+ "DECLAREDWEIGHT": {
+  "ID": {
+   "tabela": "DECLAREDWEIGHT",
+   "coluna": "ID"
+  },
+  "QUALIF": {
+   "tabela": "DECLAREDWEIGHT",
+   "coluna": "QUALIF",
+   "json": "qualif",
+   "alias": "SHIPWQUALIF"
+  },
+  "VALUE": {
+   "tabela": "DECLAREDWEIGHT",
+   "coluna": "VALUE",
+   "json": "value",
+   "alias": "MPSWEIGHTX"
+  }
+ },
+ "DELIVERY": {
+  "ID": {
+   "tabela": "DELIVERY",
+   "coluna": "ID"
+  },
+  "BOOKINGNUMBER": {
+   "tabela": "DELIVERY",
+   "coluna": "BOOKINGNUMBER",
+   "json": "bookingNumber",
+   "alias": "BOOKINGNUX"
+  },
+  "DELIVERYDATEFROM": {
+   "tabela": "DELIVERY",
+   "coluna": "DELIVERYDATEFROM",
+   "json": "deliveryDateFrom",
+   "alias": "DELIVEDTFX"
+  },
+  "DELIVERYDATETO": {
+   "tabela": "DELIVERY",
+   "coluna": "DELIVERYDATETO",
+   "json": "deliveryDateTo",
+   "alias": "DELIVEDTTX"
+  },
+  "DELIVERYDAY": {
+   "tabela": "DELIVERY",
+   "coluna": "DELIVERYDAY",
+   "json": "deliveryDay",
+   "alias": "DELIVERYDX"
+  },
+  "PODINFOS": {
+   "tabela": "DELIVERY",
+   "coluna": "PODINFOS",
+   "json": "podInfos",
+   "alias": "PODINFO1X"
+  },
+  "SECUREDDELIVERY": {
+   "tabela": "DELIVERY",
+   "coluna": "SECUREDDELIVERY",
+   "json": "securedDelivery"
+  },
+  "TIMEFRAMEFROM": {
+   "tabela": "DELIVERY",
+   "coluna": "TIMEFRAMEFROM",
+   "json": "timeFrameFrom",
+   "alias": "TIMEFRFX"
+  },
+  "TIMEFRAMETO": {
+   "tabela": "DELIVERY",
+   "coluna": "TIMEFRAMETO",
+   "json": "timeFrameTo",
+   "alias": "TIMEFRFT"
+  }
+ },
+ "DIMENSIONS": {
+  "ID": {
+   "tabela": "DIMENSIONS",
+   "coluna": "ID"
+  },
+  "HEIGHT": {
+   "tabela": "DIMENSIONS",
+   "coluna": "HEIGHT",
+   "json": "height"
+  },
+  "LENGTH": {
+   "tabela": "DIMENSIONS",
+   "coluna": "LENGTH",
+   "json": "length"
+  },
+  "QUALIF": {
+   "tabela": "DIMENSIONS",
+   "coluna": "QUALIF",
+   "json": "qualif",
+   "alias": "SHIPDQUALIF"
+  },
+  "WIDTH": {
+   "tabela": "DIMENSIONS",
+   "coluna": "WIDTH",
+   "json": "width"
+  }
+ },
+ "DUTIES": {
+  "ID": {
+   "tabela": "DUTIES",
+   "coluna": "ID"
+  },
+  "AMOUNT": {
+   "tabela": "DUTIES",
+   "coluna": "AMOUNT",
+   "json": "amount",
+   "alias": "DUTIESAMX"
+  },
+  "CURRENCY": {
+   "tabela": "DUTIES",
+   "coluna": "CURRENCY",
+   "json": "currency",
+   "alias": "DU_CURRENCY"
+  }
+ },
+ "ENRICHMENTS": {
+  "ID": {
+   "tabela": "ENRICHMENTS",
+   "coluna": "ID"
+  },
+  "ADDRESSCORRECTIONJOURNEYID": {
+   "tabela": "ENRICHMENTS",
+   "coluna": "ADDRESSCORRECTIONJOURNEYID"
+  },
+  "BUSINESSTYPESID": {
+   "tabela": "ENRICHMENTS",
+   "coluna": "BUSINESSTYPESID"
+  },
+  "RECEIVERADDRESSCORRECTEDID": {
+   "tabela": "ENRICHMENTS",
+   "coluna": "RECEIVERADDRESSCORRECTEDID"
+  },
+  "SHIPMENTTYPE": {
+   "tabela": "ENRICHMENTS",
+   "coluna": "SHIPMENTTYPE",
+   "json": "shipmentType",
+   "alias": "ENR_SHIPMENTTYPE"
+  }
+ },
+ "EXPLWEIGHT": {
+  "ID": {
+   "tabela": "EXPLWEIGHT",
+   "coluna": "ID"
+  },
+  "QUALIF": {
+   "tabela": "EXPLWEIGHT",
+   "coluna": "QUALIF",
+   "json": "qualif",
+   "alias": "EXW_QUALIF"
+  },
+  "VALUE": {
+   "tabela": "EXPLWEIGHT",
+   "coluna": "VALUE",
+   "json": "value",
+   "alias": "EXW_VALUE"
+  }
+ },
+ "EXTRA": {
+  "ID": {
+   "tabela": "EXTRA",
+   "coluna": "ID"
+  },
+  "AMOUNT": {
+   "tabela": "EXTRA",
+   "coluna": "AMOUNT",
+   "json": "amount",
+   "alias": "EXTRAAMOX"
+  },
+  "CURRENCY": {
+   "tabela": "EXTRA",
+   "coluna": "CURRENCY",
+   "json": "currency",
+   "alias": "EX_CURRENCY"
+  }
+ },
+ "GOODS": {
+  "ID": {
+   "tabela": "GOODS",
+   "coluna": "ID"
+  },
+  "CARES": {
+   "tabela": "GOODS",
+   "coluna": "CARES",
+   "json": "cares",
+   "alias": "GOOD_CARES"
+  },
+  "DESCRIPTION": {
+   "tabela": "GOODS",
+   "coluna": "DESCRIPTION",
+   "json": "description",
+   "alias": "GOOD_DESCRIPTION"
+  },
+  "FEATURES": {
+   "tabela": "GOODS",
+   "coluna": "FEATURES",
+   "json": "features",
+   "alias": "GOOD_FEATURES"
+  },
+  "LIMITDATE": {
+   "tabela": "GOODS",
+   "coluna": "LIMITDATE",
+   "json": "limitDate",
+   "alias": "GOOD_LIMITDATE"
+  },
+  "TEMPERATUREID": {
+   "tabela": "GOODS",
+   "coluna": "TEMPERATUREID"
+  },
+  "TYPE": {
+   "tabela": "GOODS",
+   "coluna": "TYPE",
+   "json": "type",
+   "alias": "GOOD_TYPE"
+  }
+ },
+ "HAZARDOUSSUBSTANCE": {
+  "ID": {
+   "tabela": "HAZARDOUSSUBSTANCE",
+   "coluna": "ID"
+  },
+  "CCODE": {
+   "tabela": "HAZARDOUSSUBSTANCE",
+   "coluna": "CCODE",
+   "json": "cCode",
+   "alias": "HAZ_CCODE"
+  },
+  "CLASS": {
+   "tabela": "HAZARDOUSSUBSTANCE",
+   "coluna": "CLASS",
+   "json": "class",
+   "alias": "HAZ_CLASS"
+  },
+  "EXPLWEIGHTID": {
+   "tabela": "HAZARDOUSSUBSTANCE",
+   "coluna": "EXPLWEIGHTID"
+  },
+  "FACTOR": {
+   "tabela": "HAZARDOUSSUBSTANCE",
+   "coluna": "FACTOR",
+   "json": "factor",
+   "alias": "HAZ_FACTOR"
+  },
+  "NAGTEXT": {
+   "tabela": "HAZARDOUSSUBSTANCE",
+   "coluna": "NAGTEXT",
+   "json": "nagText",
+   "alias": "HAZ_NAGTEXT"
+  },
+  "PARCELID": {
+   "tabela": "HAZARDOUSSUBSTANCE",
+   "coluna": "PARCELID"
+  },
+  "PGGROUP": {
+   "tabela": "HAZARDOUSSUBSTANCE",
+   "coluna": "PGGROUP",
+   "json": "pgGroup",
+   "alias": "HAZ_PGGROUP"
+  },
+  "SUBDANGER": {
+   "tabela": "HAZARDOUSSUBSTANCE",
+   "coluna": "SUBDANGER",
+   "json": "subDanger",
+   "alias": "HAZ_SUBDANGER"
+  },
+  "SUBDESCR": {
+   "tabela": "HAZARDOUSSUBSTANCE",
+   "coluna": "SUBDESCR",
+   "json": "subDescr",
+   "alias": "HAZ_SUBDESCR"
+  },
+  "SUBWEIGHTID": {
+   "tabela": "HAZARDOUSSUBSTANCE",
+   "coluna": "SUBWEIGHTID"
+  },
+  "TRC": {
+   "tabela": "HAZARDOUSSUBSTANCE",
+   "coluna": "TRC",
+   "json": "trc",
+   "alias": "HAZ_TRC"
+  },
+  "UNNO": {
+   "tabela": "HAZARDOUSSUBSTANCE",
+   "coluna": "UNNO",
+   "json": "unNo",
+   "alias": "HAZ_UNNO"
+  }
+ },
+ "HINS": {
+  "ID": {
+   "tabela": "HINS",
+   "coluna": "ID"
+  },
+  "HINSAMOUNTID": {
+   "tabela": "HINS",
+   "coluna": "HINSAMOUNTID"
+  },
+  "HINSCONTENT": {
+   "tabela": "HINS",
+   "coluna": "HINSCONTENT",
+   "json": "hinsContent",
+   "alias": "HINSCONTEX"
+  }
+ },
+ "HINSAMOUNT": {
+  "ID": {
+   "tabela": "HINSAMOUNT",
+   "coluna": "ID"
+  },
+  "AMOUNT": {
+   "tabela": "HINSAMOUNT",
+   "coluna": "AMOUNT",
+   "json": "amount",
+   "alias": "HINSAMOUNX"
+  },
+  "CURRENCY": {
+   "tabela": "HINSAMOUNT",
+   "coluna": "CURRENCY",
+   "json": "currency",
+   "alias": "HINSCURREX"
+  }
+ },
+ "IMAGE": {
+  "ID": {
+   "tabela": "IMAGE",
+   "coluna": "ID"
+  },
+  "IMGBUINTDATETIME": {
+   "tabela": "IMAGE",
+   "coluna": "IMGBUINTDATETIME",
+   "json": "imgBuIntDateTime",
+   "alias": "IMGBUINDTX"
+  },
+  "IMGCATEGORY": {
+   "tabela": "IMAGE",
+   "coluna": "IMGCATEGORY",
+   "json": "imgCategory",
+   "alias": "IMGCATEGOX"
+  },
+  "IMGCONFLEVEL": {
+   "tabela": "IMAGE",
+   "coluna": "IMGCONFLEVEL",
+   "json": "imgConfLevel",
+   "alias": "IMGCONFLEX"
+  },
+  "IMGCONSIGNEE": {
+   "tabela": "IMAGE",
+   "coluna": "IMGCONSIGNEE",
+   "json": "imgConsignee",
+   "alias": "IMGCONSIGX"
+  },
+  "IMGCREATEUSER": {
+   "tabela": "IMAGE",
+   "coluna": "IMGCREATEUSER",
+   "json": "imgCreateUser"
+  },
+  "IMGCUSTOMER": {
+   "tabela": "IMAGE",
+   "coluna": "IMGCUSTOMER",
+   "json": "imgCustomer",
+   "alias": "IMGCUSTOMX"
+  },
+  "IMGDATETIME": {
+   "tabela": "IMAGE",
+   "coluna": "IMGDATETIME",
+   "json": "imgDateTime",
+   "alias": "IMGDATETIX"
+  },
+  "IMGFORMAT": {
+   "tabela": "IMAGE",
+   "coluna": "IMGFORMAT",
+   "json": "imgFormat",
+   "alias": "IMGFORMATX"
+  },
+  "IMGID": {
+   "tabela": "IMAGE",
+   "coluna": "IMGID",
+   "json": "imgId"
+  },
+  "IMGLINK": {
+   "tabela": "IMAGE",
+   "coluna": "IMGLINK",
+   "json": "imgLink",
+   "alias": "IMGLINKX"
+  },
+  "IMGOWNERBU": {
+   "tabela": "IMAGE",
+   "coluna": "IMGOWNERBU",
+   "json": "imgOwnerBu",
+   "alias": "IMGOWNERBX"
+  },
+  "IMGTYPE": {
+   "tabela": "IMAGE",
+   "coluna": "IMGTYPE",
+   "json": "imgType",
+   "alias": "IMGTYPEX"
+  },
+  "INTERNATIONALID": {
+   "tabela": "IMAGE",
+   "coluna": "INTERNATIONALID"
+  }
+ },
+ "INTERINVOICELINE": {
+  "ID": {
+   "tabela": "INTERINVOICELINE",
+   "coluna": "ID"
+  },
+  "CAMOUNTLINE": {
+   "tabela": "INTERINVOICELINE",
+   "coluna": "CAMOUNTLINE",
+   "json": "cAmountLine",
+   "alias": "CAMOUNTLINE"
+  },
+  "CCOMMENT": {
+   "tabela": "INTERINVOICELINE",
+   "coluna": "CCOMMENT",
+   "json": "cComment",
+   "alias": "CCOMMENT"
+  },
+  "CCONTENT": {
+   "tabela": "INTERINVOICELINE",
+   "coluna": "CCONTENT",
+   "json": "cContent",
+   "alias": "CCONTENT"
+  },
+  "CFABRICCOMPOSITION": {
+   "tabela": "INTERINVOICELINE",
+   "coluna": "CFABRICCOMPOSITION",
+   "json": "cFabricComposition",
+   "alias": "CFABRICCOMPOSITION"
+  },
+  "CGROSSWEIGHTID": {
+   "tabela": "INTERINVOICELINE",
+   "coluna": "CGROSSWEIGHTID"
+  },
+  "CINVOICEPOSITION": {
+   "tabela": "INTERINVOICELINE",
+   "coluna": "CINVOICEPOSITION",
+   "json": "cInvoicePosition",
+   "alias": "CINVOICEPOSITION"
+  },
+  "CNETWEIGHTID": {
+   "tabela": "INTERINVOICELINE",
+   "coluna": "CNETWEIGHTID"
+  },
+  "CORIGIN": {
+   "tabela": "INTERINVOICELINE",
+   "coluna": "CORIGIN",
+   "json": "cOrigin",
+   "alias": "CORIGIN"
+  },
+  "CPRODCODE": {
+   "tabela": "INTERINVOICELINE",
+   "coluna": "CPRODCODE",
+   "json": "cProdCode",
+   "alias": "CPRODCODE"
+  },
+  "CPRODTYPE": {
+   "tabela": "INTERINVOICELINE",
+   "coluna": "CPRODTYPE",
+   "json": "cProdType",
+   "alias": "CPRODTYPE"
+  },
+  "GOODSWEBPAGE": {
+   "tabela": "INTERINVOICELINE",
+   "coluna": "GOODSWEBPAGE",
+   "json": "goodsWebPage",
+   "alias": "GOODSWEBPAGE"
+  },
+  "INTERNATIONALID": {
+   "tabela": "INTERINVOICELINE",
+   "coluna": "INTERNATIONALID"
+  },
+  "ITEMSQUANTITY": {
+   "tabela": "INTERINVOICELINE",
+   "coluna": "ITEMSQUANTITY",
+   "json": "itemsQuantity",
+   "alias": "ITEMSQUANTITY"
+  },
+  "RCTARIF": {
+   "tabela": "INTERINVOICELINE",
+   "coluna": "RCTARIF",
+   "json": "rcTarif",
+   "alias": "RCTARIF"
+  },
+  "SCTARIF": {
+   "tabela": "INTERINVOICELINE",
+   "coluna": "SCTARIF",
+   "json": "scTarif",
+   "alias": "SCTARIF"
+  }
+ },
+ "INTERNATIONAL": {
+  "ID": {
+   "tabela": "INTERNATIONAL",
+   "coluna": "ID"
+  },
+  "CADDRESSID": {
+   "tabela": "INTERNATIONAL",
+   "coluna": "CADDRESSID"
+  },
+  "CAMOUNTEXID": {
+   "tabela": "INTERNATIONAL",
+   "coluna": "CAMOUNTEXID"
+  },
+  "CAMOUNTID": {
+   "tabela": "INTERNATIONAL",
+   "coluna": "CAMOUNTID"
+  },
+  "CCOMMENT": {
+   "tabela": "INTERNATIONAL",
+   "coluna": "CCOMMENT",
+   "json": "cComment",
+   "alias": "CCOMMENTX"
+  },
+  "CCONTACTID": {
+   "tabela": "INTERNATIONAL",
+   "coluna": "CCONTACTID"
+  },
+  "CEORI": {
+   "tabela": "INTERNATIONAL",
+   "coluna": "CEORI",
+   "json": "cEori",
+   "alias": "CEORIX"
+  },
+  "CGLN": {
+   "tabela": "INTERNATIONAL",
+   "coluna": "CGLN",
+   "json": "cGln",
+   "alias": "CGLNX"
+  },
+  "CGPSID": {
+   "tabela": "INTERNATIONAL",
+   "coluna": "CGPSID"
+  },
+  "CINVOICE": {
+   "tabela": "INTERNATIONAL",
+   "coluna": "CINVOICE",
+   "json": "cInvoice",
+   "alias": "CINVOICEX"
+  },
+  "CINVOICEDATES": {
+   "tabela": "INTERNATIONAL",
+   "coluna": "CINVOICEDATES",
+   "json": "cInvoiceDates",
+   "alias": "CINVDTX"
+  },
+  "CLEARANCECLEARED": {
+   "tabela": "INTERNATIONAL",
+   "coluna": "CLEARANCECLEARED",
+   "json": "clearanceCleared",
+   "alias": "CLEARANCECLEARED"
+  },
+  "CNUMBER": {
+   "tabela": "INTERNATIONAL",
+   "coluna": "CNUMBER",
+   "json": "cNumber",
+   "alias": "CNUMBERX"
+  },
+  "CPAPER": {
+   "tabela": "INTERNATIONAL",
+   "coluna": "CPAPER",
+   "json": "cPaper",
+   "alias": "CPAPERX"
+  },
+  "CPAPERS": {
+   "tabela": "INTERNATIONAL",
+   "coluna": "CPAPERS",
+   "json": "cPapers",
+   "alias": "CPAPERS"
+  },
+  "CTERMS": {
+   "tabela": "INTERNATIONAL",
+   "coluna": "CTERMS",
+   "json": "cTerms",
+   "alias": "CTERMSX"
+  },
+  "CVATNUMBER": {
+   "tabela": "INTERNATIONAL",
+   "coluna": "CVATNUMBER",
+   "json": "cVatNumber",
+   "alias": "CVATNOX"
+  },
+  "DESTCOUNTRYREG": {
+   "tabela": "INTERNATIONAL",
+   "coluna": "DESTCOUNTRYREG",
+   "json": "destCountryReg",
+   "alias": "DESTCOUREX"
+  },
+  "HIGHLOWVALUE": {
+   "tabela": "INTERNATIONAL",
+   "coluna": "HIGHLOWVALUE",
+   "json": "highLowValue",
+   "alias": "HIGHLOWVAX"
+  },
+  "NUMBEROFARTICLE": {
+   "tabela": "INTERNATIONAL",
+   "coluna": "NUMBEROFARTICLE",
+   "json": "numberOfArticle",
+   "alias": "NUMBEROFARTICLE"
+  },
+  "OPCODE": {
+   "tabela": "INTERNATIONAL",
+   "coluna": "OPCODE",
+   "json": "opCode",
+   "alias": "OPCODE"
+  },
+  "PARCELTYPE": {
+   "tabela": "INTERNATIONAL",
+   "coluna": "PARCELTYPE",
+   "json": "parcelType",
+   "alias": "PARCELTYPX"
+  },
+  "PREALERTSTATUS": {
+   "tabela": "INTERNATIONAL",
+   "coluna": "PREALERTSTATUS",
+   "json": "preAlertStatus",
+   "alias": "PREALERTSX"
+  },
+  "REASONFOREXPORT": {
+   "tabela": "INTERNATIONAL",
+   "coluna": "REASONFOREXPORT",
+   "json": "reasonForExport",
+   "alias": "REASONFORX"
+  },
+  "SHIPMRN": {
+   "tabela": "INTERNATIONAL",
+   "coluna": "SHIPMRN",
+   "json": "shipMRN",
+   "alias": "SHIPMRNX"
+  },
+  "SIADDRESSID": {
+   "tabela": "INTERNATIONAL",
+   "coluna": "SIADDRESSID"
+  },
+  "SICONTACTID": {
+   "tabela": "INTERNATIONAL",
+   "coluna": "SICONTACTID"
+  },
+  "SIEORI": {
+   "tabela": "INTERNATIONAL",
+   "coluna": "SIEORI",
+   "json": "siEori",
+   "alias": "SIEORIX"
+  },
+  "SIGPSID": {
+   "tabela": "INTERNATIONAL",
+   "coluna": "SIGPSID"
+  }
+ },
+ "MEASUREDWEIGHT": {
+  "ID": {
+   "tabela": "MEASUREDWEIGHT",
+   "coluna": "ID"
+  },
+  "QUALIF": {
+   "tabela": "MEASUREDWEIGHT",
+   "coluna": "QUALIF",
+   "json": "qualif",
+   "alias": "PINFOMW_QUALIF"
+  },
+  "VALUE": {
+   "tabela": "MEASUREDWEIGHT",
+   "coluna": "VALUE",
+   "json": "value",
+   "alias": "MEASWEIGHX"
+  }
+ },
+ "MESSAGE": {
+  "ID": {
+   "tabela": "MESSAGE",
+   "coluna": "ID"
+  },
+  "MESSAGEDESTINATION": {
+   "tabela": "MESSAGE",
+   "coluna": "MESSAGEDESTINATION",
+   "json": "messageDestination",
+   "alias": "MSGDESTX"
+  },
+  "MESSAGEDESTTYPE": {
+   "tabela": "MESSAGE",
+   "coluna": "MESSAGEDESTTYPE",
+   "json": "messageDestType",
+   "alias": "MSGDTYPEX"
+  },
+  "MESSAGELANG": {
+   "tabela": "MESSAGE",
+   "coluna": "MESSAGELANG",
+   "json": "messageLang",
+   "alias": "MSGLANGX"
+  },
+  "MESSAGESENDERURL": {
+   "tabela": "MESSAGE",
+   "coluna": "MESSAGESENDERURL",
+   "json": "messageSenderUrl",
+   "alias": "MSGSNDURLX"
+  },
+  "MESSAGETRIGGER": {
+   "tabela": "MESSAGE",
+   "coluna": "MESSAGETRIGGER",
+   "json": "messageTrigger",
+   "alias": "MSGTRIGX"
+  },
+  "MESSAGETYPE": {
+   "tabela": "MESSAGE",
+   "coluna": "MESSAGETYPE",
+   "json": "messageType",
+   "alias": "MSGTYPEX"
+  },
+  "NOTIFSENDERCOMP": {
+   "tabela": "MESSAGE",
+   "coluna": "NOTIFSENDERCOMP",
+   "json": "notifSenderComp",
+   "alias": "NOTSENDX"
+  },
+  "NOTIFSENDERCONTACT": {
+   "tabela": "MESSAGE",
+   "coluna": "NOTIFSENDERCONTACT",
+   "json": "notifSenderContact",
+   "alias": "NOTSENDCOX"
+  },
+  "PARCELID": {
+   "tabela": "MESSAGE",
+   "coluna": "PARCELID"
+  }
+ },
+ "NAMOUNT": {
+  "ID": {
+   "tabela": "NAMOUNT",
+   "coluna": "ID"
+  },
+  "AMOUNT": {
+   "tabela": "NAMOUNT",
+   "coluna": "AMOUNT",
+   "json": "amount",
+   "alias": "NAMOUNTX"
+  },
+  "CURRENCY": {
+   "tabela": "NAMOUNT",
+   "coluna": "CURRENCY",
+   "json": "currency",
+   "alias": "NA_CURRENCY"
+  }
+ },
+ "PARCEL": {
+  "ID": {
+   "tabela": "PARCEL",
+   "coluna": "ID"
+  },
+  "BAGNO": {
+   "tabela": "PARCEL",
+   "coluna": "BAGNO",
+   "json": "bagNo",
+   "alias": "BAGNO"
+  },
+  "CIFCOSTID": {
+   "tabela": "PARCEL",
+   "coluna": "CIFCOSTID"
+  },
+  "CODID": {
+   "tabela": "PARCEL",
+   "coluna": "CODID"
+  },
+  "GOODSID": {
+   "tabela": "PARCEL",
+   "coluna": "GOODSID"
+  },
+  "HAZARDOUSPACKCODE": {
+   "tabela": "PARCEL",
+   "coluna": "HAZARDOUSPACKCODE",
+   "json": "hazardousPackCode",
+   "alias": "HAZARDOUSPACKCODE"
+  },
+  "HINSID": {
+   "tabela": "PARCEL",
+   "coluna": "HINSID"
+  },
+  "NOPSCODE": {
+   "tabela": "PARCEL",
+   "coluna": "NOPSCODE",
+   "json": "nopsCode",
+   "alias": "NOPSCODE"
+  },
+  "OPCODE": {
+   "tabela": "PARCEL",
+   "coluna": "OPCODE",
+   "json": "opCode",
+   "alias": "PARCEL_OPCODE"
+  },
+  "PARCELINFOSID": {
+   "tabela": "PARCEL",
+   "coluna": "PARCELINFOSID"
+  },
+  "PARCELPARTNERREF": {
+   "tabela": "PARCEL",
+   "coluna": "PARCELPARTNERREF",
+   "json": "parcelPartnerRef"
+  },
+  "PARCELRANK": {
+   "tabela": "PARCEL",
+   "coluna": "PARCELRANK",
+   "json": "parcelRank",
+   "alias": "PARCELRANK"
+  },
+  "PARCELSHIPPERREF": {
+   "tabela": "PARCEL",
+   "coluna": "PARCELSHIPPERREF",
+   "json": "parcelShipperRef"
+  },
+  "PCONTENT": {
+   "tabela": "PARCEL",
+   "coluna": "PCONTENT",
+   "json": "pContent",
+   "alias": "PCONTENT"
+  },
+  "POWNERBU": {
+   "tabela": "PARCEL",
+   "coluna": "POWNERBU",
+   "json": "pOwnerBu",
+   "alias": "POWNERBU"
+  },
+  "PPARTNERCODE": {
+   "tabela": "PARCEL",
+   "coluna": "PPARTNERCODE",
+   "json": "pPartnerCode",
+   "alias": "PPARTNERCODE"
+  },
+  "PPARTNERREFS": {
+   "tabela": "PARCEL",
+   "coluna": "PPARTNERREFS",
+   "json": "pPartnerRefs",
+   "alias": "PPARTNERREFS"
+  },
+  "RECEIVERPARCELREF": {
+   "tabela": "PARCEL",
+   "coluna": "RECEIVERPARCELREF",
+   "json": "receiverParcelRef",
+   "alias": "RECEIVERPARCELREF"
+  },
+  "RETURNINFOSID": {
+   "tabela": "PARCEL",
+   "coluna": "RETURNINFOSID"
+  },
+  "RODID": {
+   "tabela": "PARCEL",
+   "coluna": "RODID"
+  },
+  "SENDPARCELREFS": {
+   "tabela": "PARCEL",
+   "coluna": "SENDPARCELREFS",
+   "json": "sendParcelRefs",
+   "alias": "SENDPARCELREFS"
+  },
+  "SERVICECODESID": {
+   "tabela": "PARCEL",
+   "coluna": "SERVICECODESID"
+  },
+  "SHIPINFOID": {
+   "tabela": "PARCEL",
+   "coluna": "SHIPINFOID"
+  },
+  "SHPNOTID": {
+   "tabela": "PARCEL",
+   "coluna": "SHPNOTID"
+  },
+  "SWAPID": {
+   "tabela": "PARCEL",
+   "coluna": "SWAPID"
+  }
+ },
+ "PARCELINFOS": {
+  "ID": {
+   "tabela": "PARCELINFOS",
+   "coluna": "ID"
+  },
+  "DECLAREDWEIGHTICON": {
+   "tabela": "PARCELINFOS",
+   "coluna": "DECLAREDWEIGHTICON",
+   "json": "declaredWeightIcon"
+  },
+  "DECLAREDWEIGHTID": {
+   "tabela": "PARCELINFOS",
+   "coluna": "DECLAREDWEIGHTID"
+  },
+  "DIMENSIONSID": {
+   "tabela": "PARCELINFOS",
+   "coluna": "DIMENSIONSID"
+  },
+  "MEASUREDWEIGHTID": {
+   "tabela": "PARCELINFOS",
+   "coluna": "MEASUREDWEIGHTID"
+  },
+  "ORIGINPARCELNUMBER": {
+   "tabela": "PARCELINFOS",
+   "coluna": "ORIGINPARCELNUMBER",
+   "json": "originParcelNumber",
+   "alias": "PINFO_SPARTREF1X"
+  },
+  "PARCELNUMBER": {
+   "tabela": "PARCELINFOS",
+   "coluna": "PARCELNUMBER",
+   "json": "parcelNumber",
+   "alias": "PINFO_MPSIDX"
+  },
+  "PARCELNUMBERCCKEY": {
+   "tabela": "PARCELINFOS",
+   "coluna": "PARCELNUMBERCCKEY",
+   "json": "parcelNumberCcKey",
+   "alias": "PARCELNUMBERCCKEY"
+  },
+  "PARCELOWNER": {
+   "tabela": "PARCELINFOS",
+   "coluna": "PARCELOWNER",
+   "json": "parcelOwner"
+  },
+  "UNIQUEID": {
+   "tabela": "PARCELINFOS",
+   "coluna": "UNIQUEID",
+   "json": "uniqueId"
+  }
+ },
+ "PERSADDRESS": {
+  "ID": {
+   "tabela": "PERSADDRESS",
+   "coluna": "ID"
+  },
+  "ADDRESSLINE2": {
+   "tabela": "PERSADDRESS",
+   "coluna": "ADDRESSLINE2",
+   "json": "addressLine2",
+   "alias": "PERSADD2X"
+  },
+  "ADDRESSLINE3": {
+   "tabela": "PERSADDRESS",
+   "coluna": "ADDRESSLINE3",
+   "json": "addressLine3",
+   "alias": "PERSADD3X"
+  },
+  "BUILDING": {
+   "tabela": "PERSADDRESS",
+   "coluna": "BUILDING",
+   "json": "building",
+   "alias": "PERSBUILDX"
+  },
+  "CITY": {
+   "tabela": "PERSADDRESS",
+   "coluna": "CITY",
+   "json": "city",
+   "alias": "PERSTOWNX"
+  },
+  "COMPNAME": {
+   "tabela": "PERSADDRESS",
+   "coluna": "COMPNAME",
+   "json": "compName",
+   "alias": "PERSCOMP1X"
+  },
+  "COMPNAME2": {
+   "tabela": "PERSADDRESS",
+   "coluna": "COMPNAME2",
+   "json": "compName2",
+   "alias": "PERSCOMP2X"
+  },
+  "COUNTRYCODE": {
+   "tabela": "PERSADDRESS",
+   "coluna": "COUNTRYCODE",
+   "json": "countryCode",
+   "alias": "PERSCOUNTX"
+  },
+  "DEPARTMENT": {
+   "tabela": "PERSADDRESS",
+   "coluna": "DEPARTMENT",
+   "json": "department",
+   "alias": "PERSDEPARX"
+  },
+  "DOORCODE": {
+   "tabela": "PERSADDRESS",
+   "coluna": "DOORCODE",
+   "json": "doorCode",
+   "alias": "PERSDOORCX"
+  },
+  "FLOOR": {
+   "tabela": "PERSADDRESS",
+   "coluna": "FLOOR",
+   "json": "floor",
+   "alias": "PERSFLOORX"
+  },
+  "NAME": {
+   "tabela": "PERSADDRESS",
+   "coluna": "NAME",
+   "json": "name",
+   "alias": "PERSNAME1X"
+  },
+  "NAME2": {
+   "tabela": "PERSADDRESS",
+   "coluna": "NAME2",
+   "json": "name2",
+   "alias": "PERSNAME2X"
+  },
+  "PROPERTYNUMBER": {
+   "tabela": "PERSADDRESS",
+   "coluna": "PROPERTYNUMBER",
+   "json": "propertyNumber",
+   "alias": "PERSPROPNX"
+  },
+  "STATE": {
+   "tabela": "PERSADDRESS",
+   "coluna": "STATE",
+   "json": "state",
+   "alias": "PERSSTATEX"
+  },
+  "STREET": {
+   "tabela": "PERSADDRESS",
+   "coluna": "STREET",
+   "json": "street",
+   "alias": "PERSSTREEX"
+  },
+  "ZIPCODE": {
+   "tabela": "PERSADDRESS",
+   "coluna": "ZIPCODE",
+   "json": "zipCode",
+   "alias": "PERSZIPCOX"
+  },
+  "INTERPHONENAME": {
+   "tabela": "PERSADDRESS",
+   "coluna": "INTERPHONENAME",
+   "json": "interphoneName",
+   "alias": "PERSINTERX"
+  }
+ },
+ "PERSGPS": {
+  "ID": {
+   "tabela": "PERSGPS",
+   "coluna": "ID"
+  },
+  "LATITUDE": {
+   "tabela": "PERSGPS",
+   "coluna": "LATITUDE",
+   "json": "latitude",
+   "alias": "PERGPSLATX"
+  },
+  "LONGITUDE": {
+   "tabela": "PERSGPS",
+   "coluna": "LONGITUDE",
+   "json": "longitude",
+   "alias": "PERGPSLONX"
+  }
+ },
+ "PERSON": {
+  "ID": {
+   "tabela": "PERSON",
+   "coluna": "ID"
+  },
+  "PERSADDRESSID": {
+   "tabela": "PERSON",
+   "coluna": "PERSADDRESSID"
+  },
+  "PERSCOMMENT": {
+   "tabela": "PERSON",
+   "coluna": "PERSCOMMENT",
+   "json": "persComment",
+   "alias": "PERSCOMMEX"
+  },
+  "PERSCONTACT": {
+   "tabela": "PERSON",
+   "coluna": "PERSCONTACT",
+   "json": "persContact",
+   "alias": "PERSCONTAX"
+  },
+  "PERSDATEOFBIRTH": {
+   "tabela": "PERSON",
+   "coluna": "PERSDATEOFBIRTH",
+   "json": "persDateOfBirth",
+   "alias": "PEDTBIRTHX"
+  },
+  "PERSDELIVERY": {
+   "tabela": "PERSON",
+   "coluna": "PERSDELIVERY",
+   "json": "persDelivery",
+   "alias": "PERSDELIVX"
+  },
+  "PERSDEPOT": {
+   "tabela": "PERSON",
+   "coluna": "PERSDEPOT",
+   "json": "persDepot",
+   "alias": "PERSDEPOTX"
+  },
+  "PERSEMAIL": {
+   "tabela": "PERSON",
+   "coluna": "PERSEMAIL",
+   "json": "persEmail",
+   "alias": "PERSEMAILX"
+  },
+  "PERSFAX": {
+   "tabela": "PERSON",
+   "coluna": "PERSFAX",
+   "json": "persFax",
+   "alias": "PERSFAXX"
+  },
+  "PERSGLN": {
+   "tabela": "PERSON",
+   "coluna": "PERSGLN",
+   "json": "persGln",
+   "alias": "PERSGLNX"
+  },
+  "PERSGPSID": {
+   "tabela": "PERSON",
+   "coluna": "PERSGPSID"
+  },
+  "PERSID": {
+   "tabela": "PERSON",
+   "coluna": "PERSID",
+   "json": "persId",
+   "alias": "PERSIDX"
+  },
+  "PERSNAME": {
+   "tabela": "PERSON",
+   "coluna": "PERSNAME",
+   "json": "persName",
+   "alias": "PERSNAMEX"
+  },
+  "PERSPHONE1": {
+   "tabela": "PERSON",
+   "coluna": "PERSPHONE1",
+   "json": "persPhone1",
+   "alias": "PERSPHON1X"
+  },
+  "PERSPHONE2": {
+   "tabela": "PERSON",
+   "coluna": "PERSPHONE2",
+   "json": "persPhone2",
+   "alias": "PERSPHON2X"
+  }
+ },
+ "RECEIVER": {
+  "ID": {
+   "tabela": "RECEIVER",
+   "coluna": "ID"
+  },
+  "RECEIVERADDRESSID": {
+   "tabela": "RECEIVER",
+   "coluna": "RECEIVERADDRESSID"
+  },
+  "RECEIVERCOMMENT": {
+   "tabela": "RECEIVER",
+   "coluna": "RECEIVERCOMMENT",
+   "json": "receiverComment",
+   "alias": "RCOMMENTX"
+  },
+  "RECEIVERCONTACTID": {
+   "tabela": "RECEIVER",
+   "coluna": "RECEIVERCONTACTID"
+  },
+  "RECEIVERCUSTID": {
+   "tabela": "RECEIVER",
+   "coluna": "RECEIVERCUSTID",
+   "json": "receiverCustId",
+   "alias": "RCUSTIDX"
+  },
+  "RECEIVERGPSID": {
+   "tabela": "RECEIVER",
+   "coluna": "RECEIVERGPSID"
+  },
+  "RECEIVERLEGALENTITYID": {
+   "tabela": "RECEIVER",
+   "coluna": "RECEIVERLEGALENTITYID"
+  },
+  "RECEIVERPUDOID": {
+   "tabela": "RECEIVER",
+   "coluna": "RECEIVERPUDOID",
+   "json": "receiverPudoId",
+   "alias": "RPUDOIDX"
+  }
+ },
+ "RECEIVERADDRESS": {
+  "ID": {
+   "tabela": "RECEIVERADDRESS",
+   "coluna": "ID"
+  },
+  "ADDRESSLINE2": {
+   "tabela": "RECEIVERADDRESS",
+   "coluna": "ADDRESSLINE2",
+   "json": "addressLine2",
+   "alias": "RADD2X"
+  },
+  "ADDRESSLINE3": {
+   "tabela": "RECEIVERADDRESS",
+   "coluna": "ADDRESSLINE3",
+   "json": "addressLine3",
+   "alias": "RADD3X"
+  },
+  "BUILDING": {
+   "tabela": "RECEIVERADDRESS",
+   "coluna": "BUILDING",
+   "json": "building",
+   "alias": "RBUILDINGX"
+  },
+  "CITY": {
+   "tabela": "RECEIVERADDRESS",
+   "coluna": "CITY",
+   "json": "city",
+   "alias": "RTOWNX"
+  },
+  "COMPNAME": {
+   "tabela": "RECEIVERADDRESS",
+   "coluna": "COMPNAME",
+   "json": "compName",
+   "alias": "RCOMPNAMEX"
+  },
+  "COMPNAME2": {
+   "tabela": "RECEIVERADDRESS",
+   "coluna": "COMPNAME2",
+   "json": "compName2",
+   "alias": "RCOMPNAM2X"
+  },
+  "COUNTRYCODE": {
+   "tabela": "RECEIVERADDRESS",
+   "coluna": "COUNTRYCODE",
+   "json": "countryCode",
+   "alias": "RCOUNTRYCX"
+  },
+  "DEPARTMENT": {
+   "tabela": "RECEIVERADDRESS",
+   "coluna": "DEPARTMENT",
+   "json": "department",
+   "alias": "RDEPARTMEX"
+  },
+  "DOORCODE": {
+   "tabela": "RECEIVERADDRESS",
+   "coluna": "DOORCODE",
+   "json": "doorCode",
+   "alias": "RDOORCODEX"
+  },
+  "FLOOR": {
+   "tabela": "RECEIVERADDRESS",
+   "coluna": "FLOOR",
+   "json": "floor",
+   "alias": "RFLOORX"
+  },
+  "INTERPHONENAME": {
+   "tabela": "RECEIVERADDRESS",
+   "coluna": "INTERPHONENAME",
+   "json": "interphoneName",
+   "alias": "RINTERPHOX"
+  },
+  "NAME": {
+   "tabela": "RECEIVERADDRESS",
+   "coluna": "NAME",
+   "json": "name",
+   "alias": "RNAME1X"
+  },
+  "NAME2": {
+   "tabela": "RECEIVERADDRESS",
+   "coluna": "NAME2",
+   "json": "name2",
+   "alias": "RNAME2X"
+  },
+  "PROPERTYNUMBER": {
+   "tabela": "RECEIVERADDRESS",
+   "coluna": "PROPERTYNUMBER",
+   "json": "propertyNumber",
+   "alias": "RPROPNUMX"
+  },
+  "STATE": {
+   "tabela": "RECEIVERADDRESS",
+   "coluna": "STATE",
+   "json": "state",
+   "alias": "RSTATEX"
+  },
+  "STREET": {
+   "tabela": "RECEIVERADDRESS",
+   "coluna": "STREET",
+   "json": "street",
+   "alias": "RSTREETX"
+  },
+  "ZIPCODE": {
+   "tabela": "RECEIVERADDRESS",
+   "coluna": "ZIPCODE",
+   "json": "zipCode",
+   "alias": "RZIPCODEX"
+  }
+ },
+ "RECEIVERADDRESSCORRECTED": {
+  "ID": {
+   "tabela": "RECEIVERADDRESSCORRECTED",
+   "coluna": "ID"
+  },
+  "ADDRESSLINE2": {
+   "tabela": "RECEIVERADDRESSCORRECTED",
+   "coluna": "ADDRESSLINE2",
+   "json": "addressLine2",
+   "alias": "ENRRADD_ADDRESSLINE2"
+  },
+  "BUILDING": {
+   "tabela": "RECEIVERADDRESSCORRECTED",
+   "coluna": "BUILDING",
+   "json": "building",
+   "alias": "ENRRADD_BUILDING"
+  },
+  "CITY": {
+   "tabela": "RECEIVERADDRESSCORRECTED",
+   "coluna": "CITY",
+   "json": "city",
+   "alias": "ENRRADD_CITY"
+  },
+  "COUNTRYCODE": {
+   "tabela": "RECEIVERADDRESSCORRECTED",
+   "coluna": "COUNTRYCODE",
+   "json": "countryCode",
+   "alias": "ENRRADD_COUNTRYCODE"
+  },
+  "DEPARTMENT": {
+   "tabela": "RECEIVERADDRESSCORRECTED",
+   "coluna": "DEPARTMENT",
+   "json": "department",
+   "alias": "ENRRADD_DEPARTMENT"
+  },
+  "DOORCODE": {
+   "tabela": "RECEIVERADDRESSCORRECTED",
+   "coluna": "DOORCODE",
+   "json": "doorCode",
+   "alias": "ENRRADD_DOORCODE"
+  },
+  "FLOOR": {
+   "tabela": "RECEIVERADDRESSCORRECTED",
+   "coluna": "FLOOR",
+   "json": "floor",
+   "alias": "ENRRADD_FLOOR"
+  },
+  "INTERPHONENAME": {
+   "tabela": "RECEIVERADDRESSCORRECTED",
+   "coluna": "INTERPHONENAME",
+   "json": "interphoneName",
+   "alias": "ENRRADD_INTERPHONENAME"
+  },
+  "NAME": {
+   "tabela": "RECEIVERADDRESSCORRECTED",
+   "coluna": "NAME",
+   "json": "name",
+   "alias": "ENRRADD_NAME"
+  },
+  "PROPERTYNUMBER": {
+   "tabela": "RECEIVERADDRESSCORRECTED",
+   "coluna": "PROPERTYNUMBER",
+   "json": "propertyNumber",
+   "alias": "ENRRADD_PROPERTYNUMBER"
+  },
+  "STATE": {
+   "tabela": "RECEIVERADDRESSCORRECTED",
+   "coluna": "STATE",
+   "json": "state",
+   "alias": "ENRRADD_STATE"
+  },
+  "STREET": {
+   "tabela": "RECEIVERADDRESSCORRECTED",
+   "coluna": "STREET",
+   "json": "street",
+   "alias": "ENRRADD_STREET"
+  },
+  "ZIPCODE": {
+   "tabela": "RECEIVERADDRESSCORRECTED",
+   "coluna": "ZIPCODE",
+   "json": "zipCode",
+   "alias": "ENRRADD_ZIPCODE"
+  }
+ },
+ "RECEIVERCONTACT": {
+  "ID": {
+   "tabela": "RECEIVERCONTACT",
+   "coluna": "ID"
+  },
+  "CONTACTPERSON": {
+   "tabela": "RECEIVERCONTACT",
+   "coluna": "CONTACTPERSON",
+   "json": "contactPerson"
+  },
+  "EMAIL": {
+   "tabela": "RECEIVERCONTACT",
+   "coluna": "EMAIL",
+   "json": "email",
+   "alias": "REMAILX"
+  },
+  "FAX": {
+   "tabela": "RECEIVERCONTACT",
+   "coluna": "FAX",
+   "json": "fax",
+   "alias": "RFAXX"
+  },
+  "PHONE": {
+   "tabela": "RECEIVERCONTACT",
+   "coluna": "PHONE",
+   "json": "phone",
+   "alias": "RCONTACT1X"
+  },
+  "PHONE2": {
+   "tabela": "RECEIVERCONTACT",
+   "coluna": "PHONE2",
+   "json": "phone2",
+   "alias": "RCONTACT2X"
+  },
+  "TITLE": {
+   "tabela": "RECEIVERCONTACT",
+   "coluna": "TITLE",
+   "json": "title"
+  }
+ },
+ "RECEIVERGPS": {
+  "ID": {
+   "tabela": "RECEIVERGPS",
+   "coluna": "ID"
+  },
+  "LATITUDE": {
+   "tabela": "RECEIVERGPS",
+   "coluna": "LATITUDE",
+   "json": "latitude",
+   "alias": "RGPSLATX"
+  },
+  "LONGITUDE": {
+   "tabela": "RECEIVERGPS",
+   "coluna": "LONGITUDE",
+   "json": "longitude",
+   "alias": "RGPSLONGX"
+  }
+ },
+ "RECEIVERLEGALENTITY": {
+  "ID": {
+   "tabela": "RECEIVERLEGALENTITY",
+   "coluna": "ID"
+  },
+  "BUSINESSTYPE": {
+   "tabela": "RECEIVERLEGALENTITY",
+   "coluna": "BUSINESSTYPE",
+   "json": "businessType",
+   "alias": "RBUSINESSX"
+  },
+  "EORI": {
+   "tabela": "RECEIVERLEGALENTITY",
+   "coluna": "EORI",
+   "json": "eori",
+   "alias": "REORIX"
+  },
+  "FISCALVATREPRESENTANT": {
+   "tabela": "RECEIVERLEGALENTITY",
+   "coluna": "FISCALVATREPRESENTANT",
+   "json": "fiscalVatRepresentant",
+   "alias": "RFISCALVAX"
+  },
+  "TAXEIDTYPE": {
+   "tabela": "RECEIVERLEGALENTITY",
+   "coluna": "TAXEIDTYPE",
+   "json": "taxeIdType",
+   "alias": "RTAXEIDTYX"
+  },
+  "TAXEIDVALUE": {
+   "tabela": "RECEIVERLEGALENTITY",
+   "coluna": "TAXEIDVALUE",
+   "json": "taxeIdValue",
+   "alias": "RTAXEIDVAX"
+  },
+  "VATNUMBER": {
+   "tabela": "RECEIVERLEGALENTITY",
+   "coluna": "VATNUMBER",
+   "json": "vatNumber",
+   "alias": "RVATNOX"
+  },
+  "WEBSITE": {
+   "tabela": "RECEIVERLEGALENTITY",
+   "coluna": "WEBSITE",
+   "json": "webSite",
+   "alias": "WEBSITE"
+  }
+ },
+ "RETADDRESS": {
+  "ID": {
+   "tabela": "RETADDRESS",
+   "coluna": "ID"
+  },
+  "ADDRESSLINE2": {
+   "tabela": "RETADDRESS",
+   "coluna": "ADDRESSLINE2",
+   "json": "addressLine2",
+   "alias": "RETADD2X"
+  },
+  "ADDRESSLINE3": {
+   "tabela": "RETADDRESS",
+   "coluna": "ADDRESSLINE3",
+   "json": "addressLine3",
+   "alias": "RETADD3X"
+  },
+  "BUILDING": {
+   "tabela": "RETADDRESS",
+   "coluna": "BUILDING",
+   "json": "building",
+   "alias": "RETBUILX"
+  },
+  "CITY": {
+   "tabela": "RETADDRESS",
+   "coluna": "CITY",
+   "json": "city",
+   "alias": "RETTOWNX"
+  },
+  "COMPNAME": {
+   "tabela": "RETADDRESS",
+   "coluna": "COMPNAME",
+   "json": "compName",
+   "alias": "RETCOMPNX"
+  },
+  "COMPNAME2": {
+   "tabela": "RETADDRESS",
+   "coluna": "COMPNAME2",
+   "json": "compName2",
+   "alias": "RETCOMPN2X"
+  },
+  "COUNTRYCODE": {
+   "tabela": "RETADDRESS",
+   "coluna": "COUNTRYCODE",
+   "json": "countryCode",
+   "alias": "RETCOUCOX"
+  },
+  "DEPARTMENT": {
+   "tabela": "RETADDRESS",
+   "coluna": "DEPARTMENT",
+   "json": "department",
+   "alias": "RETDEPARTX"
+  },
+  "DOORCODE": {
+   "tabela": "RETADDRESS",
+   "coluna": "DOORCODE",
+   "json": "doorCode",
+   "alias": "RETDOORX"
+  },
+  "FLOOR": {
+   "tabela": "RETADDRESS",
+   "coluna": "FLOOR",
+   "json": "floor",
+   "alias": "RETFLOORX"
+  },
+  "INTERPHONENAME": {
+   "tabela": "RETADDRESS",
+   "coluna": "INTERPHONENAME",
+   "json": "interphoneName",
+   "alias": "RETIPHONEX"
+  },
+  "NAME": {
+   "tabela": "RETADDRESS",
+   "coluna": "NAME",
+   "json": "name",
+   "alias": "RETNAME1X"
+  },
+  "NAME2": {
+   "tabela": "RETADDRESS",
+   "coluna": "NAME2",
+   "json": "name2",
+   "alias": "RETNAME2X"
+  },
+  "PROPERTYNUMBER": {
+   "tabela": "RETADDRESS",
+   "coluna": "PROPERTYNUMBER",
+   "json": "propertyNumber",
+   "alias": "RETPROPNX"
+  },
+  "STATE": {
+   "tabela": "RETADDRESS",
+   "coluna": "STATE",
+   "json": "state",
+   "alias": "RETSTATEX"
+  },
+  "STREET": {
+   "tabela": "RETADDRESS",
+   "coluna": "STREET",
+   "json": "street",
+   "alias": "RETSTREEX"
+  },
+  "ZIPCODE": {
+   "tabela": "RETADDRESS",
+   "coluna": "ZIPCODE",
+   "json": "zipCode",
+   "alias": "RETZIPCOX"
+  }
+ },
+ "RETCONTACT": {
+  "ID": {
+   "tabela": "RETCONTACT",
+   "coluna": "ID"
+  },
+  "CONTACTPERSON": {
+   "tabela": "RETCONTACT",
+   "coluna": "CONTACTPERSON",
+   "json": "contactPerson",
+   "alias": "RETCONTX"
+  },
+  "EMAIL": {
+   "tabela": "RETCONTACT",
+   "coluna": "EMAIL",
+   "json": "email",
+   "alias": "RETEMAILX"
+  },
+  "FAX": {
+   "tabela": "RETCONTACT",
+   "coluna": "FAX",
+   "json": "fax",
+   "alias": "RETFAXX"
+  },
+  "PHONE": {
+   "tabela": "RETCONTACT",
+   "coluna": "PHONE",
+   "json": "phone",
+   "alias": "RETPHONEX"
+  },
+  "PHONE2": {
+   "tabela": "RETCONTACT",
+   "coluna": "PHONE2",
+   "json": "phone2",
+   "alias": "RETPHONE2X"
+  },
+  "TITLE": {
+   "tabela": "RETCONTACT",
+   "coluna": "TITLE",
+   "json": "title"
+  }
+ },
+ "RETGPS": {
+  "ID": {
+   "tabela": "RETGPS",
+   "coluna": "ID"
+  },
+  "LATITUDE": {
+   "tabela": "RETGPS",
+   "coluna": "LATITUDE",
+   "json": "latitude",
+   "alias": "RETGPSLATX"
+  },
+  "LONGITUDE": {
+   "tabela": "RETGPS",
+   "coluna": "LONGITUDE",
+   "json": "longitude",
+   "alias": "RETGPSLONX"
+  }
+ },
+ "RETURNINFOS": {
+  "ID": {
+   "tabela": "RETURNINFOS",
+   "coluna": "ID"
+  },
+  "RETADDRESSID": {
+   "tabela": "RETURNINFOS",
+   "coluna": "RETADDRESSID"
+  },
+  "RETCOMMENT": {
+   "tabela": "RETURNINFOS",
+   "coluna": "RETCOMMENT",
+   "json": "retComment",
+   "alias": "RETCOMMENT"
+  },
+  "RETCONTACTID": {
+   "tabela": "RETURNINFOS",
+   "coluna": "RETCONTACTID"
+  },
+  "RETDEPOT": {
+   "tabela": "RETURNINFOS",
+   "coluna": "RETDEPOT",
+   "json": "retDepot",
+   "alias": "RETDEPOT"
+  },
+  "RETGLN": {
+   "tabela": "RETURNINFOS",
+   "coluna": "RETGLN",
+   "json": "retGln",
+   "alias": "RETGLN"
+  },
+  "RETGPSID": {
+   "tabela": "RETURNINFOS",
+   "coluna": "RETGPSID"
+  },
+  "RETPARCELNUMBER": {
+   "tabela": "RETURNINFOS",
+   "coluna": "RETPARCELNUMBER",
+   "json": "retParcelNumber",
+   "alias": "RETPARCELNUMBER"
+  },
+  "RETPUDOID": {
+   "tabela": "RETURNINFOS",
+   "coluna": "RETPUDOID",
+   "json": "retPudoId",
+   "alias": "RETPUDOID"
+  },
+  "RETSOCODE": {
+   "tabela": "RETURNINFOS",
+   "coluna": "RETSOCODE",
+   "json": "retSoCode",
+   "alias": "RETSOCODE"
+  }
+ },
+ "ROD": {
+  "ID": {
+   "tabela": "ROD",
+   "coluna": "ID"
+  },
+  "CUSTOMSFEESID": {
+   "tabela": "ROD",
+   "coluna": "CUSTOMSFEESID"
+  },
+  "DUTIESID": {
+   "tabela": "ROD",
+   "coluna": "DUTIESID"
+  },
+  "EXTRAID": {
+   "tabela": "ROD",
+   "coluna": "EXTRAID"
+  },
+  "TAXESID": {
+   "tabela": "ROD",
+   "coluna": "TAXESID"
+  }
+ },
+ "ROUTINGINFOS": {
+  "ID": {
+   "tabela": "ROUTINGINFOS",
+   "coluna": "ID"
+  },
+  "DSORT": {
+   "tabela": "ROUTINGINFOS",
+   "coluna": "DSORT",
+   "json": "dSort",
+   "alias": "DSORTX"
+  },
+  "MSORT": {
+   "tabela": "ROUTINGINFOS",
+   "coluna": "MSORT",
+   "json": "mSort",
+   "alias": "MSORTX"
+  },
+  "OSORT": {
+   "tabela": "ROUTINGINFOS",
+   "coluna": "OSORT",
+   "json": "oSort",
+   "alias": "OSORTX"
+  },
+  "ROUTINGPLACE": {
+   "tabela": "ROUTINGINFOS",
+   "coluna": "ROUTINGPLACE",
+   "json": "routingPlace",
+   "alias": "ROUTPLACEX"
+  },
+  "ROUTINGPLANVERSION": {
+   "tabela": "ROUTINGINFOS",
+   "coluna": "ROUTINGPLANVERSION",
+   "json": "routingPlanVersion",
+   "alias": "ROUTPLANEX"
+  },
+  "SSORT": {
+   "tabela": "ROUTINGINFOS",
+   "coluna": "SSORT",
+   "json": "sSort",
+   "alias": "SSORTX"
+  }
+ },
+ "SENDER": {
+  "ID": {
+   "tabela": "SENDER",
+   "coluna": "ID"
+  },
+  "CUSTOMERINFOSID": {
+   "tabela": "SENDER",
+   "coluna": "CUSTOMERINFOSID"
+  },
+  "SENDERACCOUNTOWNER": {
+   "tabela": "SENDER",
+   "coluna": "SENDERACCOUNTOWNER",
+   "json": "senderAccountOwner",
+   "alias": "SACCOUNTOX"
+  },
+  "SENDERADDRESSID": {
+   "tabela": "SENDER",
+   "coluna": "SENDERADDRESSID"
+  },
+  "SENDERCOMMENT": {
+   "tabela": "SENDER",
+   "coluna": "SENDERCOMMENT",
+   "json": "senderComment",
+   "alias": "SCOMMENTX"
+  },
+  "SENDERCONTACTID": {
+   "tabela": "SENDER",
+   "coluna": "SENDERCONTACTID"
+  },
+  "SENDERGLN": {
+   "tabela": "SENDER",
+   "coluna": "SENDERGLN",
+   "json": "senderGln",
+   "alias": "SGLNX"
+  },
+  "SENDERGPSID": {
+   "tabela": "SENDER",
+   "coluna": "SENDERGPSID"
+  },
+  "SENDERLEGALENTITYID": {
+   "tabela": "SENDER",
+   "coluna": "SENDERLEGALENTITYID"
+  }
+ },
+ "SENDERADDRESS": {
+  "ID": {
+   "tabela": "SENDERADDRESS",
+   "coluna": "ID"
+  },
+  "ADDRESSLINE2": {
+   "tabela": "SENDERADDRESS",
+   "coluna": "ADDRESSLINE2",
+   "json": "addressLine2",
+   "alias": "SADD2X"
+  },
+  "ADDRESSLINE3": {
+   "tabela": "SENDERADDRESS",
+   "coluna": "ADDRESSLINE3",
+   "json": "addressLine3",
+   "alias": "SADD3X"
+  },
+  "BUILDING": {
+   "tabela": "SENDERADDRESS",
+   "coluna": "BUILDING",
+   "json": "building",
+   "alias": "SBUILDINGX"
+  },
+  "CITY": {
+   "tabela": "SENDERADDRESS",
+   "coluna": "CITY",
+   "json": "city",
+   "alias": "STOWNX"
+  },
+  "COMPNAME": {
+   "tabela": "SENDERADDRESS",
+   "coluna": "COMPNAME",
+   "json": "compName",
+   "alias": "SCOMPNAMEX"
+  },
+  "COMPNAME2": {
+   "tabela": "SENDERADDRESS",
+   "coluna": "COMPNAME2",
+   "json": "compName2",
+   "alias": "SCOMPNAM2X"
+  },
+  "COUNTRYCODE": {
+   "tabela": "SENDERADDRESS",
+   "coluna": "COUNTRYCODE",
+   "json": "countryCode",
+   "alias": "SCOUNTRYCX"
+  },
+  "DEPARTMENT": {
+   "tabela": "SENDERADDRESS",
+   "coluna": "DEPARTMENT",
+   "json": "department",
+   "alias": "SDEPARTMEX"
+  },
+  "DOORCODE": {
+   "tabela": "SENDERADDRESS",
+   "coluna": "DOORCODE",
+   "json": "doorCode",
+   "alias": "SDOORADX"
+  },
+  "FLOOR": {
+   "tabela": "SENDERADDRESS",
+   "coluna": "FLOOR",
+   "json": "floor",
+   "alias": "SFLOORX"
+  },
+  "INTERPHONENAME": {
+   "tabela": "SENDERADDRESS",
+   "coluna": "INTERPHONENAME",
+   "json": "interphoneName",
+   "alias": "SINTPHONEX"
+  },
+  "NAME": {
+   "tabela": "SENDERADDRESS",
+   "coluna": "NAME",
+   "json": "name",
+   "alias": "SNAME1X"
+  },
+  "NAME2": {
+   "tabela": "SENDERADDRESS",
+   "coluna": "NAME2",
+   "json": "name2",
+   "alias": "SNAME2X"
+  },
+  "PROPERTYNUMBER": {
+   "tabela": "SENDERADDRESS",
+   "coluna": "PROPERTYNUMBER",
+   "json": "propertyNumber",
+   "alias": "SPROPNUMX"
+  },
+  "STATE": {
+   "tabela": "SENDERADDRESS",
+   "coluna": "STATE",
+   "json": "state",
+   "alias": "SSTATEX"
+  },
+  "STREET": {
+   "tabela": "SENDERADDRESS",
+   "coluna": "STREET",
+   "json": "street",
+   "alias": "SSTREETX"
+  },
+  "ZIPCODE": {
+   "tabela": "SENDERADDRESS",
+   "coluna": "ZIPCODE",
+   "json": "zipCode",
+   "alias": "SZIPCODEX"
+  }
+ },
+ "SENDERCONTACT": {
+  "ID": {
+   "tabela": "SENDERCONTACT",
+   "coluna": "ID"
+  },
+  "CONTACTPERSON": {
+   "tabela": "SENDERCONTACT",
+   "coluna": "CONTACTPERSON",
+   "json": "contactPerson",
+   "alias": "SCONTACTX"
+  },
+  "EMAIL": {
+   "tabela": "SENDERCONTACT",
+   "coluna": "EMAIL",
+   "json": "email",
+   "alias": "SEMAILX"
+  },
+  "FAX": {
+   "tabela": "SENDERCONTACT",
+   "coluna": "FAX",
+   "json": "fax",
+   "alias": "SFAXX"
+  },
+  "PHONE": {
+   "tabela": "SENDERCONTACT",
+   "coluna": "PHONE",
+   "json": "phone",
+   "alias": "SPHONEX"
+  },
+  "PHONE2": {
+   "tabela": "SENDERCONTACT",
+   "coluna": "PHONE2",
+   "json": "phone2",
+   "alias": "SPHONE2X"
+  },
+  "TITLE": {
+   "tabela": "SENDERCONTACT",
+   "coluna": "TITLE",
+   "json": "title"
+  }
+ },
+ "SENDERGPS": {
+  "ID": {
+   "tabela": "SENDERGPS",
+   "coluna": "ID"
+  },
+  "LATITUDE": {
+   "tabela": "SENDERGPS",
+   "coluna": "LATITUDE",
+   "json": "latitude",
+   "alias": "SGPSLATX"
+  },
+  "LONGITUDE": {
+   "tabela": "SENDERGPS",
+   "coluna": "LONGITUDE",
+   "json": "longitude",
+   "alias": "SGPSLONGX"
+  }
+ },
+ "SENDERLEGALENTITY": {
+  "ID": {
+   "tabela": "SENDERLEGALENTITY",
+   "coluna": "ID"
+  },
+  "BUSINESSTYPE": {
+   "tabela": "SENDERLEGALENTITY",
+   "coluna": "BUSINESSTYPE",
+   "json": "businessType",
+   "alias": "SBUSINESSX"
+  },
+  "EORI": {
+   "tabela": "SENDERLEGALENTITY",
+   "coluna": "EORI",
+   "json": "eori",
+   "alias": "SEORIX"
+  },
+  "FISCALVATREPRESENTANT": {
+   "tabela": "SENDERLEGALENTITY",
+   "coluna": "FISCALVATREPRESENTANT",
+   "json": "fiscalVatRepresentant",
+   "alias": "FISCALVATREPRESENTANT"
+  },
+  "TAXEIDTYPE": {
+   "tabela": "SENDERLEGALENTITY",
+   "coluna": "TAXEIDTYPE",
+   "json": "taxeIdType",
+   "alias": "STAXIDTYPX"
+  },
+  "TAXEIDVALUE": {
+   "tabela": "SENDERLEGALENTITY",
+   "coluna": "TAXEIDVALUE",
+   "json": "taxeIdValue",
+   "alias": "STAXIDVALX"
+  },
+  "VATNUMBER": {
+   "tabela": "SENDERLEGALENTITY",
+   "coluna": "VATNUMBER",
+   "json": "vatNumber",
+   "alias": "SVATNOX"
+  },
+  "WEBSITE": {
+   "tabela": "SENDERLEGALENTITY",
+   "coluna": "WEBSITE",
+   "json": "webSite",
+   "alias": "SWEBSITEX"
+  }
+ },
+ "SERVICECODES": {
+  "ID": {
+   "tabela": "SERVICECODES",
+   "coluna": "ID"
+  },
+  "ASCODE": {
+   "tabela": "SERVICECODES",
+   "coluna": "ASCODE",
+   "json": "asCode",
+   "alias": "ASCODEX"
+  },
+  "SOCODE": {
+   "tabela": "SERVICECODES",
+   "coluna": "SOCODE",
+   "json": "soCode",
+   "alias": "SERVICECOX"
+  }
+ },
+ "SEURECB": {
+  "ID": {
+   "tabela": "SEURECB",
+   "coluna": "ID"
+  },
+  "ECB": {
+   "tabela": "SEURECB",
+   "coluna": "ECB"
+  },
+  "PARCELNUMBER": {
+   "tabela": "SEURECB",
+   "coluna": "PARCELNUMBER",
+   "json": "parcelNumber"
+  }
+ },
+ "SEURECBREF": {
+  "IDT": {
+   "tabela": "SEURECBREF",
+   "coluna": "IDT"
+  },
+  "ECB": {
+   "tabela": "SEURECBREF",
+   "coluna": "ECB"
+  },
+  "PARCELCCKEY": {
+   "tabela": "SEURECBREF",
+   "coluna": "PARCELCCKEY"
+  },
+  "PARCELNUMBER": {
+   "tabela": "SEURECBREF",
+   "coluna": "PARCELNUMBER",
+   "json": "parcelNumber"
+  }
+ },
+ "SHIPINFO": {
+  "ID": {
+   "tabela": "SHIPINFO",
+   "coluna": "ID"
+  },
+  "ADDSERVICE": {
+   "tabela": "SHIPINFO",
+   "coluna": "ADDSERVICE",
+   "json": "addService"
+  },
+  "FUNCTION": {
+   "tabela": "SHIPINFO",
+   "coluna": "FUNCTION",
+   "json": "function"
+  },
+  "MESSAGENUMBER": {
+   "tabela": "SHIPINFO",
+   "coluna": "MESSAGENUMBER",
+   "json": "messageNumber"
+  },
+  "PARAMETER": {
+   "tabela": "SHIPINFO",
+   "coluna": "PARAMETER",
+   "json": "parameter"
+  }
+ },
+ "SHIPMENTINFOS": {
+  "ID": {
+   "tabela": "SHIPMENTINFOS",
+   "coluna": "ID"
+  },
+  "DELMODALLOW": {
+   "tabela": "SHIPMENTINFOS",
+   "coluna": "DELMODALLOW",
+   "json": "delModAllow",
+   "alias": "DELMODALLX"
+  },
+  "HARDWARE": {
+   "tabela": "SHIPMENTINFOS",
+   "coluna": "HARDWARE",
+   "json": "hardware",
+   "alias": "HARDWAREX"
+  },
+  "MPSID": {
+   "tabela": "SHIPMENTINFOS",
+   "coluna": "MPSID",
+   "json": "mpsId",
+   "alias": "MPSIDX"
+  },
+  "MPSIDCCKEY": {
+   "tabela": "SHIPMENTINFOS",
+   "coluna": "MPSIDCCKEY",
+   "json": "mpsIdCcKey",
+   "alias": "MPSIDCCKEY"
+  },
+  "ORIGINMPSID": {
+   "tabela": "SHIPMENTINFOS",
+   "coluna": "ORIGINMPSID",
+   "json": "originMpsId",
+   "alias": "ORIGMPSIDX"
+  },
+  "SHIPMENTTYPE": {
+   "tabela": "SHIPMENTINFOS",
+   "coluna": "SHIPMENTTYPE",
+   "json": "shipmentType",
+   "alias": "SHIPMENTTYPE"
+  },
+  "WEIGHTANDDIMENSIONID": {
+   "tabela": "SHIPMENTINFOS",
+   "coluna": "WEIGHTANDDIMENSIONID"
+  }
+ },
+ "SHPNOTIN": {
+  "ID": {
+   "tabela": "SHPNOTIN",
+   "coluna": "ID",
+   "alias": "ID"
+  },
+  "CREATIONDATETIME": {
+   "tabela": "SHPNOTIN",
+   "coluna": "CREATIONDATETIME",
+   "json": "creationDateTime",
+   "alias": "CDATEX"
+  },
+  "CRREORDERNR": {
+   "tabela": "SHPNOTIN",
+   "coluna": "CRREORDERNR",
+   "json": "crReorderNr",
+   "alias": "CRORDERNRX"
+  },
+  "CUSTOMSREF": {
+   "tabela": "SHPNOTIN",
+   "coluna": "CUSTOMSREF",
+   "json": "customsRef",
+   "alias": "CUSTOMREFX"
+  },
+  "DATAAS400": {
+   "tabela": "SHPNOTIN",
+   "coluna": "DATAAS400",
+   "alias": "DATAAS400"
+  },
+  "DATADATETIME": {
+   "tabela": "SHPNOTIN",
+   "coluna": "DATADATETIME",
+   "json": "dataDateTime",
+   "alias": "DATETIMEX"
+  },
+  "DATAINSERT": {
+   "tabela": "SHPNOTIN",
+   "coluna": "DATAINSERT",
+   "alias": "DATAINSERT"
+  },
+  "DELIVERYID": {
+   "tabela": "SHPNOTIN",
+   "coluna": "DELIVERYID"
+  },
+  "ENRICHMENTSID": {
+   "tabela": "SHPNOTIN",
+   "coluna": "ENRICHMENTSID"
+  },
+  "FLAGAS400": {
+   "tabela": "SHPNOTIN",
+   "coluna": "FLAGAS400",
+   "alias": "FLAGAS400"
+  },
+  "INTERNATIONALID": {
+   "tabela": "SHPNOTIN",
+   "coluna": "INTERNATIONALID"
+  },
+  "MPSBILLREF": {
+   "tabela": "SHPNOTIN",
+   "coluna": "MPSBILLREF",
+   "json": "mpsBillRef",
+   "alias": "MPSBILREFX"
+  },
+  "MPSCOMP": {
+   "tabela": "SHPNOTIN",
+   "coluna": "MPSCOMP",
+   "json": "mpsComp",
+   "alias": "MPSCOMPX"
+  },
+  "MPSCOUNT": {
+   "tabela": "SHPNOTIN",
+   "coluna": "MPSCOUNT",
+   "json": "mpsCount",
+   "alias": "MPSCOUNTX"
+  },
+  "MPSCREFS": {
+   "tabela": "SHPNOTIN",
+   "coluna": "MPSCREFS",
+   "json": "mpsCRefs",
+   "alias": "MPSREF1X"
+  },
+  "MPSSHIPPERREF": {
+   "tabela": "SHPNOTIN",
+   "coluna": "MPSSHIPPERREF",
+   "json": "mpsShipperRef"
+  },
+  "OPCODE": {
+   "tabela": "SHPNOTIN",
+   "coluna": "OPCODE",
+   "json": "opCode",
+   "alias": "OPCODEX"
+  },
+  "PERSONID": {
+   "tabela": "SHPNOTIN",
+   "coluna": "PERSONID"
+  },
+  "RECEIVERID": {
+   "tabela": "SHPNOTIN",
+   "coluna": "RECEIVERID"
+  },
+  "RECIPIENTDEPOT": {
+   "tabela": "SHPNOTIN",
+   "coluna": "RECIPIENTDEPOT",
+   "json": "recipientDepot",
+   "alias": "RDEPOTX"
+  },
+  "RESPSERV": {
+   "tabela": "SHPNOTIN",
+   "coluna": "RESPSERV",
+   "alias": "RESPSERV"
+  },
+  "ROUTINGINFOSID": {
+   "tabela": "SHPNOTIN",
+   "coluna": "ROUTINGINFOSID"
+  },
+  "SENDERID": {
+   "tabela": "SHPNOTIN",
+   "coluna": "SENDERID"
+  },
+  "SENDINGDEPOT": {
+   "tabela": "SHPNOTIN",
+   "coluna": "SENDINGDEPOT",
+   "json": "sendingDepot",
+   "alias": "SDEPOTX"
+  },
+  "SHIPMENTINFOSID": {
+   "tabela": "SHPNOTIN",
+   "coluna": "SHIPMENTINFOSID"
+  },
+  "SPARTNERCODE": {
+   "tabela": "SHPNOTIN",
+   "coluna": "SPARTNERCODE",
+   "json": "sPartnerCode",
+   "alias": "SPARTCODEX"
+  },
+  "SPARTNERREFS": {
+   "tabela": "SHPNOTIN",
+   "coluna": "SPARTNERREFS",
+   "json": "sPartnerRefs",
+   "alias": "SPARTREF1X"
+  },
+  "SPTDATETIME": {
+   "tabela": "SHPNOTIN",
+   "coluna": "SPTDATETIME",
+   "json": "sptDateTime",
+   "alias": "SPTDATTIMX"
+  },
+  "SPTREALDATETIME": {
+   "tabela": "SHPNOTIN",
+   "coluna": "SPTREALDATETIME",
+   "json": "sptRealDateTime",
+   "alias": "SPTREALDTX"
+  },
+  "SYSTEMDEPOT": {
+   "tabela": "SHPNOTIN",
+   "coluna": "SYSTEMDEPOT",
+   "json": "systemDepot",
+   "alias": "SYSDEPOTX"
+  }
+ },
+ "SHPNOTPINCODE": {
+  "ID": {
+   "tabela": "SHPNOTPINCODE",
+   "coluna": "ID"
+  },
+  "DATACREATE": {
+   "tabela": "SHPNOTPINCODE",
+   "coluna": "DATACREATE"
+  },
+  "MPSID": {
+   "tabela": "SHPNOTPINCODE",
+   "coluna": "MPSID",
+   "json": "mpsId"
+  },
+  "PINCODE": {
+   "tabela": "SHPNOTPINCODE",
+   "coluna": "PINCODE"
+  }
+ },
+ "SIADDRESS": {
+  "ID": {
+   "tabela": "SIADDRESS",
+   "coluna": "ID"
+  },
+  "ADDRESSLINE2": {
+   "tabela": "SIADDRESS",
+   "coluna": "ADDRESSLINE2",
+   "json": "addressLine2",
+   "alias": "SIAD1X"
+  },
+  "ADDRESSLINE3": {
+   "tabela": "SIADDRESS",
+   "coluna": "ADDRESSLINE3",
+   "json": "addressLine3",
+   "alias": "SIAD2X"
+  },
+  "BUILDING": {
+   "tabela": "SIADDRESS",
+   "coluna": "BUILDING",
+   "json": "building",
+   "alias": "SIBUILX"
+  },
+  "CITY": {
+   "tabela": "SIADDRESS",
+   "coluna": "CITY",
+   "json": "city",
+   "alias": "SITOWNX"
+  },
+  "COMPNAME": {
+   "tabela": "SIADDRESS",
+   "coluna": "COMPNAME",
+   "json": "compName",
+   "alias": "SICOMN1X"
+  },
+  "COMPNAME2": {
+   "tabela": "SIADDRESS",
+   "coluna": "COMPNAME2",
+   "json": "compName2",
+   "alias": "SICOMP2X"
+  },
+  "COUNTRYCODE": {
+   "tabela": "SIADDRESS",
+   "coluna": "COUNTRYCODE",
+   "json": "countryCode",
+   "alias": "SICCODEX"
+  },
+  "DEPARTMENT": {
+   "tabela": "SIADDRESS",
+   "coluna": "DEPARTMENT",
+   "json": "department",
+   "alias": "SIDEPARTX"
+  },
+  "DOORCODE": {
+   "tabela": "SIADDRESS",
+   "coluna": "DOORCODE",
+   "json": "doorCode",
+   "alias": "SIDOORCX"
+  },
+  "FLOOR": {
+   "tabela": "SIADDRESS",
+   "coluna": "FLOOR",
+   "json": "floor",
+   "alias": "SIFLOORX"
+  },
+  "INTERPHONENAME": {
+   "tabela": "SIADDRESS",
+   "coluna": "INTERPHONENAME",
+   "json": "interphoneName",
+   "alias": "SIIPHONEX"
+  },
+  "NAME": {
+   "tabela": "SIADDRESS",
+   "coluna": "NAME",
+   "json": "name"
+  },
+  "NAME2": {
+   "tabela": "SIADDRESS",
+   "coluna": "NAME2",
+   "json": "name2"
+  },
+  "PROPERTYNUMBER": {
+   "tabela": "SIADDRESS",
+   "coluna": "PROPERTYNUMBER",
+   "json": "propertyNumber",
+   "alias": "SIPROPNUMX"
+  },
+  "STATE": {
+   "tabela": "SIADDRESS",
+   "coluna": "STATE",
+   "json": "state",
+   "alias": "SISTATEX"
+  },
+  "STREET": {
+   "tabela": "SIADDRESS",
+   "coluna": "STREET",
+   "json": "street",
+   "alias": "SISTREETX"
+  },
+  "ZIPCODE": {
+   "tabela": "SIADDRESS",
+   "coluna": "ZIPCODE",
+   "json": "zipCode",
+   "alias": "SIZIPCODEX"
+  }
+ },
+ "SICONTACT": {
+  "ID": {
+   "tabela": "SICONTACT",
+   "coluna": "ID"
+  },
+  "CONTACTPERSON": {
+   "tabela": "SICONTACT",
+   "coluna": "CONTACTPERSON",
+   "json": "contactPerson",
+   "alias": "SICONTACTX"
+  },
+  "EMAIL": {
+   "tabela": "SICONTACT",
+   "coluna": "EMAIL",
+   "json": "email",
+   "alias": "SIEMAILX"
+  },
+  "FAX": {
+   "tabela": "SICONTACT",
+   "coluna": "FAX",
+   "json": "fax",
+   "alias": "NUMBEROFAX"
+  },
+  "PHONE": {
+   "tabela": "SICONTACT",
+   "coluna": "PHONE",
+   "json": "phone",
+   "alias": "SIPHONEX"
+  },
+  "PHONE2": {
+   "tabela": "SICONTACT",
+   "coluna": "PHONE2",
+   "json": "phone2",
+   "alias": "SIPHONE2X"
+  },
+  "TITLE": {
+   "tabela": "SICONTACT",
+   "coluna": "TITLE",
+   "json": "title"
+  }
+ },
+ "SIGPS": {
+  "ID": {
+   "tabela": "SIGPS",
+   "coluna": "ID"
+  },
+  "LATITUDE": {
+   "tabela": "SIGPS",
+   "coluna": "LATITUDE",
+   "json": "latitude",
+   "alias": "SIGPSLATX"
+  },
+  "LONGITUDE": {
+   "tabela": "SIGPS",
+   "coluna": "LONGITUDE",
+   "json": "longitude",
+   "alias": "SIGPSLONGX"
+  }
+ },
+ "SUBWEIGHT": {
+  "ID": {
+   "tabela": "SUBWEIGHT",
+   "coluna": "ID"
+  },
+  "QUALIF": {
+   "tabela": "SUBWEIGHT",
+   "coluna": "QUALIF",
+   "json": "qualif",
+   "alias": "SUBW_QUALIF"
+  },
+  "VALUE": {
+   "tabela": "SUBWEIGHT",
+   "coluna": "VALUE",
+   "json": "value",
+   "alias": "SUBW_VALUE"
+  }
+ },
+ "SWAP": {
+  "ID": {
+   "tabela": "SWAP",
+   "coluna": "ID"
+  },
+  "PARCELNUMBER": {
+   "tabela": "SWAP",
+   "coluna": "PARCELNUMBER",
+   "json": "parcelNumber",
+   "alias": "PARSWAPX"
+  },
+  "PARCELNUMBERBACK": {
+   "tabela": "SWAP",
+   "coluna": "PARCELNUMBERBACK",
+   "json": "parcelNumberBack",
+   "alias": "PARSWAPBAX"
+  },
+  "SERVICEBACK": {
+   "tabela": "SWAP",
+   "coluna": "SERVICEBACK",
+   "json": "serviceBack",
+   "alias": "SERVICEBAX"
+  },
+  "SWAPTYPECODE": {
+   "tabela": "SWAP",
+   "coluna": "SWAPTYPECODE",
+   "json": "swapTypeCode",
+   "alias": "SWAPTYPECX"
+  }
+ },
+ "TAXES": {
+  "ID": {
+   "tabela": "TAXES",
+   "coluna": "ID"
+  },
+  "AMOUNT": {
+   "tabela": "TAXES",
+   "coluna": "AMOUNT",
+   "json": "amount",
+   "alias": "TAXESAMOX"
+  },
+  "CURRENCY": {
+   "tabela": "TAXES",
+   "coluna": "CURRENCY",
+   "json": "currency",
+   "alias": "TA_CURRENCY"
+  }
+ },
+ "TEMPERATURE": {
+  "ID": {
+   "tabela": "TEMPERATURE",
+   "coluna": "ID"
+  },
+  "MAX": {
+   "tabela": "TEMPERATURE",
+   "coluna": "MAX",
+   "json": "max",
+   "alias": "TEMP_MAX"
+  },
+  "MIN": {
+   "tabela": "TEMPERATURE",
+   "coluna": "MIN",
+   "json": "min",
+   "alias": "TEMP_MIN"
+  },
+  "UNIT": {
+   "tabela": "TEMPERATURE",
+   "coluna": "UNIT",
+   "json": "unit",
+   "alias": "TEMP_UNIT"
+  }
+ },
+ "WEIGHT": {
+  "ID": {
+   "tabela": "WEIGHT",
+   "coluna": "ID"
+  },
+  "QUALIF": {
+   "tabela": "WEIGHT",
+   "coluna": "QUALIF",
+   "json": "qualif"
+  },
+  "VALUE": {
+   "tabela": "WEIGHT",
+   "coluna": "VALUE",
+   "json": "value"
+  }
+ },
+ "WEIGHTANDDIMENSION": {
+  "ID": {
+   "tabela": "WEIGHTANDDIMENSION",
+   "coluna": "ID"
+  },
+  "DIMENSIONSID": {
+   "tabela": "WEIGHTANDDIMENSION",
+   "coluna": "DIMENSIONSID"
+  },
+  "WEIGHTID": {
+   "tabela": "WEIGHTANDDIMENSION",
+   "coluna": "WEIGHTID"
+  }
+ }
+}
