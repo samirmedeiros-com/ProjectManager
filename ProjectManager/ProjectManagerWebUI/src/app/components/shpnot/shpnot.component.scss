@@ -34,30 +34,15 @@
   font-size: 14px;
 }
 
-@media (prefers-color-scheme: dark) {
-  :host {
-    --bg: #17171a;
-    --surface: #1f1f23;
-    --surface-2: #26262b;
-    --text: #f0efec;
-    --text-2: #a6a49e;
-    --text-3: #74726d;
-    --border: rgba(255, 255, 255, 0.1);
-    --border-2: rgba(255, 255, 255, 0.2);
-    --teal-50: rgba(29, 158, 117, 0.16);
-    --coral-50: rgba(216, 90, 48, 0.16);
-    --amber-50: rgba(186, 117, 23, 0.16);
-    --purple-50: rgba(83, 74, 183, 0.2);
-    --teal-800: var(--teal-500);
-    --coral-800: var(--coral-500);
-    --amber-800: var(--amber-500);
-  }
-}
+/* Sem variante para o tema escuro do sistema, de propósito: o ecrã é sempre claro, como o
+   resto da Gestão de Dados que o rodeia. Herdar o tema do sistema aqui punha um módulo
+   escuro no meio de uma aplicação clara. */
 
 .shpnot {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  width: 100%;
 }
 
 .mono { font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-size: 12px; }

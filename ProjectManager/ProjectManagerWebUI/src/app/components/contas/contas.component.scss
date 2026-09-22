@@ -167,6 +167,12 @@
   gap: 16px;
 }
 
+/* Módulos de ecrã cheio: a coluna centrada serve fichas, não tabelas largas. */
+.conteudo--largo {
+  max-width: none;
+  margin: 0;
+}
+
 /* ── Dashboard ── */
 .dashboard {
   display: grid;

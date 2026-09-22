@@ -461,7 +461,9 @@
   </main>
 
   <!-- ══════════════════ SHPNOT ══════════════════ -->
-  <main class="conteudo" *ngIf="moduloAtivo() === 'shpnot'">
+  <!-- Largura inteira: um SHPNOT tem dezenas de campos por bloco e tabelas largas; na coluna
+       de 1100px do resto da Gestão de Dados o ecrã ficava a flutuar no meio da página. -->
+  <main class="conteudo conteudo--largo" *ngIf="moduloAtivo() === 'shpnot'">
     <app-shpnot></app-shpnot>
   </main>
 
