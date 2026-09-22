@@ -132,7 +132,7 @@ export class ShpNotComponent implements OnInit {
           this.procurou.set(true);
         },
         error: (e) => {
-          this.erro.set(e?.error ?? 'Não foi possível procurar SHPNOTs.');
+          this.erro.set(this.porque(e, 'procurar SHPNOTs'));
           this.linhas.set([]);
           this.haMais.set(false);
           this.aCarregar.set(false);
@@ -176,7 +176,7 @@ export class ShpNotComponent implements OnInit {
         this.aCarregarDetalhe.set(false);
       },
       error: (e) => {
-        this.erro.set(e?.error ?? 'Não foi possível abrir o SHPNOT.');
+        this.erro.set(this.porque(e, 'abrir o SHPNOT'));
         this.aCarregarDetalhe.set(false);
       },
     });
@@ -188,6 +188,26 @@ export class ShpNotComponent implements OnInit {
 
   alternarLinha(id: string): void {
     this.linhaAberta.set(this.linhaAberta() === id ? null : id);
+  }
+
+  /**
+   * Diz o que correu mal em vez de "não foi possível". Uma mensagem sem motivo manda quem a
+   * lê adivinhar entre sessão expirada, base em baixo e erro de código — que é exactamente o
+   * que aconteceu na primeira versão deste ecrã.
+   */
+  private porque(e: any, oQue: string): string {
+    if (e?.status === 401) {
+      return 'A sessão terminou. Volte a entrar na Gestão de Dados e tente de novo.';
+    }
+    if (e?.status === 0) {
+      return `Não foi possível falar com o servidor ao ${oQue}. Pode ser rede ou a aplicação ` +
+        'estar a reiniciar — tente daqui a pouco.';
+    }
+
+    const detalhe = typeof e?.error === 'string' ? e.error : e?.message;
+    return `Não foi possível ${oQue}` +
+      (e?.status ? ` (${e.status})` : '') +
+      (detalhe ? `: ${detalhe}` : '.');
   }
 
   private hojeIso(): string {
