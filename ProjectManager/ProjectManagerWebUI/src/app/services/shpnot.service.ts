@@ -90,7 +90,9 @@ export interface FatiaShpNot {
 
 @Injectable({ providedIn: 'root' })
 export class ShpNotService {
-  private readonly api = `${environment.apiUrl}/shpnot`;
+  // seurApiUrl e o /api completo, como nas contas e no trace push: o apiUrl sozinho não leva
+  // o prefixo e os pedidos saíam para /shpnot, que não é rota nenhuma (404).
+  private readonly api = `${environment.seurApiUrl}/api/shpnot`;
 
   constructor(private http: HttpClient, private auth: SeurAuthService) {}
 
