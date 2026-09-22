@@ -173,12 +173,20 @@ public class ShpNotSaidaRepository : IShpNotSaidaRepository
             //
             // Sem trim e sem upper, de propósito: MPSIDX tem índice e qualquer função à volta
             // da coluna deita-o fora. Medido: 2 s assim, 3m40s com trim(MPSIDX).
-            onde.Append($"""
-                 and (MPSIDX = :numero
-                      or MPSIDX in (select MPSMASTER from {Volumes} where MPSID = :numero))
-                """);
-            parametros.Add(new OracleParameter("numero", OracleDbType.Varchar2,
-                numero, ParameterDirection.Input));
+            // Resolve-se primeiro que guias são, e só depois se lêem: um OR entre a coluna e
+            // a subconsulta dos volumes faz o Oracle desistir dos índices — do lado da
+            // recepção, a mesma escrita passava do minuto.
+            var guias = await GuiasAsync(numero, ct);
+
+            var nomes = new List<string>();
+            for (var i = 0; i < guias.Count; i++)
+            {
+                nomes.Add($":guia{i}");
+                parametros.Add(new OracleParameter($"guia{i}", OracleDbType.Varchar2,
+                    guias[i], ParameterDirection.Input));
+            }
+
+            onde.Append($" and MPSIDX in ({string.Join(", ", nomes)})");
         }
 
         if (filtro.Dia is { } dia)
@@ -239,6 +247,29 @@ public class ShpNotSaidaRepository : IShpNotSaidaRepository
         }
 
         return itens;
+    }
+
+    /// <summary>
+    /// As guias a que um número corresponde: ele próprio, se for uma guia, mais as guias dos
+    /// volumes com esse número. A lista nunca é vazia — sem isso o <c>in ()</c> ficava sem
+    /// argumentos e a consulta não compilava.
+    /// </summary>
+    private async Task<List<string>> GuiasAsync(string numero, CancellationToken ct)
+    {
+        var guias = new List<string> { numero };
+
+        await using var ligacao = await AbrirAsync(ct);
+        await using var cmd = Comando(ligacao,
+            $"select distinct MPSMASTER from {Volumes} where MPSID = :numero and rownum <= 50");
+        cmd.Parameters.Add("numero", OracleDbType.Varchar2, numero, ParameterDirection.Input);
+
+        await using var leitor = await cmd.ExecuteReaderAsync(ct);
+        while (await leitor.ReadAsync(ct))
+        {
+            if (Texto(leitor.GetValue(0)) is { } guia && !guias.Contains(guia)) guias.Add(guia);
+        }
+
+        return guias;
     }
 
     /// <summary>

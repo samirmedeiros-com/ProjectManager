@@ -159,23 +159,24 @@ public class ShpNotRepository : IShpNotRepository
         if (!string.IsNullOrWhiteSpace(numero))
         {
             // Um número só, duas leituras possíveis: pode ser a guia-mãe (o MPS ID do envio)
-            // ou o número de um dos volumes. Procura-se pelas duas e devolve-se sempre o
-            // envio inteiro — quem tem na mão a etiqueta de um volume quer ver o conjunto a
-            // que ele pertence, não o volume sozinho.
+            // ou a etiqueta de um dos volumes. Devolve-se sempre o envio inteiro — quem tem
+            // na mão um volume quer ver o conjunto a que ele pertence.
             //
-            // Nenhum dos ramos está dentro do corte por acaso: ambos comparam por igualdade
-            // sobre colunas que a base sabe procurar (~18 s pela guia, ~5 s pelo volume). Um
-            // `like` aqui seria minutos.
-            onde.Append($"""
-                 and (shp.SHIPMENTINFOSID in (
-                          select ID from {_esquema}.SHIPMENTINFOS where MPSID = :numero)
-                      or shp.ID in (
-                          select p.SHPNOTID from {_esquema}.PARCEL p
-                            join {_esquema}.PARCELINFOS pi on pi.ID = p.PARCELINFOSID
-                           where pi.PARCELNUMBER = :numero))
-                """);
-            parametros.Add(new OracleParameter("numero", OracleDbType.NVarchar2,
-                numero, ParameterDirection.Input));
+            // As duas procuras fazem-se <b>em separado</b>, e não com um OR na mesma consulta:
+            // cada uma sozinha custa segundos, mas juntas num OR o Oracle desiste dos índices
+            // e passa do minuto. Resolve-se primeiro que envios são, depois lêem-se por chave.
+            var ids = await ResolverAsync(numero, ct);
+            if (ids.Count == 0)
+                return new FatiaShpNot { PaginaAtual = filtro.Pagina, Tamanho = filtro.Tamanho };
+
+            var nomes = new List<string>();
+            for (var i = 0; i < ids.Count; i++)
+            {
+                nomes.Add($":id{i}");
+                parametros.Add(new OracleParameter($"id{i}", OracleDbType.Raw, ids[i], ParameterDirection.Input));
+            }
+
+            onde.Append($" and shp.ID in ({string.Join(", ", nomes)})");
         }
 
         if (!string.IsNullOrWhiteSpace(filtro.RespServ))
@@ -271,6 +272,55 @@ public class ShpNotRepository : IShpNotRepository
             Tamanho = tamanho,
             HaMais = haMais,
         };
+    }
+
+    /// <summary>
+    /// Que envios correspondem a um número — seja ele a guia ou a etiqueta de um volume.
+    /// Duas consultas curtas, cada uma pelo seu índice, em vez de um OR que as junta e as
+    /// estraga às duas. O limite existe para o caso de um número repetido em muitos envios
+    /// (acontece: o mesmo MPS ID reenviado várias vezes ao longo do dia).
+    /// </summary>
+    private async Task<List<byte[]>> ResolverAsync(string numero, CancellationToken ct)
+    {
+        const int Limite = 200;
+        var ids = new List<byte[]>();
+        var vistos = new HashSet<string>();
+
+        await using var ligacao = await AbrirAsync(ct);
+
+        async Task LerAsync(string sql)
+        {
+            await using var cmd = Comando(ligacao, sql);
+            cmd.Parameters.Add("numero", OracleDbType.NVarchar2, numero, ParameterDirection.Input);
+            cmd.Parameters.Add("limite", OracleDbType.Int32, Limite, ParameterDirection.Input);
+
+            await using var leitor = await cmd.ExecuteReaderAsync(ct);
+            while (await leitor.ReadAsync(ct))
+            {
+                if (leitor.GetValue(0) is not byte[] id) continue;
+                if (vistos.Add(Convert.ToHexString(id))) ids.Add(id);
+            }
+        }
+
+        // Pela guia: o MPS ID vive na SHIPMENTINFOS, e a SHPNOTIN aponta-lhe a chave.
+        await LerAsync($"""
+            select * from (
+              select ID from {_esquema}.SHPNOTIN
+               where SHIPMENTINFOSID in (select ID from {_esquema}.SHIPMENTINFOS where MPSID = :numero)
+               order by IDT desc
+            ) where rownum <= :limite
+            """);
+
+        // Pela etiqueta de um volume: sobe-se do volume ao envio.
+        await LerAsync($"""
+            select * from (
+              select p.SHPNOTID from {_esquema}.PARCEL p
+                join {_esquema}.PARCELINFOS pi on pi.ID = p.PARCELINFOSID
+               where pi.PARCELNUMBER = :numero
+            ) where rownum <= :limite
+            """);
+
+        return ids;
     }
 
     private static string Estado(string? flag) => flag?.Trim().ToUpperInvariant() switch
