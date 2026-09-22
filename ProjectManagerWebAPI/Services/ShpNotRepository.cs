@@ -142,9 +142,17 @@ public class ShpNotRepository : IShpNotRepository
 
         if (!string.IsNullOrWhiteSpace(filtro.MpsId))
         {
-            onde.Append(" and upper(shipi.MPSID) like :mpsid");
+            // O MPS ID está na SHIPMENTINFOS, que só entra na consulta <b>depois</b> do corte
+            // do ROWNUM — aqui dentro não há junta nenhuma. Por isso o filtro desce à tabela
+            // por si: procura-se o ID do envio e compara-se com a chave que a SHPNOTIN guarda.
+            // É exacto e não `like`: a coluna não tem índice, e um `like '%...%'` sobre
+            // milhões de linhas nunca mais acabava.
+            onde.Append($"""
+                 and shp.SHIPMENTINFOSID in (
+                     select ID from {_esquema}.SHIPMENTINFOS where MPSID = :mpsid)
+                """);
             parametros.Add(new OracleParameter("mpsid", OracleDbType.NVarchar2,
-                $"%{filtro.MpsId.Trim().ToUpperInvariant()}%", ParameterDirection.Input));
+                filtro.MpsId.Trim(), ParameterDirection.Input));
         }
 
         if (!string.IsNullOrWhiteSpace(filtro.Volume))
