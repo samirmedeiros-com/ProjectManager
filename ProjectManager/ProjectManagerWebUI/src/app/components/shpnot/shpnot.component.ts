@@ -99,13 +99,16 @@ export class ShpNotComponent implements OnInit {
 
   // ------------------------------------------------------------ pesquisa
 
+  /**
+   * Ao entrar só se pedem os totais. A listagem espera por uma procura: sem filtro nenhum
+   * ela traria os últimos a entrar, que não são os de ninguém em particular — e cada pedido
+   * destes atravessa uma tabela de milhões de linhas.
+   */
   carregar(): void {
     this.servico.estatisticas().subscribe({
       next: (e) => this.estatisticas.set(e),
       error: () => this.estatisticas.set(null),
     });
-    this.pagina.set(1);
-    this.procurar();
   }
 
   procurar(): void {
@@ -147,6 +150,11 @@ export class ShpNotComponent implements OnInit {
     this.estado = '';
     this.respserv = '';
     this.data = '';
+    this.linhas.set([]);
+    this.haMais.set(false);
+    this.procurou.set(false);
+    this.erro.set('');
+    this.pagina.set(1);
     this.carregar();
   }
 

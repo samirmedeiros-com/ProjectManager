@@ -392,3 +392,14 @@
 .colecao-rotulo { font-weight: 600; }
 .colecao-corpo { padding: 12px; }
 .tile-num--data { font-size: 18px; font-variant-numeric: tabular-nums; }
+
+/* ── Convite antes da primeira procura ── */
+.convite {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 28px 20px;
+  text-align: center;
+}
+.convite-titulo { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+.convite-texto { color: var(--text-2); font-size: 13px; max-width: 520px; margin: 0 auto; }

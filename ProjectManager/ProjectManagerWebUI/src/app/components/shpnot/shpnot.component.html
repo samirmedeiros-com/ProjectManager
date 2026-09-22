@@ -85,8 +85,18 @@
       </p>
     </section>
 
+    <!-- Antes da primeira procura não há tabela nenhuma: uma grelha de cabeçalhos vazios
+         lê-se como uma avaria, e a listagem só começa quando alguém pedir alguma coisa. -->
+    <section class="convite" *ngIf="!procurou() && !aCarregar()">
+      <p class="convite-titulo">Procure um SHPNOT</p>
+      <p class="convite-texto">
+        Pelo MPS ID ou pelo número de um volume, que encontram o envio em qualquer data.
+        Escolher só uma data traz os SHPNOTs recebidos nesse dia — são muitos e demora.
+      </p>
+    </section>
+
     <!-- ── Tabela ── -->
-    <section class="tabela-envolve">
+    <section class="tabela-envolve" *ngIf="procurou() || aCarregar()">
       <table class="tabela">
         <thead>
           <tr>
