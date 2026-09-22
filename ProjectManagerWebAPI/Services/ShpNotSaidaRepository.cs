@@ -125,9 +125,16 @@ public class ShpNotSaidaRepository : IShpNotSaidaRepository
         };
     }
 
+    /// <summary>
+    /// Conta uma fila do scan ou do despacho. O <c>case when</c> parece inútil e não é: os
+    /// índices destas duas colunas são de expressão, criados exactamente com esta forma, e
+    /// um simples <c>{coluna} = 'P'</c> não lhes toca — varre a tabela inteira e estoira no
+    /// tempo limite. É a mesma escrita que a consola de envio usa.
+    /// </summary>
     private async Task<int> ContarAsync(OracleConnection ligacao, string coluna, CancellationToken ct)
     {
-        await using var cmd = Comando(ligacao, $"select count(*) from {Envios} where {coluna} = 'P'");
+        await using var cmd = Comando(ligacao,
+            $"select count(*) from {Envios} where (case when {coluna} = 'P' then 'P' end) = 'P'");
         return Convert.ToInt32(await cmd.ExecuteScalarAsync(ct));
     }
 
