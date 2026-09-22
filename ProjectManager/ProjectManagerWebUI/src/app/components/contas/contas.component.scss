@@ -47,19 +47,6 @@
   min-height: 100vh;
 }
 
-@media (prefers-color-scheme: dark) {
-  :host {
-    --bg: #121210;
-    --surface: #1e1e1b;
-    --surface-2: #272724;
-    --text: #eeecea;
-    --text-2: #9e9d98;
-    --text-3: #6b6a65;
-    --border: rgba(255, 255, 255, 0.08);
-    --border-2: rgba(255, 255, 255, 0.15);
-  }
-}
-
 .app {
   min-height: 100vh;
   display: flex;
@@ -150,10 +137,6 @@
   color: var(--purple-600);
 }
 
-@media (prefers-color-scheme: dark) {
-  .menu-item--ativo { background: var(--surface-2); color: var(--text); }
-}
-
 .painel-conteudo { flex: 1; min-width: 0; }
 
 /* ── Conteúdo ── */
@@ -216,12 +199,6 @@
 .tile--ok .tile-num { color: var(--teal-800); }
 .tile--pendente .tile-num { color: var(--amber-800); }
 .tile--erro .tile-num { color: var(--coral-800); }
-
-@media (prefers-color-scheme: dark) {
-  .tile--ok .tile-num { color: var(--teal-500); }
-  .tile--pendente .tile-num { color: var(--amber-500); }
-  .tile--erro .tile-num { color: var(--coral-500); }
-}
 
 .barra {
   display: flex;
@@ -396,10 +373,6 @@ select:focus {
 }
 .ambiente--prd { background: var(--coral-50); color: var(--coral-800); }
 
-@media (prefers-color-scheme: dark) {
-  .ambiente--prd { background: rgba(216, 90, 48, 0.16); color: var(--coral-500); }
-}
-
 /* ── Envio ── */
 .opcoes { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
 
@@ -423,10 +396,6 @@ select:focus {
 .opcao--producao { border-color: var(--coral-500); }
 .opcao--producao strong { color: var(--coral-800); }
 
-@media (prefers-color-scheme: dark) {
-  .opcao--producao strong { color: var(--coral-500); }
-}
-
 .campo-envio { max-width: 520px; }
 
 .resultado { margin-top: 16px; }
@@ -449,10 +418,6 @@ th {
 td { padding: 8px; border-bottom: 0.5px solid var(--border); vertical-align: top; }
 
 tr.falhou td { background: var(--coral-50); }
-
-@media (prefers-color-scheme: dark) {
-  tr.falhou td { background: rgba(216, 90, 48, 0.12); }
-}
 
 .resposta {
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;

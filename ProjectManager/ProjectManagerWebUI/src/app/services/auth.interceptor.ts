@@ -19,6 +19,7 @@ export class AuthInterceptor implements HttpInterceptor {
     if (request.url.includes('/api/seur/')
         || request.url.includes('/api/contas/')
         || request.url.includes('/api/tracepush')
+        || request.url.includes('/api/shpnot')
         || request.url.includes('/api/opensearch/')
         || request.url.includes('/api/oraconsole/')
         || request.url.includes('/api/kubernetes/')
