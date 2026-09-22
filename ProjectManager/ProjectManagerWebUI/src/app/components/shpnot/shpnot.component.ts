@@ -71,8 +71,13 @@ export class ShpNotComponent implements OnInit {
     const partes = [
       campo.json ? `JSON: ${campo.json}` : 'Campo de controlo (não vem no JSON)',
       `Tabela: ${campo.tabela}.${campo.coluna}`,
-      campo.alias ? `View: ${campo.alias}` : 'Não segue na VW_SHPNOT_AS400',
     ];
+
+    // Num envio recebido o alias é o que ainda não se vê; num envio nosso o alias é a própria
+    // coluna, e o que falta é onde o mesmo campo fica guardado quando somos nós a receber.
+    if (campo.equivalente) partes.push(`Na receção: ${campo.equivalente}`);
+    else partes.push(campo.alias ? `View: ${campo.alias}` : 'Não segue na VW_SHPNOT_AS400');
+
     return partes.join('\n');
   }
 
@@ -177,7 +182,7 @@ export class ShpNotComponent implements OnInit {
     this.erro.set('');
     this.linhaAberta.set(null);
 
-    this.servico.obter(linha.idt).subscribe({
+    this.servico.obter(linha.idt, linha.sentido).subscribe({
       next: (d) => {
         this.detalhe.set(d);
         this.abaAtiva.set(d.abas[0]?.chave ?? 'envio');
@@ -196,6 +201,20 @@ export class ShpNotComponent implements OnInit {
 
   alternarLinha(id: string): void {
     this.linhaAberta.set(this.linhaAberta() === id ? null : id);
+  }
+
+  /**
+   * O estado em palavras. A mesma letra quer dizer coisas diferentes nos dois sentidos: num
+   * envio recebido, Y é "já foi integrado no AS400"; num envio nosso, Y é "já foi entregue
+   * ao Geopost". Escrever "No AS400" numa linha de saída seria dizer o contrário do que é.
+   */
+  rotuloEstado(linha: { sentido: string; estado: string }): string {
+    const saida = linha.sentido === 'saida';
+    switch (linha.estado) {
+      case 'enviado': return saida ? 'No Geopost' : 'No AS400';
+      case 'erro': return 'Com erro';
+      default: return saida ? 'Por enviar' : 'Por integrar';
+    }
   }
 
   /**

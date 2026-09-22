@@ -169,6 +169,7 @@ builder.Services.AddScoped<ITracePushAuditService, TracePushAuditService>();
 builder.Services.Configure<ShpNotOptions>(builder.Configuration.GetSection(ShpNotOptions.Seccao));
 builder.Services.AddSingleton<IShpNotCatalogo, ShpNotCatalogo>();
 builder.Services.AddScoped<IShpNotRepository, ShpNotRepository>();
+builder.Services.AddScoped<IShpNotSaidaRepository, ShpNotSaidaRepository>();
 
 // Kafka — módulo da Gestão de Dados sobre a REST API do Kafka Connect.
 builder.Services.Configure<KafkaOptions>(builder.Configuration.GetSection(KafkaOptions.Seccao));

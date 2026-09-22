@@ -403,3 +403,18 @@
 }
 .convite-titulo { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
 .convite-texto { color: var(--text-2); font-size: 13px; max-width: 520px; margin: 0 auto; }
+
+/* ── Marca de sentido: IN é o que recebemos, OUT o que enviamos ── */
+.marca {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: var(--radius-sm);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  border: 1px solid transparent;
+}
+.marca--in { background: var(--purple-50); color: var(--purple-500); border-color: var(--purple-500); }
+.marca--out { background: var(--amber-50); color: var(--amber-800); border-color: var(--amber-500); }
+
+.dash-cabecalho--segundo { margin-top: 18px; }

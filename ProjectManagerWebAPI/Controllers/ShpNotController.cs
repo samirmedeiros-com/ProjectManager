@@ -17,12 +17,17 @@ namespace ProjectManagerWebAPI.Controllers;
 [RequerApp(ContasController.AplicacaoNecessaria)]
 public class ShpNotController(
     IShpNotRepository repositorio,
+    IShpNotSaidaRepository saida,
     ILogger<ShpNotController> logger) : ControllerBase
 {
-    /// <summary>O estado da fila para o AS400 e o último SHPNOT recebido.</summary>
+    /// <summary>As duas filas: a da integração no AS400 e a do envio ao Geopost.</summary>
     [HttpGet("estatisticas")]
     public Task<ActionResult<ShpNotEstatisticas>> Estatisticas(CancellationToken ct)
-        => ExecutarAsync(() => repositorio.EstatisticasAsync(ct), "obter o estado da fila");
+        => ExecutarAsync(async () =>
+        {
+            var entrada = await repositorio.EstatisticasAsync(ct);
+            return entrada with { Saida = await saida.FilaAsync(ct) };
+        }, "obter o estado das filas");
 
     /// <summary>Pesquisa paginada dos SHPNOTs recebidos.</summary>
     [HttpGet]
@@ -35,10 +40,35 @@ public class ShpNotController(
         [FromQuery] int pagina = 1,
         [FromQuery] int tamanho = 10,
         CancellationToken ct = default)
-        => ExecutarAsync(
-            () => repositorio.ProcurarAsync(
-                new FiltroShpNot(data, mpsid, volume, estado, respserv, pagina, tamanho), ct),
-            "procurar SHPNOTs");
+        => ExecutarAsync(async () =>
+        {
+            var filtro = new FiltroShpNot(data, mpsid, volume, estado, respserv, pagina, tamanho);
+            var recebidos = await repositorio.ProcurarAsync(filtro, ct);
+
+            // Os enviados só entram quando há um número para procurar. Sem ele a pesquisa do
+            // lado da saída seria uma varredura sem dono, e são tabelas de milhões de linhas.
+            if (string.IsNullOrWhiteSpace(mpsid) && string.IsNullOrWhiteSpace(volume))
+                return recebidos;
+
+            var enviados = await saida.ProcurarAsync(filtro, ct);
+            if (enviados.Count == 0) return recebidos;
+
+            // Os dois lados na mesma grelha, do mais recente para o mais antigo. É o mesmo
+            // envio visto das duas pontas: o que recebemos e o que mandámos.
+            return recebidos with
+            {
+                Itens = [.. recebidos.Itens.Concat(enviados).OrderByDescending(i => i.Recebido)],
+            };
+        }, "procurar SHPNOTs");
+
+    /// <summary>Um SHPNOT que enviámos, com os campos arrumados nas mesmas abas.</summary>
+    [HttpGet("saida/{idt:long}")]
+    public async Task<ActionResult<ShpNotDetalhe>> ObterSaida(long idt, CancellationToken ct)
+    {
+        var resposta = await ExecutarAsync(() => saida.ObterAsync(idt, ct), "abrir o SHPNOT enviado");
+        if (resposta.Result is not null) return resposta.Result;
+        return resposta.Value is null ? NotFound("SHPNOT enviado não encontrado.") : resposta.Value;
+    }
 
     /// <summary>
     /// Um SHPNOT inteiro, já repartido pelas abas do ecrã e com cada campo acompanhado do

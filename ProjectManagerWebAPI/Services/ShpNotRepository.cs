@@ -455,6 +455,9 @@ public class ShpNotRepository : IShpNotRepository
     private static string Guid(object? valor) =>
         valor is byte[] bruto ? Convert.ToHexString(bruto) : valor?.ToString() ?? "";
 
+    /// <summary>A mesma conversão de datas, para o repositório dos SHPNOTs enviados.</summary>
+    public static DateTime? DataPublica(object? valor) => Data(valor);
+
     private static DateTime? Data(object? valor) => valor switch
     {
         null or DBNull => null,

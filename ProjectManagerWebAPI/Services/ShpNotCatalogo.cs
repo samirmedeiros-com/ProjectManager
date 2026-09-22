@@ -25,6 +25,17 @@ public interface IShpNotCatalogo
 
     /// <summary>As colunas conhecidas de uma tabela, pela ordem do dicionário.</summary>
     IReadOnlyList<string> ColunasDe(string tabela);
+
+    /// <summary>
+    /// Descreve uma coluna das tabelas de saída (GEODT01SPN/GEODT02SPN). Ali a coluna
+    /// <b>é</b> o alias — <c>MPSIDX</c>, <c>SNAME1X</c> —, o mesmo com que o campo viaja
+    /// para o AS400. Por isso o dicionário serve os dois sentidos sem duplicação: procura-se
+    /// pelo alias e sabe-se o nome no JSON e onde o mesmo dado fica quando o recebemos.
+    /// </summary>
+    CampoShpNot DescreverSaida(string tabela, string coluna, string? valor);
+
+    /// <summary>A tabela da receção que corresponde a um alias, ou nulo se não houver.</summary>
+    string? TabelaDoAlias(string alias);
 }
 
 public sealed class ShpNotCatalogo : IShpNotCatalogo
@@ -42,7 +53,12 @@ public sealed class ShpNotCatalogo : IShpNotCatalogo
 
     private readonly Dictionary<string, Dictionary<string, Entrada>> _tabelas;
 
+    /// <summary>Índice pelo alias — a chave de leitura do lado da saída.</summary>
+    private readonly Dictionary<string, PorAlias> _aliases = new(StringComparer.OrdinalIgnoreCase);
+
     private sealed record Entrada(string? Json, string? Alias);
+
+    private sealed record PorAlias(string? Json, string Tabela, string Coluna);
 
     public ShpNotCatalogo(IWebHostEnvironment ambiente, ILogger<ShpNotCatalogo> logger)
     {
@@ -62,9 +78,14 @@ public sealed class ShpNotCatalogo : IShpNotCatalogo
             var colunas = new Dictionary<string, Entrada>(StringComparer.OrdinalIgnoreCase);
             foreach (var coluna in tabela.Value.EnumerateObject())
             {
-                colunas[coluna.Name] = new Entrada(
-                    coluna.Value.TryGetProperty("json", out var j) ? j.GetString() : null,
-                    coluna.Value.TryGetProperty("alias", out var a) ? a.GetString() : null);
+                var json = coluna.Value.TryGetProperty("json", out var j) ? j.GetString() : null;
+                var alias = coluna.Value.TryGetProperty("alias", out var a) ? a.GetString() : null;
+                colunas[coluna.Name] = new Entrada(json, alias);
+
+                // O primeiro a registar ganha: há aliases que a view serve a partir de mais do
+                // que uma coluna (as moradas repetem-se), e qualquer delas explica o campo.
+                if (alias is not null)
+                    _aliases.TryAdd(alias, new PorAlias(json, tabela.Name, coluna.Name));
             }
             _tabelas[tabela.Name] = colunas;
         }
@@ -87,6 +108,25 @@ public sealed class ShpNotCatalogo : IShpNotCatalogo
             Lista = lista || Listas.Contains($"{tabela}.{coluna}".ToUpperInvariant()),
         };
     }
+
+    public CampoShpNot DescreverSaida(string tabela, string coluna, string? valor)
+    {
+        _aliases.TryGetValue(coluna, out var porAlias);
+
+        return new CampoShpNot
+        {
+            Etiqueta = porAlias?.Json ?? coluna,
+            Json = porAlias?.Json,
+            Tabela = $"GROUPSHPNOT.{tabela.ToUpperInvariant()}",
+            Coluna = coluna.ToUpperInvariant(),
+            Alias = coluna.ToUpperInvariant(),
+            Equivalente = porAlias is null ? null : $"{porAlias.Tabela}.{porAlias.Coluna}",
+            Valor = valor,
+        };
+    }
+
+    public string? TabelaDoAlias(string alias) =>
+        _aliases.TryGetValue(alias, out var porAlias) ? porAlias.Tabela : null;
 
     public IReadOnlyList<string> ColunasDe(string tabela) =>
         _tabelas.TryGetValue(tabela, out var colunas) ? [.. colunas.Keys] : [];

@@ -19,6 +19,13 @@ public sealed record CampoShpNot
     /// <summary>Alias na VW_SHPNOT_AS400. Vazio nos campos que a view não leva.</summary>
     public string? Alias { get; init; }
 
+    /// <summary>
+    /// O mesmo campo do outro lado. Nos SHPNOTs que enviamos, a coluna <b>é</b> o alias, e o
+    /// que falta é saber onde o mesmo dado está guardado quando somos nós a receber — por
+    /// exemplo <c>MPSIDX</c> aqui, <c>SHIPMENTINFOS.MPSID</c> lá.
+    /// </summary>
+    public string? Equivalente { get; init; }
+
     public string? Valor { get; init; }
 
     /// <summary>
@@ -65,9 +72,21 @@ public sealed record AbaShpNot
     public List<NoShpNot> Blocos { get; init; } = [];
 }
 
+/// <summary>
+/// De que lado está o SHPNOT: <c>entrada</c> é o que recebemos do Geopost e o WebApiShpNot
+/// guardou; <c>saida</c> é o que nós enviamos, a partir das tabelas do AS400.
+/// </summary>
+public static class SentidoShpNot
+{
+    public const string Entrada = "entrada";
+    public const string Saida = "saida";
+}
+
 /// <summary>O que a listagem mostra por SHPNOT, sem descer ao grafo todo.</summary>
 public sealed record ShpNotResumo
 {
+    public string Sentido { get; init; } = SentidoShpNot.Entrada;
+
     public required long Idt { get; init; }
     public required string Id { get; init; }
     public string? MpsId { get; init; }
@@ -105,6 +124,22 @@ public sealed record ShpNotEstatisticas
     /// <summary>O último SHPNOT que entrou — diz de relance se a receção está viva.</summary>
     public DateTime? UltimoRecebido { get; init; }
     public long? UltimoIdt { get; init; }
+
+    /// <summary>
+    /// A fila de saída: os SHPNOTs que temos para enviar ao Geopost, da GEODT01SPN.
+    /// São três filas independentes sobre a mesma linha — o envio do SHPNOT, o depot
+    /// scanning e o dispatcher —, cada uma com a sua letra e a sua data.
+    /// </summary>
+    public FilaSaida? Saida { get; init; }
+}
+
+public sealed record FilaSaida
+{
+    public int Pendentes { get; init; }
+    public int Erros { get; init; }
+    public int PendentesScan { get; init; }
+    public int PendentesDespacho { get; init; }
+    public DateTime? UltimoInserido { get; init; }
 }
 
 /// <summary>

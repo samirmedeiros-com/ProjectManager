@@ -174,6 +174,41 @@ public static class ShpNotEstrutura
     ];
 
     /// <summary>
+    /// Onde cada tabela da receção aparece no ecrã: a aba e o nome do bloco.
+    ///
+    /// <para>Serve os SHPNOTs que <b>enviamos</b>. Esses vivem numa tabela só, larga, de
+    /// colunas com nomes de AS400 (<c>SNAME1X</c>, <c>RTOWNX</c>) — não têm estrutura própria
+    /// para o ecrã seguir. Mas cada uma dessas colunas é o alias de um campo que, do lado da
+    /// receção, tem tabela: o alias diz a tabela, a tabela diz a aba, e um envio enviado
+    /// lê-se com a mesma arrumação de um envio recebido.</para>
+    /// </summary>
+    public static readonly Dictionary<string, (string Aba, string Bloco)> OndeVive = Mapear();
+
+    private static Dictionary<string, (string, string)> Mapear()
+    {
+        var mapa = new Dictionary<string, (string, string)>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["SHPNOTIN"] = ("envio", "Cabeçalho"),
+        };
+
+        void Percorrer(string aba, Bloco bloco)
+        {
+            mapa.TryAdd(bloco.Tabela, (aba, bloco.Titulo));
+            foreach (var filho in bloco.Filhos ?? []) Percorrer(aba, filho);
+        }
+
+        foreach (var aba in Abas)
+            foreach (var bloco in aba.Blocos)
+                Percorrer(aba.Chave, bloco);
+
+        return mapa;
+    }
+
+    /// <summary>Título de uma aba pela chave, para o ecrã dos SHPNOTs enviados.</summary>
+    public static string TituloAba(string chave) =>
+        Abas.FirstOrDefault(a => a.Chave == chave)?.Titulo ?? chave;
+
+    /// <summary>
     /// Colunas que o ecrã não mostra: chaves técnicas, que não são dados do SHPNOT e enchem
     /// os blocos de identificadores sem significado para quem consulta.
     /// </summary>

@@ -16,6 +16,8 @@ export interface CampoShpNot {
   tabela: string;
   coluna: string;
   alias: string | null;
+  /** Onde o mesmo campo fica guardado do outro lado (só nos SHPNOTs que enviamos). */
+  equivalente: string | null;
   valor: string | null;
   /** Coluna guardada como texto JSON (ex. sPartnerRefs): mostra-se como lista. */
   lista: boolean;
@@ -47,7 +49,11 @@ export interface AbaShpNot {
 
 export type EstadoShpNot = 'enviado' | 'erro' | 'pendente';
 
+/** De que lado está o envio: recebido do Geopost (IN) ou enviado por nós (OUT). */
+export type SentidoShpNot = 'entrada' | 'saida';
+
 export interface ShpNotResumo {
+  sentido: SentidoShpNot;
   idt: number;
   id: string;
   mpsId: string | null;
@@ -78,6 +84,16 @@ export interface ShpNotEstatisticas {
   erros: number;
   ultimoRecebido: string | null;
   ultimoIdt: number | null;
+  saida: FilaSaida | null;
+}
+
+/** A fila do que temos para enviar ao Geopost. São três filas sobre a mesma linha. */
+export interface FilaSaida {
+  pendentes: number;
+  erros: number;
+  pendentesScan: number;
+  pendentesDespacho: number;
+  ultimoInserido: string | null;
 }
 
 /** Uma fatia da listagem. Não há total: só se sabe se existe página seguinte. */
@@ -132,7 +148,9 @@ export class ShpNotService {
     return this.http.get<FatiaShpNot>(this.api, { headers: this.cabecalhos, params });
   }
 
-  obter(idt: number): Observable<ShpNotDetalhe> {
-    return this.http.get<ShpNotDetalhe>(`${this.api}/${idt}`, { headers: this.cabecalhos });
+  /** O detalhe vem de sítios diferentes conforme o sentido: são bases e tabelas distintas. */
+  obter(idt: number, sentido: SentidoShpNot): Observable<ShpNotDetalhe> {
+    const caminho = sentido === 'saida' ? `${this.api}/saida/${idt}` : `${this.api}/${idt}`;
+    return this.http.get<ShpNotDetalhe>(caminho, { headers: this.cabecalhos });
   }
 }

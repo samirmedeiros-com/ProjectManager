@@ -26,6 +26,38 @@
           <span class="tile-lbl">Último recebido</span>
         </div>
       </div>
+
+      <!-- A outra ponta da mesma viagem: o que temos para mandar ao Geopost. -->
+      <header class="dash-cabecalho dash-cabecalho--segundo" *ngIf="e.saida as s">
+        <h3 class="dash-titulo">
+          <span class="dash-dia">Fila de saída</span>
+          <span class="marca marca--out">OUT</span>
+        </h3>
+        <span class="dash-nota">SHPNOTs que enviamos ao Geopost</span>
+      </header>
+
+      <div class="dash-tiles" *ngIf="e.saida as s">
+        <div class="tile tile--pendente">
+          <span class="tile-num">{{ s.pendentes | number }}</span>
+          <span class="tile-lbl">Por enviar</span>
+        </div>
+        <div class="tile tile--erro">
+          <span class="tile-num">{{ s.erros | number }}</span>
+          <span class="tile-lbl">Com erro</span>
+        </div>
+        <div class="tile">
+          <span class="tile-num">{{ s.pendentesScan | number }}</span>
+          <span class="tile-lbl">Depot scanning</span>
+        </div>
+        <div class="tile">
+          <span class="tile-num">{{ s.pendentesDespacho | number }}</span>
+          <span class="tile-lbl">Dispatcher</span>
+        </div>
+        <div class="tile tile--ok">
+          <span class="tile-num tile-num--data">{{ (s.ultimoInserido | date: 'HH:mm') || '—' }}</span>
+          <span class="tile-lbl">Último criado</span>
+        </div>
+      </div>
     </section>
 
     <!-- ── Filtros ── -->
@@ -55,8 +87,8 @@
           <span>Estado</span>
           <select [(ngModel)]="estado" (change)="irPara(1)">
             <option value="">Todos</option>
-            <option value="enviado">No AS400</option>
-            <option value="pendente">Por integrar</option>
+            <option value="enviado">Concluído</option>
+            <option value="pendente">Em fila</option>
             <option value="erro">Com erro</option>
           </select>
         </label>
@@ -100,7 +132,8 @@
       <table class="tabela">
         <thead>
           <tr>
-            <th>Recebido</th>
+            <th>Sentido</th>
+            <th>Data</th>
             <th>MPS ID</th>
             <th>Remetente</th>
             <th>Destinatário</th>
@@ -111,6 +144,17 @@
         </thead>
         <tbody>
           <tr *ngFor="let l of linhas()" (click)="abrir(l)" class="linha">
+            <td>
+              <!-- IN é o que nos chega do Geopost; OUT é o que lhe mandamos. -->
+              <span
+                class="marca"
+                [class.marca--in]="l.sentido === 'entrada'"
+                [class.marca--out]="l.sentido === 'saida'"
+                [title]="l.sentido === 'entrada' ? 'Recebido do Geopost' : 'Enviado ao Geopost'"
+              >
+                {{ l.sentido === 'entrada' ? 'IN' : 'OUT' }}
+              </span>
+            </td>
             <td>{{ l.recebido | date: 'dd/MM/yyyy HH:mm' }}</td>
             <td class="mono">{{ l.mpsId || '—' }}</td>
             <td>{{ l.remetente || '—' }}</td>
@@ -122,18 +166,22 @@
             <td>{{ l.respServ || '—' }}</td>
             <td>
               <span class="estado" [class]="'estado--' + l.estado">
-                {{ l.estado === 'enviado' ? 'No AS400' : l.estado === 'erro' ? 'Com erro' : 'Por integrar' }}
+                {{ rotuloEstado(l) }}
               </span>
               <!-- A letra da FLAGAS400 fica à vista: distingue estados que o rótulo junta. -->
-              <span class="flag" *ngIf="l.flagAs400" [title]="'FLAGAS400 = ' + l.flagAs400">{{ l.flagAs400 }}</span>
+              <span
+                class="flag"
+                *ngIf="l.flagAs400"
+                [title]="(l.sentido === 'saida' ? 'FLAGENV = ' : 'FLAGAS400 = ') + l.flagAs400"
+              >{{ l.flagAs400 }}</span>
             </td>
           </tr>
 
           <tr *ngIf="!aCarregar() && procurou() && linhas().length === 0">
-            <td colspan="7" class="vazio">Nenhum SHPNOT para estes filtros.</td>
+            <td colspan="8" class="vazio">Nenhum SHPNOT para estes filtros.</td>
           </tr>
           <tr *ngIf="aCarregar()">
-            <td colspan="7" class="vazio">A carregar…</td>
+            <td colspan="8" class="vazio">A carregar…</td>
           </tr>
         </tbody>
       </table>
@@ -172,15 +220,23 @@
       <button type="button" class="btn" (click)="fechar()">← Voltar à lista</button>
 
       <div class="detalhe-identidade">
+        <span
+          class="marca"
+          [class.marca--in]="d.resumo.sentido === 'entrada'"
+          [class.marca--out]="d.resumo.sentido === 'saida'"
+        >{{ d.resumo.sentido === 'entrada' ? 'IN' : 'OUT' }}</span>
         <span class="detalhe-mps mono">{{ d.resumo.mpsId || 'sem MPS ID' }}</span>
         <span class="estado" [class]="'estado--' + d.resumo.estado">
-          {{ d.resumo.estado === 'enviado' ? 'No AS400' : d.resumo.estado === 'erro' ? 'Com erro' : 'Por integrar' }}
+          {{ rotuloEstado(d.resumo) }}
         </span>
       </div>
 
       <dl class="detalhe-meta">
-        <div><dt>Recebido</dt><dd>{{ d.resumo.recebido | date: 'dd/MM/yyyy HH:mm:ss' }}</dd></div>
-        <div><dt>Integrado</dt><dd>{{ (d.resumo.processadoAs400 | date: 'dd/MM/yyyy HH:mm:ss') || '—' }}</dd></div>
+        <div><dt>{{ d.resumo.sentido === 'saida' ? 'Criado' : 'Recebido' }}</dt><dd>{{ d.resumo.recebido | date: 'dd/MM/yyyy HH:mm:ss' }}</dd></div>
+        <div>
+          <dt>{{ d.resumo.sentido === 'saida' ? 'Enviado' : 'Integrado' }}</dt>
+          <dd>{{ (d.resumo.processadoAs400 | date: 'dd/MM/yyyy HH:mm:ss') || '—' }}</dd>
+        </div>
         <div><dt>Origem</dt><dd>{{ d.resumo.respServ || '—' }}</dd></div>
         <div><dt>Volumes</dt><dd>{{ d.resumo.volumes ?? '—' }}</dd></div>
       </dl>
