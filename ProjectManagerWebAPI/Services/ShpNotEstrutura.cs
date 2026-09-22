@@ -31,7 +31,13 @@ public static class ShpNotEstrutura
         string Chave,
         Bloco[]? Filhos = null,
         /// <summary>Coluna que resume a linha quando o bloco é uma coleção fechada.</summary>
-        string? Rotulo = null);
+        string? Rotulo = null,
+        /// <summary>
+        /// Como se ordena a coleção. É uma expressão SQL e não só um nome de coluna porque
+        /// os números destas tabelas estão guardados como texto: ordenar
+        /// <c>PARCELRANK</c> tal e qual punha o volume 10 antes do 2.
+        /// </summary>
+        string? Ordem = null);
 
     public sealed record Aba(string Chave, string Titulo, Bloco[] Blocos);
 
@@ -39,8 +45,15 @@ public static class ShpNotEstrutura
         => new(titulo, tabela, Ligacao.PaiAponta, chave, filhos);
 
     private static Bloco Muitos(string titulo, string tabela, string chave, Bloco[]? filhos = null,
-                                string? rotulo = null)
-        => new(titulo, tabela, Ligacao.FilhoAponta, chave, filhos, rotulo);
+                                string? rotulo = null, string? ordem = null)
+        => new(titulo, tabela, Ligacao.FilhoAponta, chave, filhos, rotulo, ordem);
+
+    /// <summary>
+    /// Ordem crescente por uma coluna de texto que guarda um número. O <c>lpad</c> alinha os
+    /// algarismos à direita antes de comparar, que é o que faz 2 vir antes de 10; as linhas
+    /// sem valor ficam no fim, e não à frente do volume 1.
+    /// </summary>
+    private static string Numerica(string coluna) => $"nvl2({coluna}, 0, 1), lpad(trim({coluna}), 12, '0')";
 
     private static Bloco Morada(string titulo, string tabela, string chave) => Um(titulo, tabela, chave);
 
@@ -124,7 +137,7 @@ public static class ShpNotEstrutura
                     Um("Peso da substância", "SUBWEIGHT", "SUBWEIGHTID"),
                     Um("Peso explosivo", "EXPLWEIGHT", "EXPLWEIGHTID"),
                 ], rotulo: "UNNO"),
-            ], rotulo: "PARCELRANK"),
+            ], rotulo: "PARCELRANK", ordem: Numerica("PARCELRANK")),
         ]),
 
         new("internacional", "Internacional",
@@ -143,8 +156,9 @@ public static class ShpNotEstrutura
                 [
                     Um("Peso líquido", "CNETWEIGHT", "CNETWEIGHTID"),
                     Um("Peso bruto", "CGROSSWEIGHT", "CGROSSWEIGHTID"),
-                ], rotulo: "CINVOICEPOSITION"),
-                Muitos("Imagens", "IMAGE", "INTERNATIONALID", rotulo: "IMGCATEGORY"),
+                ], rotulo: "CINVOICEPOSITION", ordem: Numerica("CINVOICEPOSITION")),
+                Muitos("Imagens", "IMAGE", "INTERNATIONALID", rotulo: "IMGCATEGORY",
+                    ordem: "\"IMGDateTime\""),
             ]),
         ]),
 

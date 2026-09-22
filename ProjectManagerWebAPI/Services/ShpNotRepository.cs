@@ -189,6 +189,12 @@ public class ShpNotRepository : IShpNotRepository
         // contar o resto.
         var ultimo = (pagina * tamanho) + 1;
 
+        // A página sai ordenada pela data e hora de receção, que é a coluna que o ecrã mostra.
+        // Dentro do corte a ordem continua a ser o IDT: é a única indexada, cresce com cada
+        // SHPNOT que entra e por isso dá exactamente a mesma sequência — ordenar milhões de
+        // linhas por DATAINSERT, que não tem índice, é que seria impagável. A ordenação por
+        // data faz-se no fim, já só sobre as linhas da página.
+        //
         // A ordem das operações é o que faz a diferença entre segundos e minutos. Primeiro
         // filtra-se, ordena-se e corta-se <b>só na SHPNOTIN</b>; as cinco juntas do remetente
         // e do destinatário vêm depois, já sobre as dez linhas da página. Com as juntas lá
@@ -214,7 +220,7 @@ public class ShpNotRepository : IShpNotRepository
               left join {_esquema}.SENDERADDRESS sadd on sadd.ID = sender.SENDERADDRESSID
               left join {_esquema}.RECEIVER rec on rec.ID = shp.RECEIVERID
               left join {_esquema}.RECEIVERADDRESS radd on radd.ID = rec.RECEIVERADDRESSID
-             order by shp.IDT desc
+             order by shp.DATAINSERT desc, shp.IDT desc
             """;
 
         await using var ligacao = await AbrirAsync(ct);
@@ -343,7 +349,7 @@ public class ShpNotRepository : IShpNotRepository
         }
 
         // Coleção: as linhas apontam para o pai.
-        var linhas = await LinhasAsync(ligacao, bloco.Tabela, bloco.Chave, pai["ID"], ct);
+        var linhas = await LinhasAsync(ligacao, bloco.Tabela, bloco.Chave, pai["ID"], bloco.Ordem, ct);
         var resultado = new List<LinhaShpNot>();
 
         foreach (var linha in linhas)
@@ -391,9 +397,15 @@ public class ShpNotRepository : IShpNotRepository
     }
 
     private async Task<List<Dictionary<string, object>>> LinhasAsync(
-        OracleConnection ligacao, string tabela, string coluna, object valor, CancellationToken ct)
+        OracleConnection ligacao, string tabela, string coluna, object valor,
+        string? ordem, CancellationToken ct)
     {
-        await using var cmd = Comando(ligacao, $"select * from {_esquema}.{tabela} where {coluna} = :chave");
+        // A ordem vem da estrutura do ecrã (ShpNotEstrutura), nunca do pedido: é uma expressão
+        // escrita no código e não texto que chegue de fora.
+        var sql = $"select * from {_esquema}.{tabela} where {coluna} = :chave"
+                  + (ordem is null ? "" : $" order by {ordem}");
+
+        await using var cmd = Comando(ligacao, sql);
         cmd.Parameters.Add("chave", OracleDbType.Raw, valor, ParameterDirection.Input);
 
         var linhas = new List<Dictionary<string, object>>();
