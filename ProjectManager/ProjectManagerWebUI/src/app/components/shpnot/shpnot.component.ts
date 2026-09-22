@@ -9,6 +9,7 @@ import {
   ShpNotEstatisticas,
   ShpNotResumo,
   ShpNotService,
+  TotaisShpNot,
 } from '../../services/shpnot.service';
 
 @Component({
@@ -25,15 +26,22 @@ export class ShpNotComponent implements OnInit {
    * Escolher um dia obriga a varrer a tabela — o ecrã avisa quando isso acontece.
    */
   data = '';
-  mpsid = '';
-  volume = '';
+  /**
+   * Um número só. Tanto serve a guia-mãe como a etiqueta de um volume: procura-se pelos dois
+   * e devolve-se sempre o envio inteiro, que é o que interessa a quem tem um volume na mão.
+   */
+  numero = '';
   estado = '';
   respserv = '';
+  /** Vazio traz os dois lados; senão só o que recebemos ou só o que enviamos. */
+  sentido = '';
 
   readonly tamanhosPagina = [10, 50, 100];
 
   // ------------------------------------------------------------- estado
   estatisticas = signal<ShpNotEstatisticas | null>(null);
+  totais = signal<TotaisShpNot | null>(null);
+  aContarTotais = signal(false);
 
   linhas = signal<ShpNotResumo[]>([]);
   haMais = signal(false);
@@ -42,8 +50,15 @@ export class ShpNotComponent implements OnInit {
 
   detalhe = signal<ShpNotDetalhe | null>(null);
   abaAtiva = signal('envio');
-  /** Volumes e outras coleções abrem um de cada vez, pela chave da linha. */
-  linhaAberta = signal<string | null>(null);
+  /**
+   * As linhas abertas das coleções, por chave.
+   *
+   * <p>É um conjunto e não uma chave só porque as coleções estão dentro umas das outras: as
+   * notificações e as matérias perigosas vivem <b>dentro</b> de um volume. Com uma chave
+   * única, abrir uma notificação fechava o volume que a continha — e a notificação
+   * desaparecia no mesmo clique que a abria.</p>
+   */
+  linhasAbertas = signal<Set<string>>(new Set());
 
   aCarregar = signal(false);
   aCarregarDetalhe = signal(false);
@@ -114,6 +129,17 @@ export class ShpNotComponent implements OnInit {
       next: (e) => this.estatisticas.set(e),
       error: () => this.estatisticas.set(null),
     });
+
+    // Os acumulados vêm à parte e podem demorar dois minutos na primeira vez do dia: o resto
+    // do ecrã não espera por eles, e o cartão diz que está a contar.
+    this.aContarTotais.set(true);
+    this.servico.totais().subscribe({
+      next: (t) => {
+        this.totais.set(t);
+        this.aContarTotais.set(false);
+      },
+      error: () => this.aContarTotais.set(false),
+    });
   }
 
   procurar(): void {
@@ -124,11 +150,11 @@ export class ShpNotComponent implements OnInit {
       .procurar({
         // Uma pesquisa por MPS ID ou por volume não leva dia — e pedi-lo seria pior: quem
         // tem o número de um envio às mãos raramente sabe o dia em que ele entrou.
-        data: this.mpsid.trim() || this.volume.trim() ? undefined : this.data || undefined,
-        mpsid: this.mpsid,
-        volume: this.volume,
+        data: this.numero.trim() ? undefined : this.data || undefined,
+        mpsid: this.numero,
         estado: this.estado,
         respserv: this.respserv,
+        sentido: this.sentido,
         pagina: this.pagina(),
         tamanho: this.tamanho(),
       })
@@ -150,8 +176,8 @@ export class ShpNotComponent implements OnInit {
   }
 
   limpar(): void {
-    this.mpsid = '';
-    this.volume = '';
+    this.numero = '';
+    this.sentido = '';
     this.estado = '';
     this.respserv = '';
     this.data = '';
@@ -180,7 +206,7 @@ export class ShpNotComponent implements OnInit {
   abrir(linha: ShpNotResumo): void {
     this.aCarregarDetalhe.set(true);
     this.erro.set('');
-    this.linhaAberta.set(null);
+    this.linhasAbertas.set(new Set());
 
     this.servico.obter(linha.idt, linha.sentido).subscribe({
       next: (d) => {
@@ -200,7 +226,13 @@ export class ShpNotComponent implements OnInit {
   }
 
   alternarLinha(id: string): void {
-    this.linhaAberta.set(this.linhaAberta() === id ? null : id);
+    const abertas = new Set(this.linhasAbertas());
+    if (!abertas.delete(id)) abertas.add(id);
+    this.linhasAbertas.set(abertas);
+  }
+
+  linhaAberta(id: string): boolean {
+    return this.linhasAbertas().has(id);
   }
 
   /**

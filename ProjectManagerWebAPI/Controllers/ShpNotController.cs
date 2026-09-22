@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.AspNetCore.Mvc;
 using ProjectManagerWebAPI.Filters;
 using ProjectManagerWebAPI.Models.Contas;
@@ -18,8 +19,40 @@ namespace ProjectManagerWebAPI.Controllers;
 public class ShpNotController(
     IShpNotRepository repositorio,
     IShpNotSaidaRepository saida,
+    IMemoryCache cache,
     ILogger<ShpNotController> logger) : ControllerBase
 {
+    private const string ChaveTotais = "shpnot:totais";
+
+    /// <summary>
+    /// Os acumulados de sucesso das duas pontas, num pedido à parte e guardados meia hora.
+    ///
+    /// <para>São duas contagens de dezenas de milhões de linhas — perto de dois minutos
+    /// somadas. Ficam fora do arranque do ecrã de propósito: quem entra vê logo as filas, que
+    /// custam segundos, e estes números chegam depois. Meia hora de validade é folgada para
+    /// um valor que muda uns milhares por dia.</para>
+    /// </summary>
+    [HttpGet("totais")]
+    public Task<ActionResult<TotaisShpNot>> Totais(CancellationToken ct)
+        => ExecutarAsync(async () =>
+        {
+            if (cache.TryGetValue(ChaveTotais, out TotaisShpNot? guardado) && guardado is not null)
+                return guardado;
+
+            var integrados = await repositorio.TotalIntegradosAsync(ct);
+            var enviados = await saida.TotalEnviadosAsync(ct);
+
+            var totais = new TotaisShpNot
+            {
+                Integrados = integrados,
+                Enviados = enviados,
+                Calculado = DateTime.Now,
+            };
+
+            cache.Set(ChaveTotais, totais, TimeSpan.FromMinutes(30));
+            return totais;
+        }, "contar os SHPNOTs com sucesso");
+
     /// <summary>As duas filas: a da integração no AS400 e a do envio ao Geopost.</summary>
     [HttpGet("estatisticas")]
     public Task<ActionResult<ShpNotEstatisticas>> Estatisticas(CancellationToken ct)
@@ -37,18 +70,25 @@ public class ShpNotController(
         [FromQuery] string? volume,
         [FromQuery] string? estado,
         [FromQuery] string? respserv,
+        [FromQuery] string? sentido,
         [FromQuery] int pagina = 1,
         [FromQuery] int tamanho = 10,
         CancellationToken ct = default)
         => ExecutarAsync(async () =>
         {
-            var filtro = new FiltroShpNot(data, mpsid, volume, estado, respserv, pagina, tamanho);
-            var recebidos = await repositorio.ProcurarAsync(filtro, ct);
+            var filtro = new FiltroShpNot(data, mpsid, volume, estado, respserv, pagina, tamanho, sentido);
+            var temNumero = !string.IsNullOrWhiteSpace(mpsid) || !string.IsNullOrWhiteSpace(volume);
+
+            var soSaida = sentido == SentidoShpNot.Saida;
+            var soEntrada = sentido == SentidoShpNot.Entrada;
+
+            var recebidos = soSaida
+                ? new FatiaShpNot { PaginaAtual = pagina, Tamanho = tamanho }
+                : await repositorio.ProcurarAsync(filtro, ct);
 
             // Os enviados só entram quando há um número para procurar. Sem ele a pesquisa do
             // lado da saída seria uma varredura sem dono, e são tabelas de milhões de linhas.
-            if (string.IsNullOrWhiteSpace(mpsid) && string.IsNullOrWhiteSpace(volume))
-                return recebidos;
+            if (soEntrada || !temNumero) return recebidos;
 
             var enviados = await saida.ProcurarAsync(filtro, ct);
             if (enviados.Count == 0) return recebidos;

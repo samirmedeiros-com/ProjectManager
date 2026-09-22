@@ -22,6 +22,10 @@
           <span class="tile-lbl">Com erro</span>
         </div>
         <div class="tile tile--ok">
+          <span class="tile-num">{{ totais() ? (totais()!.integrados | number) : (aContarTotais() ? '…' : '—') }}</span>
+          <span class="tile-lbl">Integrados com sucesso</span>
+        </div>
+        <div class="tile">
           <span class="tile-num tile-num--data">{{ (e.ultimoRecebido | date: 'HH:mm') || '—' }}</span>
           <span class="tile-lbl">Último recebido</span>
         </div>
@@ -54,10 +58,24 @@
           <span class="tile-lbl">Dispatcher</span>
         </div>
         <div class="tile tile--ok">
+          <span class="tile-num">{{ totais() ? (totais()!.enviados | number) : (aContarTotais() ? '…' : '—') }}</span>
+          <span class="tile-lbl">Enviados com sucesso</span>
+        </div>
+        <div class="tile">
           <span class="tile-num tile-num--data">{{ (s.ultimoInserido | date: 'HH:mm') || '—' }}</span>
           <span class="tile-lbl">Último criado</span>
         </div>
       </div>
+
+      <!-- Contar dezenas de milhões de linhas leva perto de dois minutos, por isso o número
+           é de uma hora certa e não deste segundo. Dizer quando foi contado evita que se leia
+           como estando parado. -->
+      <p class="dash-rodape" *ngIf="totais() as tt">
+        Acumulados contados às {{ tt.calculado | date: 'HH:mm' }}.
+      </p>
+      <p class="dash-rodape" *ngIf="!totais() && aContarTotais()">
+        A contar os acumulados — são dezenas de milhões de linhas e demora até dois minutos.
+      </p>
     </section>
 
     <!-- ── Filtros ── -->
@@ -69,18 +87,22 @@
             type="date"
             [(ngModel)]="data"
             (change)="irPara(1)"
-            [disabled]="!!mpsid.trim() || !!volume.trim()"
+            [disabled]="!!numero.trim()"
           />
         </label>
 
-        <label class="campo">
-          <span>MPS ID</span>
-          <input type="text" [(ngModel)]="mpsid" (keyup.enter)="irPara(1)" placeholder="número exato" />
+        <label class="campo campo--largo">
+          <span>MPS ID ou nº de volume</span>
+          <input type="text" [(ngModel)]="numero" (keyup.enter)="irPara(1)" placeholder="número exato" />
         </label>
 
         <label class="campo">
-          <span>Nº de volume</span>
-          <input type="text" [(ngModel)]="volume" (keyup.enter)="irPara(1)" placeholder="número exato" />
+          <span>Sentido</span>
+          <select [(ngModel)]="sentido" (change)="irPara(1)">
+            <option value="">IN e OUT</option>
+            <option value="entrada">Só IN (recebidos)</option>
+            <option value="saida">Só OUT (enviados)</option>
+          </select>
         </label>
 
         <label class="campo">
@@ -106,12 +128,13 @@
         </div>
       </div>
 
-      <p class="barra-nota" *ngIf="mpsid.trim() || volume.trim()">
-        A procurar em todas as datas — o MPS ID e o número de volume chegam para encontrar o envio.
+      <p class="barra-nota" *ngIf="numero.trim()">
+        A procurar em todas as datas, dos dois lados. O número tanto pode ser a guia como um
+        volume — o resultado é sempre o envio inteiro a que ele pertence.
       </p>
       <!-- A data é o filtro caro: a coluna da receção não tem índice e entram ~80 mil
            SHPNOTs por dia. Dizer isto antes evita que a espera pareça uma avaria. -->
-      <p class="barra-nota" *ngIf="data && !mpsid.trim() && !volume.trim()">
+      <p class="barra-nota" *ngIf="data && !numero.trim()">
         Filtrar por data percorre toda a tabela e pode demorar um minuto. Sem data, a listagem
         mostra os últimos a entrar e é imediata.
       </p>
@@ -174,6 +197,10 @@
                 *ngIf="l.flagAs400"
                 [title]="(l.sentido === 'saida' ? 'FLAGENV = ' : 'FLAGAS400 = ') + l.flagAs400"
               >{{ l.flagAs400 }}</span>
+              <!-- Quando falhou, o motivo fica na própria linha: é a primeira pergunta de
+                   quem vê um erro, e obrigá-lo a abrir o envio para a responder é perder
+                   um clique por cada linha da lista. -->
+              <span class="motivo" *ngIf="l.erro" [title]="l.erro">{{ l.erro }}</span>
             </td>
           </tr>
 
@@ -242,6 +269,10 @@
       </dl>
     </header>
 
+    <div class="mensagem mensagem--erro" *ngIf="d.resumo.erro">
+      <strong>Falhou:</strong> {{ d.resumo.erro }}
+    </div>
+
     <p class="detalhe-ajuda">
       Passe o rato sobre um campo para ver o nome que tem no JSON recebido, a tabela e coluna
       onde está guardado, e o nome com que segue para o AS400.
@@ -295,13 +326,13 @@
       <div class="colecao" *ngIf="bloco.colecao">
         <div class="colecao-linha" *ngFor="let linha of bloco.linhas; let i = index">
           <button type="button" class="colecao-cabecalho" (click)="alternarLinha(linha.id)">
-            <span class="colecao-seta" [class.colecao-seta--aberta]="linhaAberta() === linha.id">▸</span>
+            <span class="colecao-seta" [class.colecao-seta--aberta]="linhaAberta(linha.id)">▸</span>
             <span class="colecao-rotulo">
               {{ bloco.titulo }} {{ linha.rotulo || i + 1 }}
             </span>
           </button>
 
-          <div class="colecao-corpo" *ngIf="linhaAberta() === linha.id">
+          <div class="colecao-corpo" *ngIf="linhaAberta(linha.id)">
             <dl class="campos">
               <div class="campo-ficha" *ngFor="let c of linha.campos" [title]="hint(c)">
                 <dt>

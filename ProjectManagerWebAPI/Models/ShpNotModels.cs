@@ -100,6 +100,14 @@ public sealed record ShpNotResumo
     public string Estado { get; init; } = "";
     public DateTime? Recebido { get; init; }
     public DateTime? ProcessadoAs400 { get; init; }
+
+    /// <summary>
+    /// O que falhou, quando falhou. Só os SHPNOTs que enviamos o sabem dizer: a
+    /// <c>GEODT01SPN</c> guarda a resposta do serviço em <c>RESPSERV</c> ("FALTA DADOS", o
+    /// erro devolvido pelo Geopost). Do lado da receção não há texto nenhum — o
+    /// IntegratorAS400 marca a letra E e a data, e mais nada, por isso aqui vem vazio.
+    /// </summary>
+    public string? Erro { get; init; }
 }
 
 public sealed record ShpNotDetalhe
@@ -162,4 +170,19 @@ public sealed record FiltroShpNot(
     string? Estado,
     string? RespServ,
     int Pagina,
-    int Tamanho);
+    int Tamanho,
+    /// <summary>Vazio traz os dois lados; senão só o que recebemos ou só o que enviamos.</summary>
+    string? Sentido = null);
+
+/// <summary>
+/// Os acumulados de sucesso das duas pontas. Vêm à parte do resto porque são caros: contar
+/// os 51 milhões de envios entregues ao Geopost leva perto de um minuto e meio, e os 12
+/// milhões integrados no AS400 meio minuto. Bloquear a entrada no ecrã por causa deles seria
+/// pagar esse tempo sempre, e são números que mudam devagar.
+/// </summary>
+public sealed record TotaisShpNot
+{
+    public long Integrados { get; init; }
+    public long Enviados { get; init; }
+    public DateTime Calculado { get; init; }
+}

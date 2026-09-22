@@ -9,6 +9,8 @@ namespace ProjectManagerWebAPI.Services;
 public interface IShpNotSaidaRepository
 {
     Task<FilaSaida> FilaAsync(CancellationToken ct);
+    /// <summary>Quantos foram entregues ao Geopost. Consulta cara — ver TotaisShpNot.</summary>
+    Task<long> TotalEnviadosAsync(CancellationToken ct);
     Task<List<ShpNotResumo>> ProcurarAsync(FiltroShpNot filtro, CancellationToken ct);
     Task<ShpNotDetalhe?> ObterAsync(long idt, CancellationToken ct);
 }
@@ -126,10 +128,27 @@ public class ShpNotSaidaRepository : IShpNotSaidaRepository
     }
 
     /// <summary>
+    /// Quantos envios já foram entregues ao Geopost. O <c>case when</c> parece inútil e não
+    /// é — ver <see cref="ContarAsync"/>.
+    /// </summary>
+    public async Task<long> TotalEnviadosAsync(CancellationToken ct)
+    {
+        await using var ligacao = await AbrirAsync(ct);
+        // Minuto e meio de índice. O tempo limite normal não chega, e quem chama isto já
+        // sabe que é uma conta de fundo, não um número de ecrã.
+        await using var cmd = new OracleCommand(
+            $"select count(*) from {Envios} where (case when FLAGENV = 'Y' then 'Y' end) = 'Y'",
+            ligacao)
+        { CommandTimeout = 300 };
+
+        return Convert.ToInt64(await cmd.ExecuteScalarAsync(ct));
+    }
+
+    /// <summary>
     /// Conta uma fila do scan ou do despacho. O <c>case when</c> parece inútil e não é: os
-    /// índices destas duas colunas são de expressão, criados exactamente com esta forma, e
-    /// um simples <c>{coluna} = 'P'</c> não lhes toca — varre a tabela inteira e estoira no
-    /// tempo limite. É a mesma escrita que a consola de envio usa.
+    /// índices destas colunas são de expressão, criados exactamente com esta forma, e um
+    /// simples <c>coluna = 'P'</c> não lhes toca — varre a tabela inteira e estoira no tempo
+    /// limite. É a mesma escrita que a consola de envio usa.
     /// </summary>
     private async Task<int> ContarAsync(OracleConnection ligacao, string coluna, CancellationToken ct)
     {
@@ -145,22 +164,21 @@ public class ShpNotSaidaRepository : IShpNotSaidaRepository
         var onde = new StringBuilder("1 = 1");
         var parametros = new List<OracleParameter>();
 
-        if (!string.IsNullOrWhiteSpace(filtro.MpsId))
+        var numero = (filtro.MpsId ?? filtro.Volume)?.Trim();
+
+        if (!string.IsNullOrWhiteSpace(numero))
         {
+            // O mesmo que do lado da receção: o número tanto pode ser a guia-mãe como um dos
+            // volumes, e devolve-se sempre a guia — aqui a ligação faz-se por MPSMASTER.
+            //
             // Sem trim e sem upper, de propósito: MPSIDX tem índice e qualquer função à volta
             // da coluna deita-o fora. Medido: 2 s assim, 3m40s com trim(MPSIDX).
-            onde.Append(" and MPSIDX = :mpsid");
-            parametros.Add(new OracleParameter("mpsid", OracleDbType.Varchar2,
-                filtro.MpsId.Trim(), ParameterDirection.Input));
-        }
-
-        if (!string.IsNullOrWhiteSpace(filtro.Volume))
-        {
             onde.Append($"""
-                 and MPSIDX in (select MPSMASTER from {Volumes} where MPSID = :volume)
+                 and (MPSIDX = :numero
+                      or MPSIDX in (select MPSMASTER from {Volumes} where MPSID = :numero))
                 """);
-            parametros.Add(new OracleParameter("volume", OracleDbType.Varchar2,
-                filtro.Volume.Trim(), ParameterDirection.Input));
+            parametros.Add(new OracleParameter("numero", OracleDbType.Varchar2,
+                numero, ParameterDirection.Input));
         }
 
         if (filtro.Dia is { } dia)
@@ -182,7 +200,7 @@ public class ShpNotSaidaRepository : IShpNotSaidaRepository
         var sql = $"""
             select * from (
               select IDT, MPSIDX, MPSCOUNTX, FLAGENV, DATAHORAENV, DATAHORA_INSERT, TIPOSHP,
-                     SNAME1X, SCOMPNAMEX, RNAME1X, RCOMPNAMEX, RCOUNTRYCX
+                     RESPSERV, SNAME1X, SCOMPNAMEX, RNAME1X, RCOMPNAMEX, RCOUNTRYCX
                 from {Envios}
                where {onde}
                order by DATAHORA_INSERT desc
@@ -214,6 +232,9 @@ public class ShpNotSaidaRepository : IShpNotSaidaRepository
                 Estado = Estado(flag),
                 Recebido = ShpNotRepository.DataPublica(leitor["DATAHORA_INSERT"]),
                 ProcessadoAs400 = ShpNotRepository.DataPublica(leitor["DATAHORAENV"]),
+                // A resposta do serviço só interessa quando correu mal: nos outros casos é
+                // o "OK" de sempre e só roubava espaço à linha.
+                Erro = Estado(flag) == "erro" ? Texto(leitor["RESPSERV"]) : null,
             });
         }
 
@@ -334,6 +355,7 @@ public class ShpNotSaidaRepository : IShpNotSaidaRepository
                 Volumes = int.TryParse(Texto(linha.GetValueOrDefault("MPSCOUNTX")), out var v) ? v : null,
                 Recebido = ShpNotRepository.DataPublica(linha.GetValueOrDefault("DATAHORA_INSERT")),
                 ProcessadoAs400 = ShpNotRepository.DataPublica(linha.GetValueOrDefault("DATAHORAENV")),
+                Erro = Estado(flag) == "erro" ? Texto(linha.GetValueOrDefault("RESPSERV")) : null,
             },
             Abas = abas,
         };

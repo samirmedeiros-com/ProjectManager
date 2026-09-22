@@ -67,6 +67,15 @@ export interface ShpNotResumo {
   estado: EstadoShpNot;
   recebido: string | null;
   processadoAs400: string | null;
+  /** O motivo da falha. Só os envios de saída o guardam — ver o comentário no backend. */
+  erro: string | null;
+}
+
+/** Os acumulados de sucesso, que vêm num pedido à parte por serem caros de contar. */
+export interface TotaisShpNot {
+  integrados: number;
+  enviados: number;
+  calculado: string;
 }
 
 export interface ShpNotDetalhe {
@@ -132,6 +141,7 @@ export class ShpNotService {
     volume?: string;
     estado?: string;
     respserv?: string;
+    sentido?: string;
     pagina: number;
     tamanho: number;
   }): Observable<FatiaShpNot> {
@@ -144,8 +154,14 @@ export class ShpNotService {
     if (filtro.volume?.trim()) params = params.set('volume', filtro.volume.trim());
     if (filtro.estado) params = params.set('estado', filtro.estado);
     if (filtro.respserv?.trim()) params = params.set('respserv', filtro.respserv.trim());
+    if (filtro.sentido) params = params.set('sentido', filtro.sentido);
 
     return this.http.get<FatiaShpNot>(this.api, { headers: this.cabecalhos, params });
+  }
+
+  /** Os acumulados. Pedido à parte porque demora — o ecrã não espera por ele. */
+  totais(): Observable<TotaisShpNot> {
+    return this.http.get<TotaisShpNot>(`${this.api}/totais`, { headers: this.cabecalhos });
   }
 
   /** O detalhe vem de sítios diferentes conforme o sentido: são bases e tabelas distintas. */

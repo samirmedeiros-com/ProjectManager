@@ -13,6 +13,8 @@ public class ShpNotException(string message) : Exception(message);
 public interface IShpNotRepository
 {
     Task<ShpNotEstatisticas> EstatisticasAsync(CancellationToken ct);
+    /// <summary>Quantos já foram integrados no AS400. Consulta cara — ver TotaisShpNot.</summary>
+    Task<long> TotalIntegradosAsync(CancellationToken ct);
     Task<FatiaShpNot> ProcurarAsync(FiltroShpNot filtro, CancellationToken ct);
     Task<ShpNotDetalhe?> ObterAsync(long idt, CancellationToken ct);
 }
@@ -123,6 +125,18 @@ public class ShpNotRepository : IShpNotRepository
         };
     }
 
+    public async Task<long> TotalIntegradosAsync(CancellationToken ct)
+    {
+        await using var ligacao = await AbrirAsync(ct);
+        // Meio minuto a percorrer o índice da FLAGAS400. É uma conta de fundo, não um número
+        // que se possa esperar de pé à entrada do ecrã.
+        await using var cmd = new OracleCommand(
+            $"select count(*) from {_esquema}.SHPNOTIN where FLAGAS400 = 'Y'", ligacao)
+        { CommandTimeout = 300 };
+
+        return Convert.ToInt64(await cmd.ExecuteScalarAsync(ct));
+    }
+
     // ---------------------------------------------------------------- listagem
 
     public async Task<FatiaShpNot> ProcurarAsync(FiltroShpNot filtro, CancellationToken ct)
@@ -140,32 +154,28 @@ public class ShpNotRepository : IShpNotRepository
             parametros.Add(new OracleParameter("fim", OracleDbType.Date, dia.Date.AddDays(1), ParameterDirection.Input));
         }
 
-        if (!string.IsNullOrWhiteSpace(filtro.MpsId))
-        {
-            // O MPS ID está na SHIPMENTINFOS, que só entra na consulta <b>depois</b> do corte
-            // do ROWNUM — aqui dentro não há junta nenhuma. Por isso o filtro desce à tabela
-            // por si: procura-se o ID do envio e compara-se com a chave que a SHPNOTIN guarda.
-            // É exacto e não `like`: a coluna não tem índice, e um `like '%...%'` sobre
-            // milhões de linhas nunca mais acabava.
-            onde.Append($"""
-                 and shp.SHIPMENTINFOSID in (
-                     select ID from {_esquema}.SHIPMENTINFOS where MPSID = :mpsid)
-                """);
-            parametros.Add(new OracleParameter("mpsid", OracleDbType.NVarchar2,
-                filtro.MpsId.Trim(), ParameterDirection.Input));
-        }
+        var numero = (filtro.MpsId ?? filtro.Volume)?.Trim();
 
-        if (!string.IsNullOrWhiteSpace(filtro.Volume))
+        if (!string.IsNullOrWhiteSpace(numero))
         {
-            // Procurar pelo número do volume obriga a descer aos volumes. Não há índice em
-            // PARCELINFOS.PARCELNUMBER: é uma pesquisa cara e por isso é exacta, sem like.
+            // Um número só, duas leituras possíveis: pode ser a guia-mãe (o MPS ID do envio)
+            // ou o número de um dos volumes. Procura-se pelas duas e devolve-se sempre o
+            // envio inteiro — quem tem na mão a etiqueta de um volume quer ver o conjunto a
+            // que ele pertence, não o volume sozinho.
+            //
+            // Nenhum dos ramos está dentro do corte por acaso: ambos comparam por igualdade
+            // sobre colunas que a base sabe procurar (~18 s pela guia, ~5 s pelo volume). Um
+            // `like` aqui seria minutos.
             onde.Append($"""
-                 and exists (select 1 from {_esquema}.PARCEL p
-                              join {_esquema}.PARCELINFOS pi on pi.ID = p.PARCELINFOSID
-                             where p.SHPNOTID = shp.ID and pi.PARCELNUMBER = :volume)
+                 and (shp.SHIPMENTINFOSID in (
+                          select ID from {_esquema}.SHIPMENTINFOS where MPSID = :numero)
+                      or shp.ID in (
+                          select p.SHPNOTID from {_esquema}.PARCEL p
+                            join {_esquema}.PARCELINFOS pi on pi.ID = p.PARCELINFOSID
+                           where pi.PARCELNUMBER = :numero))
                 """);
-            parametros.Add(new OracleParameter("volume", OracleDbType.NVarchar2,
-                filtro.Volume.Trim(), ParameterDirection.Input));
+            parametros.Add(new OracleParameter("numero", OracleDbType.NVarchar2,
+                numero, ParameterDirection.Input));
         }
 
         if (!string.IsNullOrWhiteSpace(filtro.RespServ))

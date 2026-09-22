@@ -418,3 +418,19 @@
 .marca--out { background: var(--amber-50); color: var(--amber-800); border-color: var(--amber-500); }
 
 .dash-cabecalho--segundo { margin-top: 18px; }
+
+.campo--largo { min-width: 230px; }
+.dash-rodape { margin-top: 10px; color: var(--text-3); font-size: 12px; }
+
+/* O motivo da falha, ao lado do estado. Trunca-se: há respostas de serviço com parágrafos. */
+.motivo {
+  display: inline-block;
+  max-width: 260px;
+  margin-left: 6px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: bottom;
+  color: var(--coral-800);
+  font-size: 11px;
+}

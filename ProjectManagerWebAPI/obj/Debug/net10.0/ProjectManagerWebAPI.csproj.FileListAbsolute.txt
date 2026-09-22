@@ -1017,3 +1017,4 @@
 /Users/samirmedeiros/Documents/GitHub/ProjectManager/ProjectManagerWebAPI/obj/Debug/net10.0/ikvm/stage/1/adedcdc94cb9fe04c8df832bfce44d33/jt400.dll
 /Users/samirmedeiros/Documents/GitHub/ProjectManager/ProjectManagerWebAPI/obj/Debug/net10.0/ikvm/stage/1/adedcdc94cb9fe04c8df832bfce44d33/jt400.dll.rsp
 /Users/samirmedeiros/Documents/GitHub/ProjectManager/ProjectManagerWebAPI/obj/Debug/net10.0/ikvm/stage/1/adedcdc94cb9fe04c8df832bfce44d33/jt400.dll.log
+/Users/samirmedeiros/Documents/GitHub/ProjectManager/ProjectManagerWebAPI/bin/Debug/net10.0/Data/ShpNot/shpnot-campos.json
