@@ -1,1 +1,21 @@
-/* You can add global styles to this file, and also import other style files */
+/* Estilos globais.
+   Até aqui este ficheiro estava vazio, e por isso valia a margem de 8px que o browser
+   põe no <body> por omissão. Qualquer ecrã com `min-height: 100vh` — o login, a Gestão
+   de Dados, o mural — media 100vh mais os 16px dessa margem, e a janela ficava com uma
+   barra de deslocamento que não tinha para onde ir.
+
+   Os componentes desenham as suas próprias margens; o que o browser acrescenta por fora
+   não é de ninguém. */
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+}
+
+/* O <app-root> é um elemento desconhecido para o browser, logo inline: sem isto, o espaço
+   entre linhas de texto acrescenta uns pixels por baixo dos ecrãs que ocupam a altura toda. */
+app-root {
+  display: block;
+}
