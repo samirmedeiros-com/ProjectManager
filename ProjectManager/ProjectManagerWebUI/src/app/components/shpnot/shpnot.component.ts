@@ -210,28 +210,57 @@ export class ShpNotComponent {
   }
 
   /**
-   * Copia a chave. O clique não pode subir para a linha, senão copiar abria o envio ao mesmo
-   * tempo. Se o browser recusar a área de transferência — acontece fora de HTTPS —, o valor
-   * fica selecionado no ecrã para se copiar à mão, em vez de não acontecer nada.
+   * Copia a chave para a área de transferência.
+   *
+   * <p><b>Este ecrã corre em HTTP</b>, e fora de um contexto seguro o browser nem sequer
+   * expõe o `navigator.clipboard` — não é uma recusa que se apanhe num catch, é o objeto
+   * não existir. Por isso o caminho normal aqui é o antigo: um campo de texto fora do ecrã,
+   * selecionado, e `execCommand('copy')`, que continua a funcionar sem HTTPS. A API moderna
+   * fica como preferência para quando o ecrã passar a ser servido em HTTPS.</p>
+   *
+   * <p>O clique não pode subir para a linha, senão copiar abria o envio ao mesmo tempo.</p>
    */
   copiar(linha: ShpNotResumo, evento: MouseEvent): void {
     evento.stopPropagation();
     const chave = this.chaveDe(linha);
 
-    navigator.clipboard?.writeText(chave).then(
-      () => {
-        this.copiado.set(chave);
-        setTimeout(() => this.copiado.set(null), 2000);
-      },
-      () => {
-        const alvo = evento.target as HTMLElement;
-        const intervalo = document.createRange();
-        intervalo.selectNodeContents(alvo);
-        const selecao = window.getSelection();
-        selecao?.removeAllRanges();
-        selecao?.addRange(intervalo);
-      },
-    );
+    const anunciar = () => {
+      this.copiado.set(chave);
+      setTimeout(() => this.copiado.set(null), 2000);
+    };
+
+    if (window.isSecureContext && navigator.clipboard) {
+      navigator.clipboard.writeText(chave).then(anunciar, () => {
+        if (this.copiarPorCampo(chave)) anunciar();
+      });
+      return;
+    }
+
+    if (this.copiarPorCampo(chave)) anunciar();
+  }
+
+  /**
+   * O modo antigo de copiar: um textarea fora de vista, selecionado e copiado pelo comando
+   * de edição do browser. Devolve se resultou.
+   */
+  private copiarPorCampo(texto: string): boolean {
+    const campo = document.createElement('textarea');
+    campo.value = texto;
+    // Fora de vista mas dentro do documento — um campo escondido não se consegue selecionar.
+    campo.setAttribute('readonly', '');
+    campo.style.position = 'fixed';
+    campo.style.top = '-1000px';
+    document.body.appendChild(campo);
+
+    try {
+      campo.select();
+      campo.setSelectionRange(0, texto.length);
+      return document.execCommand('copy');
+    } catch {
+      return false;
+    } finally {
+      document.body.removeChild(campo);
+    }
   }
 
   /**
