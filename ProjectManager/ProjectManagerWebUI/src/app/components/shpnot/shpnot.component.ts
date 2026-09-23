@@ -1,12 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, computed, signal } from '@angular/core';
+import { Component, computed, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
   AbaShpNot,
   CampoShpNot,
   NoShpNot,
   ShpNotDetalhe,
-  ShpNotEstatisticas,
   ShpNotResumo,
   ShpNotService,
 } from '../../services/shpnot.service';
@@ -18,7 +17,7 @@ import {
   templateUrl: './shpnot.component.html',
   styleUrls: ['./shpnot.component.scss'],
 })
-export class ShpNotComponent implements OnInit {
+export class ShpNotComponent {
   // ------------------------------------------------------------- filtros
   /**
    * Vazia por omissão: a listagem abre nos últimos a entrar, que saem pelo índice do IDT.
@@ -38,8 +37,6 @@ export class ShpNotComponent implements OnInit {
   readonly tamanhosPagina = [10, 50, 100];
 
   // ------------------------------------------------------------- estado
-  estatisticas = signal<ShpNotEstatisticas | null>(null);
-
   linhas = signal<ShpNotResumo[]>([]);
   haMais = signal(false);
   pagina = signal(1);
@@ -63,10 +60,6 @@ export class ShpNotComponent implements OnInit {
   procurou = signal(false);
 
   constructor(private servico: ShpNotService) {}
-
-  ngOnInit(): void {
-    this.carregar();
-  }
 
   // ------------------------------------------------------------ derivados
 
@@ -116,19 +109,6 @@ export class ShpNotComponent implements OnInit {
 
   // ------------------------------------------------------------ pesquisa
 
-  /**
-   * Ao entrar só se pedem os totais. A listagem espera por uma procura: sem filtro nenhum
-   * ela traria os últimos a entrar, que não são os de ninguém em particular — e cada pedido
-   * destes atravessa uma tabela de milhões de linhas.
-   */
-  carregar(): void {
-    this.servico.estatisticas().subscribe({
-      next: (e) => this.estatisticas.set(e),
-      error: () => this.estatisticas.set(null),
-    });
-
-  }
-
   procurar(): void {
     this.aCarregar.set(true);
     this.erro.set('');
@@ -173,7 +153,6 @@ export class ShpNotComponent implements OnInit {
     this.procurou.set(false);
     this.erro.set('');
     this.pagina.set(1);
-    this.carregar();
   }
 
   irPara(p: number): void {
@@ -254,11 +233,6 @@ export class ShpNotComponent implements OnInit {
     return `Não foi possível ${oQue}` +
       (e?.status ? ` (${e.status})` : '') +
       (detalhe ? `: ${detalhe}` : '.');
-  }
-
-  /** A data de hoje, para o rodapé dos cartões. */
-  hoje(): Date {
-    return new Date();
   }
 
   private hojeIso(): string {

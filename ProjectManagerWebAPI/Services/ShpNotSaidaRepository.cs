@@ -8,7 +8,6 @@ namespace ProjectManagerWebAPI.Services;
 
 public interface IShpNotSaidaRepository
 {
-    Task<FilaSaida> FilaAsync(CancellationToken ct);
     Task<List<ShpNotResumo>> ProcurarAsync(FiltroShpNot filtro, CancellationToken ct);
     Task<ShpNotDetalhe?> ObterAsync(long idt, CancellationToken ct);
 }
@@ -79,61 +78,6 @@ public class ShpNotSaidaRepository : IShpNotSaidaRepository
 
     private OracleCommand Comando(OracleConnection ligacao, string sql) =>
         new(sql, ligacao) { CommandTimeout = _timeout, BindByName = true };
-
-    // ---------------------------------------------------------------- fila
-
-    public async Task<FilaSaida> FilaAsync(CancellationToken ct)
-    {
-        await using var ligacao = await AbrirAsync(ct);
-
-        // Tudo do dia de hoje e numa consulta só. A data tem índice (IDX_GEODT01SPN_TV
-        // começa por DATAHORA_INSERT), por isso a janela do dia é uma leitura curta e as
-        // três filas saem dela sem custo adicional.
-        int pendentes = 0, erros = 0, entregues = 0, scan = 0, despacho = 0;
-        await using (var cmd = Comando(ligacao, $"""
-            select nvl(FLAGENV, ' ') flag, count(*) quantos,
-                   sum(case when FLAGENV_SCAN = 'P' then 1 else 0 end) por_scan,
-                   sum(case when FLAGENV_DESP = 'P' then 1 else 0 end) por_despachar
-              from {Envios}
-             where DATAHORA_INSERT >= trunc(sysdate)
-             group by nvl(FLAGENV, ' ')
-            """))
-        await using (var leitor = await cmd.ExecuteReaderAsync(ct))
-        {
-            while (await leitor.ReadAsync(ct))
-            {
-                var quantos = Convert.ToInt32(leitor.GetValue(1));
-                scan += Convert.ToInt32(leitor.GetValue(2));
-                despacho += Convert.ToInt32(leitor.GetValue(3));
-
-                switch (leitor.GetString(0).Trim().ToUpperInvariant())
-                {
-                    case "Y": entregues += quantos; break;
-                    case "E": erros += quantos; break;
-                    default: pendentes += quantos; break;
-                }
-            }
-        }
-
-        DateTime? ultimo = null;
-        await using (var cmd = Comando(ligacao, $"""
-            select max(DATAHORA_INSERT) from {Envios}
-             where DATAHORA_INSERT > sysdate - 2
-            """))
-        {
-            ultimo = ShpNotRepository.DataPublica(await cmd.ExecuteScalarAsync(ct));
-        }
-
-        return new FilaSaida
-        {
-            Pendentes = pendentes,
-            Erros = erros,
-            SucessoHoje = entregues,
-            PendentesScan = scan,
-            PendentesDespacho = despacho,
-            UltimoInserido = ultimo,
-        };
-    }
 
     // ---------------------------------------------------------------- pesquisa
 

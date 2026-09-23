@@ -76,32 +76,6 @@ export interface ShpNotDetalhe {
   abas: AbaShpNot[];
 }
 
-/**
- * O estado da fila para o AS400 — e não um resumo do dia. Contar os envios de um dia obriga
- * a varrer a tabela toda (DATAINSERT não tem índice e entram ~80 mil por dia); estes números
- * saem por índice em dois segundos.
- */
-export interface ShpNotEstatisticas {
-  pendentes: number;
-  erros: number;
-  /** Integrados hoje — e não o acumulado, que custa meio minuto a contar. */
-  sucessoHoje: number;
-  ultimoRecebido: string | null;
-  ultimoIdt: number | null;
-  saida: FilaSaida | null;
-}
-
-/** A fila do que temos para enviar ao Geopost. São três filas sobre a mesma linha. */
-export interface FilaSaida {
-  pendentes: number;
-  erros: number;
-  /** Entregues ao Geopost hoje. */
-  sucessoHoje: number;
-  pendentesScan: number;
-  pendentesDespacho: number;
-  ultimoInserido: string | null;
-}
-
 /** Uma fatia da listagem. Não há total: só se sabe se existe página seguinte. */
 export interface FatiaShpNot {
   itens: ShpNotResumo[];
@@ -124,12 +98,6 @@ export class ShpNotService {
    */
   private get cabecalhos(): HttpHeaders {
     return new HttpHeaders({ Authorization: `Bearer ${this.auth.getToken() ?? ''}` });
-  }
-
-  estatisticas(): Observable<ShpNotEstatisticas> {
-    return this.http.get<ShpNotEstatisticas>(`${this.api}/estatisticas`, {
-      headers: this.cabecalhos,
-    });
   }
 
   procurar(filtro: {

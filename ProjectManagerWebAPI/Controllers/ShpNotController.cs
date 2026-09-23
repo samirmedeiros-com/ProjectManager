@@ -20,15 +20,6 @@ public class ShpNotController(
     IShpNotSaidaRepository saida,
     ILogger<ShpNotController> logger) : ControllerBase
 {
-    /// <summary>As duas filas: a da integração no AS400 e a do envio ao Geopost.</summary>
-    [HttpGet("estatisticas")]
-    public Task<ActionResult<ShpNotEstatisticas>> Estatisticas(CancellationToken ct)
-        => ExecutarAsync(async () =>
-        {
-            var entrada = await repositorio.EstatisticasAsync(ct);
-            return entrada with { Saida = await saida.FilaAsync(ct) };
-        }, "obter o estado das filas");
-
     /// <summary>Pesquisa paginada dos SHPNOTs recebidos.</summary>
     [HttpGet]
     public Task<ActionResult<FatiaShpNot>> Procurar(

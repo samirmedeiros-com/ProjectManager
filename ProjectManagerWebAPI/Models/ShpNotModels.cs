@@ -117,49 +117,6 @@ public sealed record ShpNotDetalhe
 }
 
 /// <summary>
-/// Os cartões do topo: o estado da fila para o AS400, não um resumo do dia.
-///
-/// <para>É de propósito. Contar os SHPNOTs de um dia obriga a varrer a tabela inteira —
-/// <c>DATAINSERT</c> não tem índice e entram ~80 mil envios por dia —, enquanto
-/// <c>FLAGAS400</c> tem índice e os dois valores que interessam (por integrar e com erro)
-/// são poucas centenas. Os números que aqui aparecem custam dois segundos; os do dia
-/// custavam minutos e diziam menos.</para>
-/// </summary>
-public sealed record ShpNotEstatisticas
-{
-    public int Pendentes { get; init; }
-    public int Erros { get; init; }
-    /// <summary>Integrados no AS400 hoje. Ver a nota em <see cref="FilaSaida.SucessoHoje"/>.</summary>
-    public int SucessoHoje { get; init; }
-    /// <summary>O último SHPNOT que entrou — diz de relance se a receção está viva.</summary>
-    public DateTime? UltimoRecebido { get; init; }
-    public long? UltimoIdt { get; init; }
-
-    /// <summary>
-    /// A fila de saída: os SHPNOTs que temos para enviar ao Geopost, da GEODT01SPN.
-    /// São três filas independentes sobre a mesma linha — o envio do SHPNOT, o depot
-    /// scanning e o dispatcher —, cada uma com a sua letra e a sua data.
-    /// </summary>
-    public FilaSaida? Saida { get; init; }
-}
-
-public sealed record FilaSaida
-{
-    public int Pendentes { get; init; }
-    public int Erros { get; init; }
-
-    /// <summary>
-    /// Entregues ao Geopost <b>hoje</b>, e não desde sempre. O acumulado de todos os tempos
-    /// são 51 milhões de linhas e custa minuto e meio a contar; o do dia custa segundos e é
-    /// o que diz se o envio está a correr agora.
-    /// </summary>
-    public int SucessoHoje { get; init; }
-    public int PendentesScan { get; init; }
-    public int PendentesDespacho { get; init; }
-    public DateTime? UltimoInserido { get; init; }
-}
-
-/// <summary>
 /// Uma fatia da listagem. Não traz total: sabê-lo obrigaria a contar tudo o que o filtro
 /// apanha antes de mostrar as dez primeiras linhas, e é isso que torna a consulta lenta.
 /// <see cref="HaMais"/> chega para paginar.

@@ -12,7 +12,6 @@ public class ShpNotException(string message) : Exception(message);
 
 public interface IShpNotRepository
 {
-    Task<ShpNotEstatisticas> EstatisticasAsync(CancellationToken ct);
     Task<FatiaShpNot> ProcurarAsync(FiltroShpNot filtro, CancellationToken ct);
     Task<ShpNotDetalhe?> ObterAsync(long idt, CancellationToken ct);
 }
@@ -69,64 +68,6 @@ public class ShpNotRepository : IShpNotRepository
 
     private OracleCommand Comando(OracleConnection ligacao, string sql) =>
         new(sql, ligacao) { CommandTimeout = _timeout, BindByName = true };
-
-    // ---------------------------------------------------------------- cartões do topo
-
-    public async Task<ShpNotEstatisticas> EstatisticasAsync(CancellationToken ct)
-    {
-        // Tudo do dia de hoje, e numa consulta só: uma passagem pela tabela dá os três
-        // números. Separá-los por estado custava três passagens para o mesmo trabalho.
-        var sql = $"""
-            select nvl(FLAGAS400, ' ') flag, count(*) quantos
-              from {_esquema}.SHPNOTIN
-             where DATAINSERT >= trunc(sysdate)
-             group by nvl(FLAGAS400, ' ')
-            """;
-
-        await using var ligacao = await AbrirAsync(ct);
-
-        int pendentes = 0, erros = 0, integrados = 0;
-        await using (var cmd = Comando(ligacao, sql))
-        await using (var leitor = await cmd.ExecuteReaderAsync(ct))
-        {
-            while (await leitor.ReadAsync(ct))
-            {
-                var flag = leitor.GetString(0).Trim().ToUpperInvariant();
-                var quantos = Convert.ToInt32(leitor.GetValue(1));
-                switch (flag)
-                {
-                    case "Y": integrados += quantos; break;
-                    case "E": erros += quantos; break;
-                    default: pendentes += quantos; break;
-                }
-            }
-        }
-
-        // O último a entrar, pela chave indexada — max(DATAINSERT) varria a tabela inteira.
-        long? ultimoIdt = null;
-        DateTime? ultimoRecebido = null;
-        await using (var cmd = Comando(ligacao, $"""
-            select IDT, DATAINSERT from {_esquema}.SHPNOTIN
-             where IDT = (select max(IDT) from {_esquema}.SHPNOTIN)
-            """))
-        await using (var leitor = await cmd.ExecuteReaderAsync(ct))
-        {
-            if (await leitor.ReadAsync(ct))
-            {
-                ultimoIdt = Convert.ToInt64(leitor.GetValue(0));
-                ultimoRecebido = Data(leitor.GetValue(1));
-            }
-        }
-
-        return new ShpNotEstatisticas
-        {
-            Pendentes = pendentes,
-            Erros = erros,
-            SucessoHoje = integrados,
-            UltimoIdt = ultimoIdt,
-            UltimoRecebido = ultimoRecebido,
-        };
-    }
 
     // ---------------------------------------------------------------- listagem
 
