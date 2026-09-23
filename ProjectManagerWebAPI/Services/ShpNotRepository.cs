@@ -74,19 +74,18 @@ public class ShpNotRepository : IShpNotRepository
 
     public async Task<ShpNotEstatisticas> EstatisticasAsync(CancellationToken ct)
     {
-        // Só 'N' e 'E': são os valores raros da coluna, e o índice SHPNOTIN_DBA resolve-os
-        // em segundos. Contar os 'Y' seria contar a tabela toda, milhões de linhas, para
-        // devolver um número que ninguém usa.
+        // Tudo do dia de hoje, e numa consulta só: uma passagem pela tabela dá os três
+        // números. Separá-los por estado custava três passagens para o mesmo trabalho.
         var sql = $"""
-            select FLAGAS400 flag, count(*) quantos
+            select nvl(FLAGAS400, ' ') flag, count(*) quantos
               from {_esquema}.SHPNOTIN
-             where FLAGAS400 in ('N', 'E')
-             group by FLAGAS400
+             where DATAINSERT >= trunc(sysdate)
+             group by nvl(FLAGAS400, ' ')
             """;
 
         await using var ligacao = await AbrirAsync(ct);
 
-        int pendentes = 0, erros = 0;
+        int pendentes = 0, erros = 0, integrados = 0;
         await using (var cmd = Comando(ligacao, sql))
         await using (var leitor = await cmd.ExecuteReaderAsync(ct))
         {
@@ -94,7 +93,12 @@ public class ShpNotRepository : IShpNotRepository
             {
                 var flag = leitor.GetString(0).Trim().ToUpperInvariant();
                 var quantos = Convert.ToInt32(leitor.GetValue(1));
-                if (flag == "E") erros += quantos; else pendentes += quantos;
+                switch (flag)
+                {
+                    case "Y": integrados += quantos; break;
+                    case "E": erros += quantos; break;
+                    default: pendentes += quantos; break;
+                }
             }
         }
 
@@ -114,21 +118,11 @@ public class ShpNotRepository : IShpNotRepository
             }
         }
 
-        // Integrados hoje, e não desde sempre: o acumulado são 12 milhões de linhas e meio
-        // minuto de espera; o do dia custa segundos e é o que diz se a integração anda.
-        int hoje;
-        await using (var cmd = Comando(ligacao,
-            $"select count(*) from {_esquema}.SHPNOTIN " +
-            "where DATAINSERT >= trunc(sysdate) and FLAGAS400 = 'Y'"))
-        {
-            hoje = Convert.ToInt32(await cmd.ExecuteScalarAsync(ct));
-        }
-
         return new ShpNotEstatisticas
         {
             Pendentes = pendentes,
             Erros = erros,
-            SucessoHoje = hoje,
+            SucessoHoje = integrados,
             UltimoIdt = ultimoIdt,
             UltimoRecebido = ultimoRecebido,
         };

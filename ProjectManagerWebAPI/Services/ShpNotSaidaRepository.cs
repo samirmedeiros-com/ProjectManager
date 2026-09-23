@@ -86,25 +86,34 @@ public class ShpNotSaidaRepository : IShpNotSaidaRepository
     {
         await using var ligacao = await AbrirAsync(ct);
 
-        int pendentes = 0, erros = 0;
+        // Tudo do dia de hoje e numa consulta só. A data tem índice (IDX_GEODT01SPN_TV
+        // começa por DATAHORA_INSERT), por isso a janela do dia é uma leitura curta e as
+        // três filas saem dela sem custo adicional.
+        int pendentes = 0, erros = 0, entregues = 0, scan = 0, despacho = 0;
         await using (var cmd = Comando(ligacao, $"""
-            select FLAGENV, count(*) quantos from {Envios}
-             where FLAGENV in ('N', 'E') group by FLAGENV
+            select nvl(FLAGENV, ' ') flag, count(*) quantos,
+                   sum(case when FLAGENV_SCAN = 'P' then 1 else 0 end) por_scan,
+                   sum(case when FLAGENV_DESP = 'P' then 1 else 0 end) por_despachar
+              from {Envios}
+             where DATAHORA_INSERT >= trunc(sysdate)
+             group by nvl(FLAGENV, ' ')
             """))
         await using (var leitor = await cmd.ExecuteReaderAsync(ct))
         {
             while (await leitor.ReadAsync(ct))
             {
                 var quantos = Convert.ToInt32(leitor.GetValue(1));
-                if (leitor.GetString(0).Trim().ToUpperInvariant() == "E") erros = quantos;
-                else pendentes = quantos;
+                scan += Convert.ToInt32(leitor.GetValue(2));
+                despacho += Convert.ToInt32(leitor.GetValue(3));
+
+                switch (leitor.GetString(0).Trim().ToUpperInvariant())
+                {
+                    case "Y": entregues += quantos; break;
+                    case "E": erros += quantos; break;
+                    default: pendentes += quantos; break;
+                }
             }
         }
-
-        // O scan e o despacho têm índice próprio para o 'P' — são consultas separadas de
-        // propósito, para cada uma cair no seu índice em vez de varrer a tabela por um OR.
-        var scan = await ContarAsync(ligacao, "FLAGENV_SCAN", ct);
-        var despacho = await ContarAsync(ligacao, "FLAGENV_DESP", ct);
 
         DateTime? ultimo = null;
         await using (var cmd = Comando(ligacao, $"""
@@ -115,38 +124,15 @@ public class ShpNotSaidaRepository : IShpNotSaidaRepository
             ultimo = ShpNotRepository.DataPublica(await cmd.ExecuteScalarAsync(ct));
         }
 
-        // Entregues hoje. Pela data e não pelo acumulado: os 51 milhões de sempre levam
-        // minuto e meio a contar e não dizem nada sobre como está a correr agora.
-        int hoje;
-        await using (var cmd = Comando(ligacao,
-            $"select count(*) from {Envios} " +
-            "where DATAHORA_INSERT >= trunc(sysdate) and FLAGENV = 'Y'"))
-        {
-            hoje = Convert.ToInt32(await cmd.ExecuteScalarAsync(ct));
-        }
-
         return new FilaSaida
         {
             Pendentes = pendentes,
             Erros = erros,
-            SucessoHoje = hoje,
+            SucessoHoje = entregues,
             PendentesScan = scan,
             PendentesDespacho = despacho,
             UltimoInserido = ultimo,
         };
-    }
-
-    /// <summary>
-    /// Conta uma fila do scan ou do despacho. O <c>case when</c> parece inútil e não é: os
-    /// índices destas colunas são de expressão, criados exactamente com esta forma, e um
-    /// simples <c>coluna = 'P'</c> não lhes toca — varre a tabela inteira e estoira no tempo
-    /// limite. É a mesma escrita que a consola de envio usa.
-    /// </summary>
-    private async Task<int> ContarAsync(OracleConnection ligacao, string coluna, CancellationToken ct)
-    {
-        await using var cmd = Comando(ligacao,
-            $"select count(*) from {Envios} where (case when {coluna} = 'P' then 'P' end) = 'P'");
-        return Convert.ToInt32(await cmd.ExecuteScalarAsync(ct));
     }
 
     // ---------------------------------------------------------------- pesquisa

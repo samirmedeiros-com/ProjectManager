@@ -256,6 +256,11 @@ export class ShpNotComponent implements OnInit {
       (detalhe ? `: ${detalhe}` : '.');
   }
 
+  /** A data de hoje, para o rodapé dos cartões. */
+  hoje(): Date {
+    return new Date();
+  }
+
   private hojeIso(): string {
     const hoje = new Date();
     const mes = `${hoje.getMonth() + 1}`.padStart(2, '0');
