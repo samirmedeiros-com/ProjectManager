@@ -52,19 +52,6 @@
   --radius-lg: 12px;
 }
 
-@media (prefers-color-scheme: dark) {
-  :host {
-    --bg: #121210;
-    --surface: #1e1e1b;
-    --surface-2: #272724;
-    --text: #eeecea;
-    --text-2: #9e9d98;
-    --text-3: #6b6a65;
-    --border: rgba(255, 255, 255, 0.08);
-    --border-2: rgba(255, 255, 255, 0.15);
-  }
-}
-
 :host {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   background: var(--bg);

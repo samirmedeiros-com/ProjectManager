@@ -324,7 +324,24 @@ public class ShpNotSaidaRepository : IShpNotSaidaRepository
                 .ToList();
 
             if (aba.Chave == "volumes")
+            {
+                // O primeiro volume é a guia: os seus dados são os que estão nos blocos
+                // acima, vindos da 01. Fica dito numa linha, senão quem lê procura-o na
+                // tabela dos volumes e não o encontra.
+                blocos.Insert(0, new NoShpNot
+                {
+                    Titulo = "Primeiro volume — é a própria guia",
+                    Tabela = "GEODT01SPN",
+                    Campos =
+                    [
+                        _catalogo.DescreverSaida("GEODT01SPN", "MPSIDX", mpsId),
+                        _catalogo.DescreverSaida("GEODT01SPN", "MPSCOUNTX",
+                            Texto(linha.GetValueOrDefault("MPSCOUNTX"))),
+                    ],
+                });
+
                 blocos.Add(await VolumesAsync(ligacao, mpsId, ct));
+            }
 
             if (blocos.Count > 0)
                 abas.Add(new AbaShpNot { Chave = aba.Chave, Titulo = aba.Titulo, Blocos = blocos });
@@ -371,8 +388,12 @@ public class ShpNotSaidaRepository : IShpNotSaidaRepository
     }
 
     /// <summary>
-    /// Os volumes de um envio. A ligação é <c>MPSMASTER = MPSIDX</c>, e a tabela guarda os
-    /// volumes <b>além do primeiro</b> — o primeiro é o próprio envio, com o mesmo número.
+    /// Os volumes de um envio, ligados por <c>MPSMASTER = MPSIDX</c>.
+    ///
+    /// <para><b>A tabela 02 guarda só os volumes a partir do segundo.</b> O primeiro é a
+    /// própria guia — tem o número do envio e os seus dados estão nas colunas da 01. Por isso
+    /// a lista abre sempre com um volume que não vem de lá, e um envio de um volume só deixa
+    /// a 02 vazia sem que nada esteja errado. Sem isto dito, "sem dados" lê-se como falha.</para>
     /// </summary>
     private async Task<NoShpNot> VolumesAsync(
         OracleConnection ligacao, string? mpsId, CancellationToken ct)
@@ -402,7 +423,9 @@ public class ShpNotSaidaRepository : IShpNotSaidaRepository
 
         return new NoShpNot
         {
-            Titulo = "Volumes",
+            Titulo = linhas.Count == 0
+                ? "Volumes seguintes — nenhum: o envio tem um volume só"
+                : $"Volumes seguintes ao primeiro ({linhas.Count})",
             Tabela = "GEODT02SPN",
             Colecao = true,
             Linhas = linhas,

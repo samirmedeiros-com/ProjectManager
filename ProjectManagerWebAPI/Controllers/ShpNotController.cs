@@ -44,18 +44,26 @@ public class ShpNotController(
         => ExecutarAsync(async () =>
         {
             var filtro = new FiltroShpNot(data, mpsid, volume, estado, respserv, pagina, tamanho, sentido);
-            var temNumero = !string.IsNullOrWhiteSpace(mpsid) || !string.IsNullOrWhiteSpace(volume);
 
+            // O sentido escolhe as tabelas onde se procura, e não apenas o que se mostra:
+            // IN são as ~65 tabelas do WebApiShpNot, OUT são a GEODT01SPN e a GEODT02SPN.
+            // São bases de dados diferentes para o mesmo envio, cada uma com as suas chaves.
             var soSaida = sentido == SentidoShpNot.Saida;
             var soEntrada = sentido == SentidoShpNot.Entrada;
 
-            var recebidos = soSaida
-                ? new FatiaShpNot { PaginaAtual = pagina, Tamanho = tamanho }
-                : await repositorio.ProcurarAsync(filtro, ct);
+            if (soSaida)
+            {
+                var apenasEnviados = await saida.ProcurarAsync(filtro, ct);
+                return Fatia(apenasEnviados, pagina, tamanho);
+            }
 
-            // Os enviados só entram quando há um número para procurar. Sem ele a pesquisa do
-            // lado da saída seria uma varredura sem dono, e são tabelas de milhões de linhas.
-            if (soEntrada || !temNumero) return recebidos;
+            var recebidos = await repositorio.ProcurarAsync(filtro, ct);
+            if (soEntrada) return recebidos;
+
+            // Sem sentido escolhido vêm os dois lados — mas o da saída só quando há um número
+            // para procurar. Sem ele seria uma varredura sem dono sobre milhões de linhas.
+            if (string.IsNullOrWhiteSpace(mpsid) && string.IsNullOrWhiteSpace(volume))
+                return recebidos;
 
             var enviados = await saida.ProcurarAsync(filtro, ct);
             if (enviados.Count == 0) return recebidos;
@@ -87,6 +95,27 @@ public class ShpNotController(
         var resposta = await ExecutarAsync(() => repositorio.ObterAsync(idt, ct), "abrir o SHPNOT");
         if (resposta.Result is not null) return resposta.Result;
         return resposta.Value is null ? NotFound("SHPNOT não encontrado.") : resposta.Value;
+    }
+
+    /// <summary>
+    /// Corta a lista dos enviados na página pedida. O repositório da saída devolve tudo até
+    /// ao fim da página mais uma linha — é assim que se sabe se há página seguinte sem contar
+    /// o resto.
+    /// </summary>
+    private static FatiaShpNot Fatia(List<ShpNotResumo> itens, int pagina, int tamanho)
+    {
+        var saltar = (Math.Max(pagina, 1) - 1) * tamanho;
+        var pagina_ = itens.Skip(saltar).Take(tamanho + 1).ToList();
+        var haMais = pagina_.Count > tamanho;
+        if (haMais) pagina_.RemoveAt(pagina_.Count - 1);
+
+        return new FatiaShpNot
+        {
+            Itens = pagina_,
+            PaginaAtual = pagina,
+            Tamanho = tamanho,
+            HaMais = haMais,
+        };
     }
 
     private async Task<ActionResult<T>> ExecutarAsync<T>(Func<Task<T>> operacao, string oQue)
