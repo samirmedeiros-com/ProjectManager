@@ -83,6 +83,7 @@
             <th>Sentido</th>
             <th>Data</th>
             <th>MPS ID</th>
+            <th>ID na base</th>
             <th>Remetente</th>
             <th>Destinatário</th>
             <th class="col-num">Volumes</th>
@@ -105,7 +106,13 @@
             </td>
             <td>{{ l.recebido | date: 'dd/MM/yyyy HH:mm' }}</td>
             <td class="mono">{{ l.mpsId || '—' }}</td>
-            <td>{{ l.remetente || '—' }}</td>
+            <!-- A chave da SHPNOTIN, para quem for depois à base pelo mesmo envio. Nos
+                 enviados não existe: ali a chave é o IDT, que é o que aparece. -->
+            <td class="mono col-id" [title]="idCompleto(l)">{{ idCurto(l) }}</td>
+            <td>
+              {{ l.remetente || '—' }}
+              <span class="pais" *ngIf="l.paisOrigem">{{ l.paisOrigem }}</span>
+            </td>
             <td>
               {{ l.destinatario || '—' }}
               <span class="pais" *ngIf="l.pais">{{ l.pais }}</span>
@@ -130,10 +137,10 @@
           </tr>
 
           <tr *ngIf="!aCarregar() && procurou() && linhas().length === 0">
-            <td colspan="8" class="vazio">Nenhum SHPNOT para estes filtros.</td>
+            <td colspan="9" class="vazio">Nenhum SHPNOT para estes filtros.</td>
           </tr>
           <tr *ngIf="aCarregar()">
-            <td colspan="8" class="vazio">A carregar…</td>
+            <td colspan="9" class="vazio">A carregar…</td>
           </tr>
         </tbody>
       </table>

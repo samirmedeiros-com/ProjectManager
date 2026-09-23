@@ -202,6 +202,23 @@ export class ShpNotComponent {
   }
 
   /**
+   * O identificador do envio na base, encurtado para caber na linha. Na receção é o ID da
+   * SHPNOTIN, em hexadecimal como a base o mostra — não convertido para Guid, que o .NET
+   * reordena e deixaria de casar com o que se vê numa consulta. Na saída não há Guid: a
+   * chave é o IDT.
+   */
+  idCurto(linha: ShpNotResumo): string {
+    if (linha.sentido === 'saida') return String(linha.idt);
+    return linha.id ? linha.id.slice(0, 8) + '…' : '—';
+  }
+
+  idCompleto(linha: ShpNotResumo): string {
+    return linha.sentido === 'saida'
+      ? `GEODT01SPN.IDT = ${linha.idt}`
+      : `SHPNOTIN.ID = ${linha.id}\nSHPNOTIN.IDT = ${linha.idt}`;
+  }
+
+  /**
    * O estado em palavras. A mesma letra quer dizer coisas diferentes nos dois sentidos: num
    * envio recebido, Y é "já foi integrado no AS400"; num envio nosso, Y é "já foi entregue
    * ao Geopost". Escrever "No AS400" numa linha de saída seria dizer o contrário do que é.

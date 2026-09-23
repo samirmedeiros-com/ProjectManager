@@ -145,7 +145,7 @@ public class ShpNotRepository : IShpNotRepository
         var sql = $"""
             select shp.IDT, shp.ID, shp.RESPSERV, shp.FLAGAS400, shp.DATAINSERT, shp.DATAAS400,
                    shp.MPSCOUNT, shipi.MPSID,
-                   sadd.NAME sremetente, sadd.COMPNAME sempresa,
+                   sadd.NAME sremetente, sadd.COMPNAME sempresa, sadd.COUNTRYCODE spais,
                    radd.NAME rdestinatario, radd.COMPNAME rempresa, radd.COUNTRYCODE rpais
               from (
                 select * from (
@@ -183,6 +183,7 @@ public class ShpNotRepository : IShpNotRepository
                 Id = Guid(leitor["ID"]),
                 MpsId = Texto(leitor["MPSID"]),
                 Remetente = Texto(leitor["sempresa"]) ?? Texto(leitor["sremetente"]),
+                PaisOrigem = Texto(leitor["spais"]),
                 Destinatario = Texto(leitor["rempresa"]) ?? Texto(leitor["rdestinatario"]),
                 Pais = Texto(leitor["rpais"]),
                 Volumes = leitor["MPSCOUNT"] is DBNull ? null : Convert.ToInt32(leitor["MPSCOUNT"]),

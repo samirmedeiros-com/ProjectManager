@@ -130,7 +130,7 @@ public class ShpNotSaidaRepository : IShpNotSaidaRepository
         var sql = $"""
             select * from (
               select IDT, MPSIDX, MPSCOUNTX, FLAGENV, DATAHORAENV, DATAHORA_INSERT, TIPOSHP,
-                     RESPSERV, SNAME1X, SCOMPNAMEX, RNAME1X, RCOMPNAMEX, RCOUNTRYCX
+                     RESPSERV, SNAME1X, SCOMPNAMEX, SCOUNTRYCX, RNAME1X, RCOMPNAMEX, RCOUNTRYCX
                 from {Envios}
                where {onde}
                order by DATAHORA_INSERT desc
@@ -154,6 +154,7 @@ public class ShpNotSaidaRepository : IShpNotSaidaRepository
                 Id = Texto(leitor["MPSIDX"]) ?? "",
                 MpsId = Texto(leitor["MPSIDX"]),
                 Remetente = Texto(leitor["SCOMPNAMEX"]) ?? Texto(leitor["SNAME1X"]),
+                PaisOrigem = Texto(leitor["SCOUNTRYCX"]),
                 Destinatario = Texto(leitor["RCOMPNAMEX"]) ?? Texto(leitor["RNAME1X"]),
                 Pais = Texto(leitor["RCOUNTRYCX"]),
                 Volumes = int.TryParse(Texto(leitor["MPSCOUNTX"]), out var v) ? v : null,

@@ -92,6 +92,8 @@ public sealed record ShpNotResumo
     public string? MpsId { get; init; }
     public string? Remetente { get; init; }
     public string? Destinatario { get; init; }
+    /// <summary>País do remetente — de onde parte. Par do <see cref="Pais"/>, que é o destino.</summary>
+    public string? PaisOrigem { get; init; }
     public string? Pais { get; init; }
     public int? Volumes { get; init; }
     public string? RespServ { get; init; }

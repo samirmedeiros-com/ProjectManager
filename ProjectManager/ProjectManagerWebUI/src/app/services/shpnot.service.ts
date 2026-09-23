@@ -59,6 +59,8 @@ export interface ShpNotResumo {
   mpsId: string | null;
   remetente: string | null;
   destinatario: string | null;
+  /** País do remetente — de onde parte; o par do `pais`, que é o destino. */
+  paisOrigem: string | null;
   pais: string | null;
   volumes: number | null;
   respServ: string | null;
