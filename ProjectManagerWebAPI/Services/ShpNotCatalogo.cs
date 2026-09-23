@@ -11,8 +11,15 @@ namespace ProjectManagerWebAPI.Services;
 /// se podem consultar em tempo de execução sem custo: o snapshot do EF do WebApiShpNot (que
 /// tabelas e colunas existem), o contrato OpenAPI dos SHPNOTs (o nome em JSON, que <b>não</b>
 /// está no código — o WebApiShpNot não usa <c>JsonPropertyName</c>, casa por comparação sem
-/// maiúsculas) e o DDL da view (o alias). O ficheiro está versionado ao lado do SQL da view,
-/// em <c>vw_shpnot_as400.sql</c>, para se poder refazer quando o contrato mudar.</para>
+/// maiúsculas) e a consulta que o IntegratorAS400 corre (o alias).</para>
+///
+/// <para><b>O alias vem da consulta, não da view.</b> A <c>GROUPSHPNOT.VW_SHPNOT_AS400</c>
+/// parece a fonte óbvia e está desactualizada: o integrador traz a consulta na sua
+/// configuração (parâmetro QUERY_B64 do DeployDPDOracleOCI) e é essa que corre. Comparadas
+/// campo a campo, a view é um subconjunto — não lhe falta nada que a consulta tenha de
+/// origem diferente, mas faltam-lhe dois campos: o <c>PINCODEX</c> da entrega segura e o
+/// <c>SECUREDDX</c>. As duas ficam versionadas ao lado, em
+/// <c>query_integrator_as400.sql</c> e <c>vw_shpnot_as400.sql</c>.</para>
 ///
 /// <para>Uma coluna sem entrada no dicionário continua a aparecer no ecrã — só sem nome de
 /// JSON nem alias. É de propósito: um campo novo na base tem de se ver, e não desaparecer

@@ -504,7 +504,8 @@
   "SECUREDDELIVERY": {
    "tabela": "DELIVERY",
    "coluna": "SECUREDDELIVERY",
-   "json": "securedDelivery"
+   "json": "securedDelivery",
+   "alias": "SECUREDDX"
   },
   "TIMEFRAMEFROM": {
    "tabela": "DELIVERY",
@@ -2763,7 +2764,8 @@
   },
   "PINCODE": {
    "tabela": "SHPNOTPINCODE",
-   "coluna": "PINCODE"
+   "coluna": "PINCODE",
+   "alias": "PINCODEX"
   }
  },
  "SIADDRESS": {

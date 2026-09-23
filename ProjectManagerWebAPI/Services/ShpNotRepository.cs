@@ -291,6 +291,12 @@ public class ShpNotRepository : IShpNotRepository
             foreach (var bloco in aba.Blocos)
                 blocos.Add(await MontarAsync(ligacao, bloco, raiz, ct));
 
+            // O código de entrega segura não se alcança por chave estrangeira: vive numa
+            // tabela à parte, ligada pelo MPS ID. Fica na aba do envio, ao lado da entrega,
+            // que é onde faz sentido procurá-lo — e é um dos campos que seguem para o AS400.
+            if (aba.Chave == "envio")
+                blocos.Add(await PinCodeAsync(ligacao, raiz["SHIPMENTINFOSID"], ct));
+
             abas.Add(new AbaShpNot { Chave = aba.Chave, Titulo = aba.Titulo, Blocos = blocos });
         }
 
@@ -308,6 +314,41 @@ public class ShpNotRepository : IShpNotRepository
         };
 
         return new ShpNotDetalhe { Resumo = resumo, Abas = abas };
+    }
+
+    /// <summary>
+    /// O código de entrega segura do envio, de <c>SHPNOTPINCODE</c>. Só existe quando o
+    /// SHPNOT pediu entrega segura, e liga-se pelo MPS ID e não por chave — é a única
+    /// tabela do modelo que fica de fora do grafo. O índice IX_SHPNOTPINCODE_MPSID resolve.
+    /// </summary>
+    private async Task<NoShpNot> PinCodeAsync(
+        OracleConnection ligacao, object? shipmentInfosId, CancellationToken ct)
+    {
+        var vazio = new NoShpNot
+        {
+            Titulo = "Entrega segura",
+            Tabela = "SHPNOTPINCODE",
+            Vazio = true,
+        };
+
+        var mpsId = await ValorAsync(ligacao, "SHIPMENTINFOS", shipmentInfosId, "MPSID", ct);
+        if (string.IsNullOrWhiteSpace(mpsId)) return vazio;
+
+        await using var cmd = Comando(ligacao, $"""
+            select PINCODE, DATACREATE, MPSID from {_esquema}.SHPNOTPINCODE
+             where MPSID = :mps order by DATACREATE desc
+            """);
+        cmd.Parameters.Add("mps", OracleDbType.NVarchar2, mpsId, ParameterDirection.Input);
+
+        await using var leitor = await cmd.ExecuteReaderAsync(ct);
+        if (!await leitor.ReadAsync(ct)) return vazio;
+
+        return new NoShpNot
+        {
+            Titulo = "Entrega segura",
+            Tabela = "SHPNOTPINCODE",
+            Campos = Campos("SHPNOTPINCODE", Ler(leitor)),
+        };
     }
 
     /// <summary>Lê um bloco e, recursivamente, os que lhe estão por baixo.</summary>
