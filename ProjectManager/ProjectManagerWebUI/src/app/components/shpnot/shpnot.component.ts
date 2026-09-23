@@ -201,6 +201,39 @@ export class ShpNotComponent {
     return this.linhasAbertas().has(id);
   }
 
+  /** Qual o identificador que acabou de ser copiado, para o dizer na própria linha. */
+  copiado = signal<string | null>(null);
+
+  /** O valor que se copia: a chave inteira, não a versão encurtada que se vê. */
+  chaveDe(linha: ShpNotResumo): string {
+    return linha.sentido === 'saida' ? String(linha.idt) : linha.id;
+  }
+
+  /**
+   * Copia a chave. O clique não pode subir para a linha, senão copiar abria o envio ao mesmo
+   * tempo. Se o browser recusar a área de transferência — acontece fora de HTTPS —, o valor
+   * fica selecionado no ecrã para se copiar à mão, em vez de não acontecer nada.
+   */
+  copiar(linha: ShpNotResumo, evento: MouseEvent): void {
+    evento.stopPropagation();
+    const chave = this.chaveDe(linha);
+
+    navigator.clipboard?.writeText(chave).then(
+      () => {
+        this.copiado.set(chave);
+        setTimeout(() => this.copiado.set(null), 2000);
+      },
+      () => {
+        const alvo = evento.target as HTMLElement;
+        const intervalo = document.createRange();
+        intervalo.selectNodeContents(alvo);
+        const selecao = window.getSelection();
+        selecao?.removeAllRanges();
+        selecao?.addRange(intervalo);
+      },
+    );
+  }
+
   /**
    * O identificador do envio na base, encurtado para caber na linha. Na receção é o ID da
    * SHPNOTIN, em hexadecimal como a base o mostra — não convertido para Guid, que o .NET

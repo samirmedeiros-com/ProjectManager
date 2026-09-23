@@ -107,8 +107,19 @@
             <td>{{ l.recebido | date: 'dd/MM/yyyy HH:mm' }}</td>
             <td class="mono">{{ l.mpsId || '—' }}</td>
             <!-- A chave da SHPNOTIN, para quem for depois à base pelo mesmo envio. Nos
-                 enviados não existe: ali a chave é o IDT, que é o que aparece. -->
-            <td class="mono col-id" [title]="idCompleto(l)">{{ idCurto(l) }}</td>
+                 enviados não existe: ali a chave é o IDT, que é o que aparece.
+                 O clique copia e não abre o envio — quem vem aqui quer o valor, não a ficha. -->
+            <td class="col-id">
+              <button
+                type="button"
+                class="copiar"
+                (click)="copiar(l, $event)"
+                [title]="idCompleto(l)"
+              >
+                <span class="mono">{{ idCurto(l) }}</span>
+                <span class="copiar-nota">{{ copiado() === chaveDe(l) ? 'copiado' : 'copiar' }}</span>
+              </button>
+            </td>
             <td>
               {{ l.remetente || '—' }}
               <span class="pais" *ngIf="l.paisOrigem">{{ l.paisOrigem }}</span>

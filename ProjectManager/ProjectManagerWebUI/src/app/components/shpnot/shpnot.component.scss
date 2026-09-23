@@ -436,4 +436,20 @@
 }
 
 /* O identificador da base: está ali para ser copiado, não para ser lido de relance. */
-.col-id { color: var(--text-3); cursor: help; }
+.col-id { padding-right: 4px; }
+
+.copiar {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 2px 6px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  color: var(--text-2);
+  font: inherit;
+  cursor: pointer;
+}
+.copiar:hover { border-color: var(--border-2); color: var(--text); }
+.copiar-nota { font-size: 10px; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.04em; }
+.copiar:hover .copiar-nota { color: var(--teal-800); }
