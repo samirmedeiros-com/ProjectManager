@@ -412,7 +412,7 @@ public class ShpNotRepository : IShpNotRepository
             resultado.Add(new LinhaShpNot
             {
                 Id = Guid(linha["ID"]),
-                Rotulo = bloco.Rotulo is null ? null : Texto(linha.GetValueOrDefault(bloco.Rotulo)),
+                Rotulo = Rotular(bloco, linha),
                 Campos = Campos(bloco.Tabela, linha),
                 Filhos = filhos,
             });
@@ -426,6 +426,24 @@ public class ShpNotRepository : IShpNotRepository
             Linhas = resultado,
             Vazio = resultado.Count == 0,
         };
+    }
+
+    /// <summary>
+    /// O que a linha fechada de uma coleção diz de si: "Volume 3", "SMS", "Linha 2". Sem o
+    /// prefixo, uma lista de volumes lê-se como uma lista de números soltos.
+    /// </summary>
+    private static string? Rotular(ShpNotEstrutura.Bloco bloco, Dictionary<string, object> linha)
+    {
+        if (bloco.Rotulo is null) return null;
+
+        var valor = Texto(linha.GetValueOrDefault(bloco.Rotulo));
+        if (valor is null) return null;
+
+        // O AS400 guarda os números com zeros à frente ("003"): tirá-los aqui evita um
+        // "Volume 003" no ecrã.
+        if (bloco.Prefixo is null) return valor;
+        var limpo = valor.TrimStart('0');
+        return $"{bloco.Prefixo} {(limpo.Length > 0 ? limpo : valor)}";
     }
 
     private List<CampoShpNot> Campos(string tabela, Dictionary<string, object> linha) =>

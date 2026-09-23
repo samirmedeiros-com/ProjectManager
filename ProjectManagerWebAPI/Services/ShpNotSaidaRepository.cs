@@ -323,25 +323,12 @@ public class ShpNotSaidaRepository : IShpNotSaidaRepository
                 })
                 .ToList();
 
+            // A aba dos volumes é uma lista só, como do lado da receção: volume 1, volume 2,
+            // e por aí. O volume 1 não vem da tabela dos volumes — é a própria guia, e os
+            // seus dados estão nas colunas da 01 —, por isso monta-se a partir dos blocos
+            // que já lhe pertencem em vez de os deixar soltos ao lado da lista.
             if (aba.Chave == "volumes")
-            {
-                // O primeiro volume é a guia: os seus dados são os que estão nos blocos
-                // acima, vindos da 01. Fica dito numa linha, senão quem lê procura-o na
-                // tabela dos volumes e não o encontra.
-                blocos.Insert(0, new NoShpNot
-                {
-                    Titulo = "Primeiro volume — é a própria guia",
-                    Tabela = "GEODT01SPN",
-                    Campos =
-                    [
-                        _catalogo.DescreverSaida("GEODT01SPN", "MPSIDX", mpsId),
-                        _catalogo.DescreverSaida("GEODT01SPN", "MPSCOUNTX",
-                            Texto(linha.GetValueOrDefault("MPSCOUNTX"))),
-                    ],
-                });
-
-                blocos.Add(await VolumesAsync(ligacao, mpsId, ct));
-            }
+                blocos = [await ListaVolumesAsync(ligacao, mpsId, blocos, ct)];
 
             if (blocos.Count > 0)
                 abas.Add(new AbaShpNot { Chave = aba.Chave, Titulo = aba.Titulo, Blocos = blocos });
@@ -388,6 +375,51 @@ public class ShpNotSaidaRepository : IShpNotSaidaRepository
     }
 
     /// <summary>
+    /// A lista de volumes tal como o ecrã a mostra, e igual à do lado da receção: uma
+    /// coleção onde cada linha é um volume.
+    ///
+    /// <para>O <b>volume 1 é a guia</b>: não existe na tabela dos volumes e os seus dados
+    /// estão nas colunas da 01 — os blocos que já vinham arrumados nesta aba. Entram como a
+    /// primeira linha, com os campos do volume à cabeça e o resto (serviços, cobrança,
+    /// devolução…) por baixo. Os seguintes vêm da 02, por ordem de PARCELRAN.</para>
+    /// </summary>
+    private async Task<NoShpNot> ListaVolumesAsync(
+        OracleConnection ligacao, string? mpsId, List<NoShpNot> blocosDaGuia, CancellationToken ct)
+    {
+        // Os campos do próprio volume ficam à cabeça da linha; os outros blocos descem para
+        // baixo dela, tal como num volume da receção.
+        var proprios = blocosDaGuia
+            .Where(b => b.Titulo is "Identificação" or "Volumes")
+            .SelectMany(b => b.Campos)
+            .ToList();
+
+        var restantes = blocosDaGuia
+            .Where(b => b.Titulo is not ("Identificação" or "Volumes"))
+            .ToList();
+
+        var linhas = new List<LinhaShpNot>
+        {
+            new()
+            {
+                Id = mpsId ?? "1",
+                Rotulo = "Volume 1",
+                Campos = proprios,
+                Filhos = restantes,
+            },
+        };
+
+        linhas.AddRange((await VolumesAsync(ligacao, mpsId, ct)).Linhas);
+
+        return new NoShpNot
+        {
+            Titulo = "Volume",
+            Tabela = "GEODT01SPN + GEODT02SPN",
+            Colecao = true,
+            Linhas = linhas,
+        };
+    }
+
+    /// <summary>
     /// Os volumes de um envio, ligados por <c>MPSMASTER = MPSIDX</c>.
     ///
     /// <para><b>A tabela 02 guarda só os volumes a partir do segundo.</b> O primeiro é a
@@ -415,7 +447,10 @@ public class ShpNotSaidaRepository : IShpNotSaidaRepository
                 linhas.Add(new LinhaShpNot
                 {
                     Id = Texto(linha.GetValueOrDefault("IDT")) ?? Guid.NewGuid().ToString(),
-                    Rotulo = Texto(linha.GetValueOrDefault("MPSID")),
+                    // "Volume 3", como na recepção. O AS400 guarda "003"; os zeros à frente
+                    // saem, senão lê-se um código onde devia estar um número de ordem.
+                    Rotulo = "Volume " + (Texto(linha.GetValueOrDefault("PARCELRAN"))?.TrimStart('0')
+                                          ?? "?"),
                     Campos = [.. linha.Select(c => _catalogo.DescreverSaida("GEODT02SPN", c.Key, Texto(c.Value)))],
                 });
             }
@@ -423,9 +458,7 @@ public class ShpNotSaidaRepository : IShpNotSaidaRepository
 
         return new NoShpNot
         {
-            Titulo = linhas.Count == 0
-                ? "Volumes seguintes — nenhum: o envio tem um volume só"
-                : $"Volumes seguintes ao primeiro ({linhas.Count})",
+            Titulo = "Volume",
             Tabela = "GEODT02SPN",
             Colecao = true,
             Linhas = linhas,

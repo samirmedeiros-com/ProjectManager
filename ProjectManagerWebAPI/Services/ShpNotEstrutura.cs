@@ -33,6 +33,11 @@ public static class ShpNotEstrutura
         /// <summary>Coluna que resume a linha quando o bloco é uma coleção fechada.</summary>
         string? Rotulo = null,
         /// <summary>
+        /// Palavra que precede esse resumo na linha fechada — "Volume 3" em vez de "3".
+        /// Sem ela, uma coleção de números lê-se como uma lista de códigos.
+        /// </summary>
+        string? Prefixo = null,
+        /// <summary>
         /// Como se ordena a coleção. É uma expressão SQL e não só um nome de coluna porque
         /// os números destas tabelas estão guardados como texto: ordenar
         /// <c>PARCELRANK</c> tal e qual punha o volume 10 antes do 2.
@@ -45,8 +50,8 @@ public static class ShpNotEstrutura
         => new(titulo, tabela, Ligacao.PaiAponta, chave, filhos);
 
     private static Bloco Muitos(string titulo, string tabela, string chave, Bloco[]? filhos = null,
-                                string? rotulo = null, string? ordem = null)
-        => new(titulo, tabela, Ligacao.FilhoAponta, chave, filhos, rotulo, ordem);
+                                string? rotulo = null, string? ordem = null, string? prefixo = null)
+        => new(titulo, tabela, Ligacao.FilhoAponta, chave, filhos, rotulo, prefixo, ordem);
 
     /// <summary>
     /// Ordem crescente por uma coluna de texto que guarda um número. O <c>lpad</c> alinha os
@@ -137,7 +142,7 @@ public static class ShpNotEstrutura
                     Um("Peso da substância", "SUBWEIGHT", "SUBWEIGHTID"),
                     Um("Peso explosivo", "EXPLWEIGHT", "EXPLWEIGHTID"),
                 ], rotulo: "UNNO"),
-            ], rotulo: "PARCELRANK", ordem: Numerica("PARCELRANK")),
+            ], rotulo: "PARCELRANK", ordem: Numerica("PARCELRANK"), prefixo: "Volume"),
         ]),
 
         new("internacional", "Internacional",
@@ -156,7 +161,7 @@ public static class ShpNotEstrutura
                 [
                     Um("Peso líquido", "CNETWEIGHT", "CNETWEIGHTID"),
                     Um("Peso bruto", "CGROSSWEIGHT", "CGROSSWEIGHTID"),
-                ], rotulo: "CINVOICEPOSITION", ordem: Numerica("CINVOICEPOSITION")),
+                ], rotulo: "CINVOICEPOSITION", ordem: Numerica("CINVOICEPOSITION"), prefixo: "Linha"),
                 Muitos("Imagens", "IMAGE", "INTERNATIONALID", rotulo: "IMGCATEGORY",
                     ordem: "\"IMGDateTime\""),
             ]),

@@ -326,8 +326,11 @@
         <div class="colecao-linha" *ngFor="let linha of bloco.linhas; let i = index">
           <button type="button" class="colecao-cabecalho" (click)="alternarLinha(linha.id)">
             <span class="colecao-seta" [class.colecao-seta--aberta]="linhaAberta(linha.id)">▸</span>
+            <!-- O rótulo já vem pronto do servidor ("Volume 3", "SMS"): é lá que se sabe
+                 qual é a coluna que nomeia cada coleção. Sem ele, fica o título do bloco
+                 com a posição na lista. -->
             <span class="colecao-rotulo">
-              {{ bloco.titulo }} {{ linha.rotulo || i + 1 }}
+              {{ linha.rotulo || bloco.titulo + ' ' + (i + 1) }}
             </span>
           </button>
 
