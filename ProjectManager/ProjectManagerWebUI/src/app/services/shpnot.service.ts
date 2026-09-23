@@ -71,13 +71,6 @@ export interface ShpNotResumo {
   erro: string | null;
 }
 
-/** Os acumulados de sucesso, que vêm num pedido à parte por serem caros de contar. */
-export interface TotaisShpNot {
-  integrados: number;
-  enviados: number;
-  calculado: string;
-}
-
 export interface ShpNotDetalhe {
   resumo: ShpNotResumo;
   abas: AbaShpNot[];
@@ -91,6 +84,8 @@ export interface ShpNotDetalhe {
 export interface ShpNotEstatisticas {
   pendentes: number;
   erros: number;
+  /** Integrados hoje — e não o acumulado, que custa meio minuto a contar. */
+  sucessoHoje: number;
   ultimoRecebido: string | null;
   ultimoIdt: number | null;
   saida: FilaSaida | null;
@@ -100,6 +95,8 @@ export interface ShpNotEstatisticas {
 export interface FilaSaida {
   pendentes: number;
   erros: number;
+  /** Entregues ao Geopost hoje. */
+  sucessoHoje: number;
   pendentesScan: number;
   pendentesDespacho: number;
   ultimoInserido: string | null;
@@ -157,11 +154,6 @@ export class ShpNotService {
     if (filtro.sentido) params = params.set('sentido', filtro.sentido);
 
     return this.http.get<FatiaShpNot>(this.api, { headers: this.cabecalhos, params });
-  }
-
-  /** Os acumulados. Pedido à parte porque demora — o ecrã não espera por ele. */
-  totais(): Observable<TotaisShpNot> {
-    return this.http.get<TotaisShpNot>(`${this.api}/totais`, { headers: this.cabecalhos });
   }
 
   /** O detalhe vem de sítios diferentes conforme o sentido: são bases e tabelas distintas. */

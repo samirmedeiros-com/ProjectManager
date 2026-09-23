@@ -9,7 +9,6 @@ import {
   ShpNotEstatisticas,
   ShpNotResumo,
   ShpNotService,
-  TotaisShpNot,
 } from '../../services/shpnot.service';
 
 @Component({
@@ -40,8 +39,6 @@ export class ShpNotComponent implements OnInit {
 
   // ------------------------------------------------------------- estado
   estatisticas = signal<ShpNotEstatisticas | null>(null);
-  totais = signal<TotaisShpNot | null>(null);
-  aContarTotais = signal(false);
 
   linhas = signal<ShpNotResumo[]>([]);
   haMais = signal(false);
@@ -130,16 +127,6 @@ export class ShpNotComponent implements OnInit {
       error: () => this.estatisticas.set(null),
     });
 
-    // Os acumulados vêm à parte e podem demorar dois minutos na primeira vez do dia: o resto
-    // do ecrã não espera por eles, e o cartão diz que está a contar.
-    this.aContarTotais.set(true);
-    this.servico.totais().subscribe({
-      next: (t) => {
-        this.totais.set(t);
-        this.aContarTotais.set(false);
-      },
-      error: () => this.aContarTotais.set(false),
-    });
   }
 
   procurar(): void {

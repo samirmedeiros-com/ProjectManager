@@ -22,8 +22,8 @@
           <span class="tile-lbl">Com erro</span>
         </div>
         <div class="tile tile--ok">
-          <span class="tile-num">{{ totais() ? (totais()!.integrados | number) : (aContarTotais() ? '…' : '—') }}</span>
-          <span class="tile-lbl">Integrados com sucesso</span>
+          <span class="tile-num">{{ e.sucessoHoje | number }}</span>
+          <span class="tile-lbl">Integrados hoje</span>
         </div>
         <div class="tile">
           <span class="tile-num tile-num--data">{{ (e.ultimoRecebido | date: 'HH:mm') || '—' }}</span>
@@ -58,8 +58,8 @@
           <span class="tile-lbl">Dispatcher</span>
         </div>
         <div class="tile tile--ok">
-          <span class="tile-num">{{ totais() ? (totais()!.enviados | number) : (aContarTotais() ? '…' : '—') }}</span>
-          <span class="tile-lbl">Enviados com sucesso</span>
+          <span class="tile-num">{{ s.sucessoHoje | number }}</span>
+          <span class="tile-lbl">Enviados hoje</span>
         </div>
         <div class="tile">
           <span class="tile-num tile-num--data">{{ (s.ultimoInserido | date: 'HH:mm') || '—' }}</span>
@@ -67,15 +67,6 @@
         </div>
       </div>
 
-      <!-- Contar dezenas de milhões de linhas leva perto de dois minutos, por isso o número
-           é de uma hora certa e não deste segundo. Dizer quando foi contado evita que se leia
-           como estando parado. -->
-      <p class="dash-rodape" *ngIf="totais() as tt">
-        Acumulados contados às {{ tt.calculado | date: 'HH:mm' }}.
-      </p>
-      <p class="dash-rodape" *ngIf="!totais() && aContarTotais()">
-        A contar os acumulados — são dezenas de milhões de linhas e demora até dois minutos.
-      </p>
     </section>
 
     <!-- ── Filtros ── -->

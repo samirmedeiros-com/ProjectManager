@@ -9,8 +9,6 @@ namespace ProjectManagerWebAPI.Services;
 public interface IShpNotSaidaRepository
 {
     Task<FilaSaida> FilaAsync(CancellationToken ct);
-    /// <summary>Quantos foram entregues ao Geopost. Consulta cara — ver TotaisShpNot.</summary>
-    Task<long> TotalEnviadosAsync(CancellationToken ct);
     Task<List<ShpNotResumo>> ProcurarAsync(FiltroShpNot filtro, CancellationToken ct);
     Task<ShpNotDetalhe?> ObterAsync(long idt, CancellationToken ct);
 }
@@ -117,31 +115,25 @@ public class ShpNotSaidaRepository : IShpNotSaidaRepository
             ultimo = ShpNotRepository.DataPublica(await cmd.ExecuteScalarAsync(ct));
         }
 
+        // Entregues hoje. Pela data e não pelo acumulado: os 51 milhões de sempre levam
+        // minuto e meio a contar e não dizem nada sobre como está a correr agora.
+        int hoje;
+        await using (var cmd = Comando(ligacao,
+            $"select count(*) from {Envios} " +
+            "where DATAHORA_INSERT >= trunc(sysdate) and FLAGENV = 'Y'"))
+        {
+            hoje = Convert.ToInt32(await cmd.ExecuteScalarAsync(ct));
+        }
+
         return new FilaSaida
         {
             Pendentes = pendentes,
             Erros = erros,
+            SucessoHoje = hoje,
             PendentesScan = scan,
             PendentesDespacho = despacho,
             UltimoInserido = ultimo,
         };
-    }
-
-    /// <summary>
-    /// Quantos envios já foram entregues ao Geopost. O <c>case when</c> parece inútil e não
-    /// é — ver <see cref="ContarAsync"/>.
-    /// </summary>
-    public async Task<long> TotalEnviadosAsync(CancellationToken ct)
-    {
-        await using var ligacao = await AbrirAsync(ct);
-        // Minuto e meio de índice. O tempo limite normal não chega, e quem chama isto já
-        // sabe que é uma conta de fundo, não um número de ecrã.
-        await using var cmd = new OracleCommand(
-            $"select count(*) from {Envios} where (case when FLAGENV = 'Y' then 'Y' end) = 'Y'",
-            ligacao)
-        { CommandTimeout = 300 };
-
-        return Convert.ToInt64(await cmd.ExecuteScalarAsync(ct));
     }
 
     /// <summary>

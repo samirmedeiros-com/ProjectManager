@@ -13,8 +13,6 @@ public class ShpNotException(string message) : Exception(message);
 public interface IShpNotRepository
 {
     Task<ShpNotEstatisticas> EstatisticasAsync(CancellationToken ct);
-    /// <summary>Quantos já foram integrados no AS400. Consulta cara — ver TotaisShpNot.</summary>
-    Task<long> TotalIntegradosAsync(CancellationToken ct);
     Task<FatiaShpNot> ProcurarAsync(FiltroShpNot filtro, CancellationToken ct);
     Task<ShpNotDetalhe?> ObterAsync(long idt, CancellationToken ct);
 }
@@ -116,25 +114,24 @@ public class ShpNotRepository : IShpNotRepository
             }
         }
 
+        // Integrados hoje, e não desde sempre: o acumulado são 12 milhões de linhas e meio
+        // minuto de espera; o do dia custa segundos e é o que diz se a integração anda.
+        int hoje;
+        await using (var cmd = Comando(ligacao,
+            $"select count(*) from {_esquema}.SHPNOTIN " +
+            "where DATAINSERT >= trunc(sysdate) and FLAGAS400 = 'Y'"))
+        {
+            hoje = Convert.ToInt32(await cmd.ExecuteScalarAsync(ct));
+        }
+
         return new ShpNotEstatisticas
         {
             Pendentes = pendentes,
             Erros = erros,
+            SucessoHoje = hoje,
             UltimoIdt = ultimoIdt,
             UltimoRecebido = ultimoRecebido,
         };
-    }
-
-    public async Task<long> TotalIntegradosAsync(CancellationToken ct)
-    {
-        await using var ligacao = await AbrirAsync(ct);
-        // Meio minuto a percorrer o índice da FLAGAS400. É uma conta de fundo, não um número
-        // que se possa esperar de pé à entrada do ecrã.
-        await using var cmd = new OracleCommand(
-            $"select count(*) from {_esquema}.SHPNOTIN where FLAGAS400 = 'Y'", ligacao)
-        { CommandTimeout = 300 };
-
-        return Convert.ToInt64(await cmd.ExecuteScalarAsync(ct));
     }
 
     // ---------------------------------------------------------------- listagem

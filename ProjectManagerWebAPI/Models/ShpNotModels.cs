@@ -129,6 +129,8 @@ public sealed record ShpNotEstatisticas
 {
     public int Pendentes { get; init; }
     public int Erros { get; init; }
+    /// <summary>Integrados no AS400 hoje. Ver a nota em <see cref="FilaSaida.SucessoHoje"/>.</summary>
+    public int SucessoHoje { get; init; }
     /// <summary>O último SHPNOT que entrou — diz de relance se a receção está viva.</summary>
     public DateTime? UltimoRecebido { get; init; }
     public long? UltimoIdt { get; init; }
@@ -145,6 +147,13 @@ public sealed record FilaSaida
 {
     public int Pendentes { get; init; }
     public int Erros { get; init; }
+
+    /// <summary>
+    /// Entregues ao Geopost <b>hoje</b>, e não desde sempre. O acumulado de todos os tempos
+    /// são 51 milhões de linhas e custa minuto e meio a contar; o do dia custa segundos e é
+    /// o que diz se o envio está a correr agora.
+    /// </summary>
+    public int SucessoHoje { get; init; }
     public int PendentesScan { get; init; }
     public int PendentesDespacho { get; init; }
     public DateTime? UltimoInserido { get; init; }
@@ -174,15 +183,3 @@ public sealed record FiltroShpNot(
     /// <summary>Vazio traz os dois lados; senão só o que recebemos ou só o que enviamos.</summary>
     string? Sentido = null);
 
-/// <summary>
-/// Os acumulados de sucesso das duas pontas. Vêm à parte do resto porque são caros: contar
-/// os 51 milhões de envios entregues ao Geopost leva perto de um minuto e meio, e os 12
-/// milhões integrados no AS400 meio minuto. Bloquear a entrada no ecrã por causa deles seria
-/// pagar esse tempo sempre, e são números que mudam devagar.
-/// </summary>
-public sealed record TotaisShpNot
-{
-    public long Integrados { get; init; }
-    public long Enviados { get; init; }
-    public DateTime Calculado { get; init; }
-}
