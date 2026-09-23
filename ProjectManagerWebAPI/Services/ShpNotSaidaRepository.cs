@@ -328,7 +328,7 @@ public class ShpNotSaidaRepository : IShpNotSaidaRepository
             // seus dados estão nas colunas da 01 —, por isso monta-se a partir dos blocos
             // que já lhe pertencem em vez de os deixar soltos ao lado da lista.
             if (aba.Chave == "volumes")
-                blocos = [await ListaVolumesAsync(ligacao, mpsId, blocos, ct)];
+                blocos = [await ListaVolumesAsync(ligacao, mpsId, blocos, linha, ct)];
 
             if (blocos.Count > 0)
                 abas.Add(new AbaShpNot { Chave = aba.Chave, Titulo = aba.Titulo, Blocos = blocos });
@@ -384,18 +384,10 @@ public class ShpNotSaidaRepository : IShpNotSaidaRepository
     /// devolução…) por baixo. Os seguintes vêm da 02, por ordem de PARCELRAN.</para>
     /// </summary>
     private async Task<NoShpNot> ListaVolumesAsync(
-        OracleConnection ligacao, string? mpsId, List<NoShpNot> blocosDaGuia, CancellationToken ct)
+        OracleConnection ligacao, string? mpsId, List<NoShpNot> blocosDaGuia,
+        Dictionary<string, object> linhaDaGuia, CancellationToken ct)
     {
-        // Os campos do próprio volume ficam à cabeça da linha; os outros blocos descem para
-        // baixo dela, tal como num volume da receção.
-        var proprios = blocosDaGuia
-            .Where(b => b.Titulo is "Identificação" or "Volumes")
-            .SelectMany(b => b.Campos)
-            .ToList();
-
-        var restantes = blocosDaGuia
-            .Where(b => b.Titulo is not ("Identificação" or "Volumes"))
-            .ToList();
+        var seguintes = await VolumesAsync(ligacao, mpsId, ct);
 
         var linhas = new List<LinhaShpNot>
         {
@@ -403,12 +395,14 @@ public class ShpNotSaidaRepository : IShpNotSaidaRepository
             {
                 Id = mpsId ?? "1",
                 Rotulo = "Volume 1",
-                Campos = proprios,
-                Filhos = restantes,
+                Campos = CamposDoPrimeiroVolume(linhaDaGuia, mpsId),
+                // Cobrança, encargos, devolução, mercadoria: são do primeiro volume e vêm
+                // todas da 01. Ficam por baixo dele, como os blocos de um volume na receção.
+                Filhos = blocosDaGuia,
             },
         };
 
-        linhas.AddRange((await VolumesAsync(ligacao, mpsId, ct)).Linhas);
+        linhas.AddRange(seguintes.Linhas);
 
         return new NoShpNot
         {
@@ -417,6 +411,46 @@ public class ShpNotSaidaRepository : IShpNotSaidaRepository
             Colecao = true,
             Linhas = linhas,
         };
+    }
+
+    /// <summary>
+    /// As colunas de um volume, pela ordem em que estão na <c>GEODT02SPN</c>. O primeiro
+    /// volume não está lá, mas tem todas elas na <c>GEODT01SPN</c> — com um X no fim, que é
+    /// a forma do alias: <c>DECWEIGHT</c> ali, <c>DECWEIGHTX</c> aqui.
+    /// </summary>
+    private static readonly string[] ColunasDoVolume =
+    [
+        "PARCELRAN", "MPSID", "SENDPARC1", "RECPARCRE", "SERVICECO", "ASCODE", "PPARTNER1",
+        "PPARTNERC", "DIMENSION", "DECWEIGHT", "MEASWEIGH", "HINSAMOUN", "HINSCURRE",
+        "HINSCONTE", "HAZLQ", "HZDPACKCO", "HOPCODE", "PCONTENT", "ORIGINPAR", "POWNERBU",
+        "BAGNO", "CIFCOST", "CIFCOSTCU", "NOPSCODE",
+    ];
+
+    /// <summary>
+    /// O primeiro volume, montado com o mesmo conjunto de campos dos outros — incluindo o
+    /// PARCELRAN — para que a lista se leia como uma lista e não como uma excepção seguida
+    /// de uma tabela. Os valores vêm das colunas gémeas da guia; o hint continua a dizer a
+    /// verdade sobre onde cada um está guardado, que é na GEODT01SPN.
+    /// </summary>
+    private List<CampoShpNot> CamposDoPrimeiroVolume(
+        Dictionary<string, object> guia, string? mpsId)
+    {
+        var campos = new List<CampoShpNot>();
+
+        foreach (var coluna in ColunasDoVolume)
+        {
+            var gemea = coluna + "X";
+            var valor = Texto(guia.GetValueOrDefault(gemea));
+
+            // Duas excepções à regra da gémea: o número do volume é o da própria guia, e a
+            // ordem do primeiro é 1 mesmo quando a coluna da guia vem vazia.
+            if (coluna == "MPSID") valor = mpsId;
+            if (coluna == "PARCELRAN") valor ??= "1";
+
+            campos.Add(_catalogo.DescreverSaida("GEODT01SPN", gemea, valor));
+        }
+
+        return campos;
     }
 
     /// <summary>

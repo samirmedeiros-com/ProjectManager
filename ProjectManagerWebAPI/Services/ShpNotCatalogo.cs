@@ -111,7 +111,13 @@ public sealed class ShpNotCatalogo : IShpNotCatalogo
 
     public CampoShpNot DescreverSaida(string tabela, string coluna, string? valor)
     {
-        _aliases.TryGetValue(coluna, out var porAlias);
+        // As colunas da tabela dos volumes são as mesmas da tabela do envio sem o X final:
+        // DECWEIGHT aqui, DECWEIGHTX lá. O dicionário só conhece a forma com X — que é o
+        // alias —, por isso quando a coluna não aparece procura-se a gémea. Sem isto, os
+        // volumes seguintes ao primeiro mostravam nomes de AS400 onde o primeiro mostra o
+        // nome do campo no JSON.
+        if (!_aliases.TryGetValue(coluna, out var porAlias))
+            _aliases.TryGetValue(coluna + "X", out porAlias);
 
         return new CampoShpNot
         {
